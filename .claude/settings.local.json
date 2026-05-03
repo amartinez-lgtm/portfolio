@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create *)",
+      "PowerShell(cd \"C:\\\\Code Files\\\\portfolio\"; npm create vite@latest . -- --template react-ts 2>&1)",
+      "PowerShell(Get-Command node, npm, pnpm, bun 2>&1)",
+      "mcp__Claude_Preview__preview_start",
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\nodejs\" -ErrorAction SilentlyContinue; Get-ChildItem \"$env:APPDATA\\\\npm\" -ErrorAction SilentlyContinue; Get-ChildItem \"$env:LOCALAPPDATA\\\\Programs\\\\node\" -ErrorAction SilentlyContinue; [System.Environment]::GetEnvironmentVariable\\(\"PATH\", \"Machine\"\\) -split \";\" | Where-Object { $_ -match \"node|npm|bun\" })"
+    ]
+  }
+}
