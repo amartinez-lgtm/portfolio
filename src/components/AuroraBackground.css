@@ -102,6 +102,29 @@
   pointer-events: none;
 }
 
+/* ── Light mode overrides ── */
+
+@media (prefers-color-scheme: light) {
+  .aurora {
+    background: #ffffff;
+  }
+
+  .aurora__blob--1 { opacity: 0.14; }
+  .aurora__blob--2 { opacity: 0.16; }
+  .aurora__blob--3 { opacity: 0.07; }
+
+  .aurora--subtle .aurora__blob--1 { opacity: 0.07; }
+  .aurora--subtle .aurora__blob--2 { opacity: 0.08; }
+  .aurora--subtle .aurora__blob--3 { opacity: 0.04; }
+
+  /* Grid lines need to be dark on a white base */
+  .aurora__grid {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  }
+}
+
 /* ── Mobile: 2 blobs, reduced blur for performance ── */
 
 @media (max-width: 640px) {

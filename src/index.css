@@ -7,7 +7,7 @@
 
 :root {
   /* Light tokens */
-  --bg:          #ffffff;
+  --bg:          transparent;
   --bg-subtle:   #f8fafc;
   --bg-muted:    #f1f5f9;
   --border:      #e2e8f0;
