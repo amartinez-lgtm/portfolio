@@ -1,0 +1,128 @@
+/* ── AuroraBackground ── */
+
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background: #0a0a0b;
+}
+
+/* ── Blobs ── */
+
+.aurora__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(110px);
+  will-change: transform;
+}
+
+.aurora__blob--1 {
+  width: 620px;
+  height: 620px;
+  background: #b45309;
+  opacity: 0.28;
+  top: -8%;
+  left: -4%;
+  animation: aurora-drift-1 28s ease-in-out infinite;
+}
+
+.aurora__blob--2 {
+  width: 720px;
+  height: 720px;
+  background: #1e3a8a;
+  opacity: 0.32;
+  bottom: -10%;
+  right: -5%;
+  animation: aurora-drift-2 34s ease-in-out infinite;
+}
+
+.aurora__blob--3 {
+  width: 440px;
+  height: 440px;
+  background: #fbbf24;
+  opacity: 0.10;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: aurora-drift-3 40s ease-in-out infinite;
+}
+
+/* ── Intensity modifier ── */
+
+.aurora--subtle .aurora__blob--1 { opacity: 0.14; }
+.aurora--subtle .aurora__blob--2 { opacity: 0.16; }
+.aurora--subtle .aurora__blob--3 { opacity: 0.05; }
+
+/* ── Drift keyframes ── */
+
+@keyframes aurora-drift-1 {
+  0%, 100% { transform: translate(0, 0); }
+  33%       { transform: translate(100px, 60px); }
+  66%       { transform: translate(40px, 130px); }
+}
+
+@keyframes aurora-drift-2 {
+  0%, 100% { transform: translate(0, 0); }
+  33%       { transform: translate(-120px, -50px); }
+  66%       { transform: translate(-60px, -140px); }
+}
+
+/* Blob 3 starts centered via top/left, so transforms carry the -50% offset */
+@keyframes aurora-drift-3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  25%       { transform: translate(calc(-50% + 80px), calc(-50% - 60px)) scale(1.08); }
+  50%       { transform: translate(calc(-50% + 110px), calc(-50% + 80px)) scale(0.95); }
+  75%       { transform: translate(calc(-50% - 60px), calc(-50% + 110px)) scale(1.05); }
+}
+
+/* ── Grid overlay ── */
+
+.aurora__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  /* Fade grid toward edges so it doesn't feel like wallpaper */
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at center, black 30%, transparent 75%);
+          mask-image: radial-gradient(ellipse 80% 80% at center, black 30%, transparent 75%);
+}
+
+/* ── Grain texture ── */
+
+.aurora__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  /* Disable pointer events already inherited from parent, but be explicit */
+  pointer-events: none;
+}
+
+/* ── Mobile: 2 blobs, reduced blur for performance ── */
+
+@media (max-width: 640px) {
+  .aurora__blob--3 {
+    display: none;
+  }
+
+  .aurora__blob {
+    filter: blur(80px);
+  }
+}
+
+/* ── Reduced motion: freeze blobs, keep static gradient ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora__blob {
+    animation: none;
+  }
+
+  /* Reset blob 3 to centered static position */
+  .aurora__blob--3 {
+    transform: translate(-50%, -50%);
+  }
+}
