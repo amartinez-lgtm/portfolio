@@ -14,9 +14,10 @@ export default function Hero() {
         </h1>
 
         <p className="hero__sub">
-          10 years in aerospace manufacturing. Quality manager at an AS9100-certified
-          machine shop. Shipped 7 production tools in ~10 weeks.
-          I understand the domain before I write the first line.
+          Quality Manager at an AS9100-certified aerospace machine shop.
+          A decade of shop-floor operations — quality systems, supplier audits,
+          process engineering — built a clear picture of what manufacturing software
+          gets wrong. Now I build what's missing.
         </p>
 
         <div className="hero__actions">

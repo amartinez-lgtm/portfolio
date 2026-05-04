@@ -18,10 +18,21 @@
   height: 100%;
 }
 
-/* Ring strokes — dark mode defaults */
+/* ── Star twinkle ── */
+
+.aurora__star--twinkle {
+  animation: ao-twinkle var(--twinkle-dur, 6s) ease-in-out infinite;
+}
+
+@keyframes ao-twinkle {
+  0%, 100% { opacity: inherit; }
+  50%       { opacity: 0.05; }
+}
+
+/* ── Ring strokes ── */
 
 .aurora__ring {
-  stroke: rgba(255, 255, 255, 0.13);
+  stroke: rgba(255, 255, 255, 0.12);
   stroke-width: 0.75;
   fill: none;
 }
@@ -40,7 +51,7 @@
   stroke-width: 0.5;
 }
 
-/* Animated dots */
+/* ── Animated dots ── */
 
 .aurora__dot { stroke: none; }
 .aurora__dot--amber { fill: #f59e0b; opacity: 0.90; }
@@ -57,53 +68,17 @@
 .aurora--subtle .aurora__dot--gold   { opacity: 0.45; }
 .aurora--subtle .aurora__dot--blue   { opacity: 0.40; }
 
-/* ── Grid overlay ── */
-
-.aurora__grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 64px 64px;
-  -webkit-mask-image: radial-gradient(ellipse 80% 80% at center, black 30%, transparent 75%);
-          mask-image: radial-gradient(ellipse 80% 80% at center, black 30%, transparent 75%);
-}
-
 /* ── Grain texture ── */
 
 .aurora__grain {
   position: absolute;
   inset: 0;
-  opacity: 0.05;
+  opacity: 0.04;
   mix-blend-mode: overlay;
   pointer-events: none;
 }
 
-/* ── Light mode ── */
-
-@media (prefers-color-scheme: light) {
-  .aurora {
-    background: #ffffff;
-  }
-
-  .aurora__ring         { stroke: rgba(0, 0, 0, 0.08); }
-  .aurora__ring--accent { stroke: rgba(0, 0, 0, 0.12); }
-  .aurora__ring--far    { stroke: rgba(0, 0, 0, 0.04); }
-  .aurora__ring--sm     { stroke: rgba(0, 0, 0, 0.05); }
-
-  .aurora__dot--amber { fill: #d97706; opacity: 0.75; }
-  .aurora__dot--gold  { fill: #b45309; opacity: 0.65; }
-  .aurora__dot--blue  { fill: #3b82f6; opacity: 0.60; }
-
-  .aurora__grid {
-    background-image:
-      linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
-  }
-}
-
-/* ── Mobile: drop the purely decorative distant rings ── */
+/* ── Mobile: drop distant rings ── */
 
 @media (max-width: 640px) {
   .aurora__ring--far,

@@ -36,6 +36,23 @@ interface AuroraBackgroundProps {
 
 const D = Math.PI / 180
 
+// Deterministic pseudo-random [0,1] from a seed — stable across renders
+const pr = (s: number) => { const x = Math.sin(s) * 43758.5453; return x - Math.floor(x) }
+
+interface StarDef { x: number; y: number; r: number; o: number; twinkle: boolean; delay: number; dur: number }
+const STARS: StarDef[] = Array.from({ length: 90 }, (_, i) => {
+  const r = pr(i * 7.3 + 3) * 1.1 + 0.3
+  return {
+    x:       pr(i * 7.3 + 1) * 1440,
+    y:       pr(i * 7.3 + 2) * 900,
+    r,
+    o:       pr(i * 7.3 + 4) * 0.45 + 0.25,
+    twinkle: r > 0.95,
+    delay:   pr(i * 7.3 + 5) * 9,
+    dur:     pr(i * 7.3 + 6) * 5 + 4,
+  }
+})
+
 interface OrbitDef {
   cx: number; cy: number
   rx: number; ry: number
@@ -199,7 +216,33 @@ export default function AuroraBackground({
               <feMergeNode in="SourceGraphic"/>
             </feMerge>
           </filter>
+          <filter id="ao-mw-blur" x="-20%" y="-80%" width="140%" height="260%">
+            <feGaussianBlur stdDeviation="70"/>
+          </filter>
         </defs>
+
+        {/* ── Star field ── */}
+        {STARS.map((s, i) => (
+          <circle
+            key={i}
+            cx={s.x} cy={s.y} r={s.r}
+            fill="white"
+            opacity={s.o}
+            className={s.twinkle ? 'aurora__star--twinkle' : undefined}
+            style={s.twinkle ? {
+              animationDelay: `${s.delay}s`,
+              animationDuration: `${s.dur}s`,
+            } as React.CSSProperties : undefined}
+          />
+        ))}
+
+        {/* ── Milky Way band ── */}
+        <g transform="rotate(-28 720 450)">
+          <ellipse cx="720" cy="450" rx="860" ry="170"
+            fill="rgba(180, 210, 255, 0.07)" filter="url(#ao-mw-blur)"/>
+          <ellipse cx="740" cy="420" rx="540" ry="90"
+            fill="rgba(210, 230, 255, 0.05)" filter="url(#ao-mw-blur)"/>
+        </g>
 
         {/* ── Visual rings ── */}
         <g transform="rotate(-15 720 450)">
