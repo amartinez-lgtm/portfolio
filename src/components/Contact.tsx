@@ -30,7 +30,7 @@ export default function Contact() {
             </a>
 
             <a
-              href="https://linkedin.com/in/avelinomartinez"
+              href="https://www.linkedin.com/in/avelino-martinez-31584b195"
               target="_blank"
               rel="noopener noreferrer"
               className="contact__link"
