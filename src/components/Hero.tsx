@@ -19,32 +19,6 @@ export default function Hero() {
           I understand the domain before I write the first line.
         </p>
 
-        <div className="hero__diagram" aria-hidden="true">
-          <svg viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <filter id="hero-glow" x="-80%" y="-80%" width="260%" height="260%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
-                <feMerge>
-                  <feMergeNode in="blur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-            </defs>
-
-            {/* Orbit ellipse */}
-            <ellipse cx="200" cy="100" rx="165" ry="85"
-              stroke="currentColor" strokeWidth="1" strokeOpacity="0.4"
-              strokeDasharray="2 9"/>
-
-            {/* Planet at left focus (c ≈ 141) */}
-            <circle cx="59" cy="100" r="4" fill="currentColor" fillOpacity="0.45"/>
-            <circle cx="59" cy="100" r="8" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.2"/>
-
-            {/* Traveling dot */}
-            <circle className="hero__orbit-dot" r="4.5" fill="var(--accent)" filter="url(#hero-glow)"/>
-          </svg>
-        </div>
-
         <div className="hero__actions">
           <a href="#work" className="btn btn-primary">See the work</a>
           <a href="#contact" className="btn btn-ghost">Get in touch</a>

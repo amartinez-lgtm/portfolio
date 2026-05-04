@@ -28,36 +28,6 @@
   margin-bottom: 40px;
 }
 
-.hero__diagram {
-  margin-bottom: 44px;
-  max-width: 360px;
-  color: var(--text);
-}
-
-.hero__diagram svg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.hero__orbit-dot {
-  offset-path: path("M 365,100 A 165,85 0 0,1 35,100 A 165,85 0 0,1 365,100");
-  animation: hero-orbit 30s linear infinite;
-  will-change: offset-distance;
-}
-
-@keyframes hero-orbit {
-  from { offset-distance: 0%; }
-  to   { offset-distance: 100%; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero__orbit-dot {
-    animation: none;
-    offset-distance: 25%;
-  }
-}
-
 .hero__actions {
   display: flex;
   gap: 12px;

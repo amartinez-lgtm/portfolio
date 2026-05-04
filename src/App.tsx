@@ -11,7 +11,7 @@ import Footer from './components/Footer'
 export default function App() {
   return (
     <>
-      <AuroraBackground />
+      <AuroraBackground showGrid={false} />
       <Nav />
       <main>
         <Hero />
