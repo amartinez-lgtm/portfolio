@@ -9,73 +9,53 @@
   background: #0a0a0b;
 }
 
-/* ── Blobs ── */
+/* ── Orbital SVG ── */
 
-.aurora__blob {
+.aurora__orbital {
   position: absolute;
-  border-radius: 50%;
-  filter: blur(110px);
-  will-change: transform;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
-.aurora__blob--1 {
-  width: 620px;
-  height: 620px;
-  background: #b45309;
-  opacity: 0.28;
-  top: -8%;
-  left: -4%;
-  animation: aurora-drift-1 28s ease-in-out infinite;
+/* Ring strokes — dark mode defaults */
+
+.aurora__ring {
+  stroke: rgba(255, 255, 255, 0.13);
+  stroke-width: 0.75;
+  fill: none;
 }
 
-.aurora__blob--2 {
-  width: 720px;
-  height: 720px;
-  background: #1e3a8a;
-  opacity: 0.32;
-  bottom: -10%;
-  right: -5%;
-  animation: aurora-drift-2 34s ease-in-out infinite;
+.aurora__ring--accent {
+  stroke: rgba(255, 255, 255, 0.20);
 }
 
-.aurora__blob--3 {
-  width: 440px;
-  height: 440px;
-  background: #fbbf24;
-  opacity: 0.10;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation: aurora-drift-3 40s ease-in-out infinite;
+.aurora__ring--far {
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 0.5;
 }
+
+.aurora__ring--sm {
+  stroke: rgba(255, 255, 255, 0.07);
+  stroke-width: 0.5;
+}
+
+/* Animated dots */
+
+.aurora__dot { stroke: none; }
+.aurora__dot--amber { fill: #f59e0b; opacity: 0.90; }
+.aurora__dot--gold  { fill: #fbbf24; opacity: 0.80; }
+.aurora__dot--blue  { fill: #93c5fd; opacity: 0.75; }
 
 /* ── Intensity modifier ── */
 
-.aurora--subtle .aurora__blob--1 { opacity: 0.14; }
-.aurora--subtle .aurora__blob--2 { opacity: 0.16; }
-.aurora--subtle .aurora__blob--3 { opacity: 0.05; }
-
-/* ── Drift keyframes ── */
-
-@keyframes aurora-drift-1 {
-  0%, 100% { transform: translate(0, 0); }
-  33%       { transform: translate(100px, 60px); }
-  66%       { transform: translate(40px, 130px); }
-}
-
-@keyframes aurora-drift-2 {
-  0%, 100% { transform: translate(0, 0); }
-  33%       { transform: translate(-120px, -50px); }
-  66%       { transform: translate(-60px, -140px); }
-}
-
-/* Blob 3 starts centered via top/left, so transforms carry the -50% offset */
-@keyframes aurora-drift-3 {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  25%       { transform: translate(calc(-50% + 80px), calc(-50% - 60px)) scale(1.08); }
-  50%       { transform: translate(calc(-50% + 110px), calc(-50% + 80px)) scale(0.95); }
-  75%       { transform: translate(calc(-50% - 60px), calc(-50% + 110px)) scale(1.05); }
-}
+.aurora--subtle .aurora__ring        { stroke: rgba(255, 255, 255, 0.06); }
+.aurora--subtle .aurora__ring--accent{ stroke: rgba(255, 255, 255, 0.10); }
+.aurora--subtle .aurora__ring--far   { stroke: rgba(255, 255, 255, 0.03); }
+.aurora--subtle .aurora__ring--sm    { stroke: rgba(255, 255, 255, 0.04); }
+.aurora--subtle .aurora__dot--amber  { opacity: 0.50; }
+.aurora--subtle .aurora__dot--gold   { opacity: 0.45; }
+.aurora--subtle .aurora__dot--blue   { opacity: 0.40; }
 
 /* ── Grid overlay ── */
 
@@ -86,7 +66,6 @@
     linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
   background-size: 64px 64px;
-  /* Fade grid toward edges so it doesn't feel like wallpaper */
   -webkit-mask-image: radial-gradient(ellipse 80% 80% at center, black 30%, transparent 75%);
           mask-image: radial-gradient(ellipse 80% 80% at center, black 30%, transparent 75%);
 }
@@ -98,26 +77,25 @@
   inset: 0;
   opacity: 0.05;
   mix-blend-mode: overlay;
-  /* Disable pointer events already inherited from parent, but be explicit */
   pointer-events: none;
 }
 
-/* ── Light mode overrides ── */
+/* ── Light mode ── */
 
 @media (prefers-color-scheme: light) {
   .aurora {
     background: #ffffff;
   }
 
-  .aurora__blob--1 { opacity: 0.30; }
-  .aurora__blob--2 { opacity: 0.35; }
-  .aurora__blob--3 { opacity: 0.14; }
+  .aurora__ring         { stroke: rgba(0, 0, 0, 0.08); }
+  .aurora__ring--accent { stroke: rgba(0, 0, 0, 0.12); }
+  .aurora__ring--far    { stroke: rgba(0, 0, 0, 0.04); }
+  .aurora__ring--sm     { stroke: rgba(0, 0, 0, 0.05); }
 
-  .aurora--subtle .aurora__blob--1 { opacity: 0.15; }
-  .aurora--subtle .aurora__blob--2 { opacity: 0.18; }
-  .aurora--subtle .aurora__blob--3 { opacity: 0.07; }
+  .aurora__dot--amber { fill: #d97706; opacity: 0.75; }
+  .aurora__dot--gold  { fill: #b45309; opacity: 0.65; }
+  .aurora__dot--blue  { fill: #3b82f6; opacity: 0.60; }
 
-  /* Grid lines need to be dark on a white base */
   .aurora__grid {
     background-image:
       linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
@@ -125,27 +103,11 @@
   }
 }
 
-/* ── Mobile: 2 blobs, reduced blur for performance ── */
+/* ── Mobile: drop the purely decorative distant rings ── */
 
 @media (max-width: 640px) {
-  .aurora__blob--3 {
+  .aurora__ring--far,
+  .aurora__ring--sm {
     display: none;
-  }
-
-  .aurora__blob {
-    filter: blur(80px);
-  }
-}
-
-/* ── Reduced motion: freeze blobs, keep static gradient ── */
-
-@media (prefers-reduced-motion: reduce) {
-  .aurora__blob {
-    animation: none;
-  }
-
-  /* Reset blob 3 to centered static position */
-  .aurora__blob--3 {
-    transform: translate(-50%, -50%);
   }
 }
