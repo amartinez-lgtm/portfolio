@@ -54,10 +54,6 @@ export default function Hero() {
             <circle cx="59" cy="100" r="4" fill="currentColor" fillOpacity="0.45"/>
             <circle cx="59" cy="100" r="8" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.2"/>
 
-            {/* Center crosshair */}
-            <line x1="193" y1="100" x2="207" y2="100" stroke="currentColor" strokeWidth="1" strokeOpacity="0.5"/>
-            <line x1="200" y1="93" x2="200" y2="107" stroke="currentColor" strokeWidth="1" strokeOpacity="0.5"/>
-
             {/* Traveling dot */}
             <circle className="hero__orbit-dot" r="4.5" fill="var(--accent)" filter="url(#hero-glow)"/>
           </svg>

@@ -1,13 +1,13 @@
 /**
  * AuroraBackground
  *
- * Full-viewport background of layered inclined orbital ellipses — a nod
- * to aerospace. Three animated dots traverse their orbits at different speeds.
- * Grain texture and optional grid overlay add depth.
+ * Full-viewport background of layered inclined orbital ellipses. Six dots
+ * travel their orbits via a JS animation loop. While the user touches or
+ * moves the cursor, each dot is pulled toward the pointer — as if their
+ * finger is a massive body warping local gravity. Releasing lets the dots
+ * spring back to their natural paths.
  *
  * @example
- * // Drop as the first child in App.tsx — z-index handles layering.
- * //
  * import AuroraBackground from './components/AuroraBackground'
  *
  * export default function App() {
@@ -25,6 +25,7 @@
  * @prop showGrain  Render SVG fractal-noise grain. Default true.
  */
 
+import { useEffect, useRef } from 'react'
 import './AuroraBackground.css'
 
 interface AuroraBackgroundProps {
@@ -33,25 +34,148 @@ interface AuroraBackgroundProps {
   showGrain?: boolean
 }
 
-const reducedMotion =
+const D = Math.PI / 180
+
+interface OrbitDef {
+  cx: number; cy: number
+  rx: number; ry: number
+  tilt: number   // radians
+  period: number // seconds for one full orbit
+  phase: number  // starting angle in radians
+  r: number      // dot radius in SVG units
+  color: string
+}
+
+const ORBITS: OrbitDef[] = [
+  // Grand outer ring — 2 dots, opposite sides
+  { cx: 720, cy: 450, rx: 680, ry: 300, tilt: -15 * D, period: 42, phase: 0,              r: 5,   color: 'amber' },
+  { cx: 720, cy: 450, rx: 680, ry: 300, tilt: -15 * D, period: 45, phase: Math.PI,        r: 3.5, color: 'gold'  },
+  // Mid ring — 2 dots, offset
+  { cx: 720, cy: 450, rx: 500, ry: 210, tilt: 11 * D,  period: 31, phase: 0,              r: 4,   color: 'blue'  },
+  { cx: 720, cy: 450, rx: 500, ry: 210, tilt: 11 * D,  period: 34, phase: Math.PI * 0.65, r: 3,   color: 'amber' },
+  // Inner ring
+  { cx: 720, cy: 450, rx: 335, ry: 148, tilt: 26 * D,  period: 24, phase: 0,              r: 4,   color: 'gold'  },
+  // Between mid and outer
+  { cx: 720, cy: 450, rx: 590, ry: 255, tilt: -3 * D,  period: 37, phase: 2.4,            r: 3.5, color: 'blue'  },
+]
+
+// Parametric position on a tilted ellipse
+function orbitPoint(def: OrbitDef, t: number) {
+  const cosT = Math.cos(t), sinT = Math.sin(t)
+  const cosA = Math.cos(def.tilt), sinA = Math.sin(def.tilt)
+  return {
+    x: def.cx + def.rx * cosT * cosA - def.ry * sinT * sinA,
+    y: def.cy + def.rx * cosT * sinA + def.ry * sinT * cosA,
+  }
+}
+
+const prefersReduced =
   typeof window !== 'undefined' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-// Orbit path helper: full ellipse as two arcs (axis-aligned, in local space)
-// Groups apply rotation transforms so the path stays simple here.
-const ellipsePath = (cx: number, cy: number, rx: number, ry: number) =>
-  `M ${cx + rx},${cy} A ${rx},${ry} 0 1,0 ${cx - rx},${cy} A ${rx},${ry} 0 1,0 ${cx + rx},${cy}`
 
 export default function AuroraBackground({
   intensity = 'normal',
   showGrid = true,
   showGrain = true,
 }: AuroraBackgroundProps) {
+  const svgRef  = useRef<SVGSVGElement>(null)
+  const dotRefs = useRef<(SVGCircleElement | null)[]>(new Array(ORBITS.length).fill(null))
+
+  useEffect(() => {
+    const svg = svgRef.current
+    if (!svg) return
+
+    // Per-dot mutable animation state — no React re-renders
+    const state = ORBITS.map(def => ({
+      t:  def.phase,
+      gx: 0, // gravity offset x
+      gy: 0, // gravity offset y
+    }))
+
+    let px = 720, py = 450, pointerActive = false
+    let lastTime = performance.now()
+    let raf: number
+    let fadeTimer: ReturnType<typeof setTimeout>
+
+    const frame = (now: number) => {
+      const dt = Math.min((now - lastTime) / 1000, 0.05)
+      lastTime = now
+
+      ORBITS.forEach((def, i) => {
+        const s  = state[i]
+        const el = dotRefs.current[i]
+        if (!el) return
+
+        s.t += (2 * Math.PI / def.period) * dt
+
+        const base = orbitPoint(def, s.t)
+
+        if (pointerActive) {
+          const dx   = px - base.x
+          const dy   = py - base.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          // Soft gravity: strong up close, fades with distance
+          const pull = 160 * (380 / (dist + 380))
+          const tx   = (dx / (dist + 1)) * pull
+          const ty   = (dy / (dist + 1)) * pull
+          s.gx += (tx - s.gx) * Math.min(7 * dt, 1)
+          s.gy += (ty - s.gy) * Math.min(7 * dt, 1)
+        } else {
+          // Spring back to orbit
+          s.gx += (0 - s.gx) * Math.min(4 * dt, 1)
+          s.gy += (0 - s.gy) * Math.min(4 * dt, 1)
+        }
+
+        el.setAttribute('cx', String(base.x + s.gx))
+        el.setAttribute('cy', String(base.y + s.gy))
+      })
+
+      raf = requestAnimationFrame(frame)
+    }
+
+    raf = requestAnimationFrame(frame)
+
+    // Convert screen coords → SVG viewBox coords
+    const toSVG = (clientX: number, clientY: number) => {
+      const ctm = svg.getScreenCTM()
+      if (!ctm) return { x: 720, y: 450 }
+      const pt = svg.createSVGPoint()
+      pt.x = clientX
+      pt.y = clientY
+      const p = pt.matrixTransform(ctm.inverse())
+      return { x: p.x, y: p.y }
+    }
+
+    const onMove = (e: PointerEvent) => {
+      const p = toSVG(e.clientX, e.clientY)
+      px = p.x; py = p.y
+      pointerActive = true
+      clearTimeout(fadeTimer)
+      // Deactivate 200 ms after pointer stops moving
+      fadeTimer = setTimeout(() => { pointerActive = false }, 200)
+    }
+
+    const onLeave = () => {
+      clearTimeout(fadeTimer)
+      pointerActive = false
+    }
+
+    document.addEventListener('pointermove', onMove,  { passive: true })
+    document.addEventListener('pointerleave', onLeave)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(fadeTimer)
+      document.removeEventListener('pointermove', onMove)
+      document.removeEventListener('pointerleave', onLeave)
+    }
+  }, [])
+
   return (
     <div className={`aurora aurora--${intensity}`} aria-hidden="true">
 
-      {/* ── Orbital system ── */}
       <svg
+        ref={svgRef}
         className="aurora__orbital"
         viewBox="0 0 1440 900"
         preserveAspectRatio="xMidYMid slice"
@@ -68,74 +192,48 @@ export default function AuroraBackground({
           </filter>
         </defs>
 
-        {/* Grand outer ring — tilt −15° */}
+        {/* ── Visual rings ── */}
         <g transform="rotate(-15 720 450)">
-          <path
-            id="ao-r1"
-            d={ellipsePath(720, 450, 680, 300)}
-            className="aurora__ring"
-          />
-          {!reducedMotion && (
-            <circle r="5" className="aurora__dot aurora__dot--amber" filter="url(#ao-glow)">
-              <animateMotion dur="42s" repeatCount="indefinite" rotate="0">
-                <mpath href="#ao-r1"/>
-              </animateMotion>
-            </circle>
-          )}
+          <ellipse cx="720" cy="450" rx="680" ry="300" className="aurora__ring"/>
         </g>
-
-        {/* Mid ring — tilt +11° */}
         <g transform="rotate(11 720 450)">
-          <path
-            id="ao-r2"
-            d={ellipsePath(720, 450, 500, 210)}
-            className="aurora__ring"
-          />
-          {!reducedMotion && (
-            <circle r="4" className="aurora__dot aurora__dot--blue" filter="url(#ao-glow)">
-              <animateMotion dur="31s" repeatCount="indefinite" rotate="0">
-                <mpath href="#ao-r2"/>
-              </animateMotion>
-            </circle>
-          )}
+          <ellipse cx="720" cy="450" rx="500" ry="210" className="aurora__ring"/>
         </g>
-
-        {/* Inner accent ring — tilt +26° */}
         <g transform="rotate(26 720 450)">
-          <path
-            id="ao-r3"
-            d={ellipsePath(720, 450, 335, 148)}
-            className="aurora__ring aurora__ring--accent"
-          />
-          {!reducedMotion && (
-            <circle r="4" className="aurora__dot aurora__dot--gold" filter="url(#ao-glow)">
-              <animateMotion dur="24s" repeatCount="indefinite" rotate="0">
-                <mpath href="#ao-r3"/>
-              </animateMotion>
-            </circle>
-          )}
+          <ellipse cx="720" cy="450" rx="335" ry="148" className="aurora__ring aurora__ring--accent"/>
         </g>
-
-        {/* Far outer visual ring — tilt −7° (no dot) */}
+        <g transform="rotate(-3 720 450)">
+          <ellipse cx="720" cy="450" rx="590" ry="255" className="aurora__ring"/>
+        </g>
         <g transform="rotate(-7 720 450)">
           <ellipse cx="720" cy="450" rx="930" ry="418" className="aurora__ring aurora__ring--far"/>
         </g>
-
-        {/* Small off-center ring, upper-left (no dot) */}
         <g transform="rotate(-22 340 180)">
           <ellipse cx="340" cy="180" rx="210" ry="90" className="aurora__ring aurora__ring--sm"/>
         </g>
-
-        {/* Small off-center ring, lower-right (no dot) */}
         <g transform="rotate(17 1100 710)">
           <ellipse cx="1100" cy="710" rx="240" ry="104" className="aurora__ring aurora__ring--sm"/>
         </g>
+
+        {/* ── Animated dots — positioned by JS RAF loop ── */}
+        {!prefersReduced && ORBITS.map((def, i) => {
+          const init = orbitPoint(def, def.phase)
+          return (
+            <circle
+              key={i}
+              ref={el => { dotRefs.current[i] = el }}
+              cx={init.x}
+              cy={init.y}
+              r={def.r}
+              className={`aurora__dot aurora__dot--${def.color}`}
+              filter="url(#ao-glow)"
+            />
+          )
+        })}
       </svg>
 
-      {/* ── Grid overlay ── */}
       {showGrid && <div className="aurora__grid"/>}
 
-      {/* ── Grain texture ── */}
       {showGrain && (
         <svg
           className="aurora__grain"
