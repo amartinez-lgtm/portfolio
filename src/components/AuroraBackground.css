@@ -109,13 +109,13 @@
     background: #ffffff;
   }
 
-  .aurora__blob--1 { opacity: 0.14; }
-  .aurora__blob--2 { opacity: 0.16; }
-  .aurora__blob--3 { opacity: 0.07; }
+  .aurora__blob--1 { opacity: 0.30; }
+  .aurora__blob--2 { opacity: 0.35; }
+  .aurora__blob--3 { opacity: 0.14; }
 
-  .aurora--subtle .aurora__blob--1 { opacity: 0.07; }
-  .aurora--subtle .aurora__blob--2 { opacity: 0.08; }
-  .aurora--subtle .aurora__blob--3 { opacity: 0.04; }
+  .aurora--subtle .aurora__blob--1 { opacity: 0.15; }
+  .aurora--subtle .aurora__blob--2 { opacity: 0.18; }
+  .aurora--subtle .aurora__blob--3 { opacity: 0.07; }
 
   /* Grid lines need to be dark on a white base */
   .aurora__grid {
