@@ -31,20 +31,6 @@ export default function Hero() {
               </filter>
             </defs>
 
-            {/* Axis lines */}
-            <line x1="5" y1="100" x2="395" y2="100" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.25"/>
-            <line x1="200" y1="5" x2="200" y2="195" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.25"/>
-
-            {/* Tick marks — horizontal */}
-            {[40, 80, 120, 160, 240, 280, 320, 360].map(x => (
-              <line key={x} x1={x} y1="97.5" x2={x} y2="102.5" stroke="currentColor" strokeWidth="0.75" strokeOpacity="0.35"/>
-            ))}
-
-            {/* Tick marks — vertical */}
-            {[20, 60, 140, 180].map(y => (
-              <line key={y} x1="197.5" y1={y} x2="202.5" y2={y} stroke="currentColor" strokeWidth="0.75" strokeOpacity="0.35"/>
-            ))}
-
             {/* Orbit ellipse */}
             <ellipse cx="200" cy="100" rx="165" ry="85"
               stroke="currentColor" strokeWidth="1" strokeOpacity="0.4"

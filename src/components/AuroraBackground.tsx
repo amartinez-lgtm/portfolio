@@ -92,7 +92,12 @@ export default function AuroraBackground({
       gy: 0, // gravity offset y
     }))
 
-    let px = 720, py = 450, pointerActive = false
+    // Raw pointer target (updated instantly) and smoothed position (lerped)
+    let rawPx = 720, rawPy = 450
+    let px     = 720, py    = 450
+    // Gravity strength 0→1, ramps slowly so there's no sudden jump
+    let gravityStrength = 0
+    let pointerActive   = false
     let lastTime = performance.now()
     let raf: number
     let fadeTimer: ReturnType<typeof setTimeout>
@@ -100,6 +105,14 @@ export default function AuroraBackground({
     const frame = (now: number) => {
       const dt = Math.min((now - lastTime) / 1000, 0.05)
       lastTime = now
+
+      // Smooth the pointer position so dots don't snap when finger jumps
+      px += (rawPx - px) * Math.min(6 * dt, 1)
+      py += (rawPy - py) * Math.min(6 * dt, 1)
+
+      // Ramp strength up when active, fade out slowly when released
+      const targetStrength = pointerActive ? 1 : 0
+      gravityStrength += (targetStrength - gravityStrength) * Math.min(1.8 * dt, 1)
 
       ORBITS.forEach((def, i) => {
         const s  = state[i]
@@ -110,21 +123,17 @@ export default function AuroraBackground({
 
         const base = orbitPoint(def, s.t)
 
-        if (pointerActive) {
-          const dx   = px - base.x
-          const dy   = py - base.y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          // Soft gravity: strong up close, fades with distance
-          const pull = 160 * (380 / (dist + 380))
-          const tx   = (dx / (dist + 1)) * pull
-          const ty   = (dy / (dist + 1)) * pull
-          s.gx += (tx - s.gx) * Math.min(7 * dt, 1)
-          s.gy += (ty - s.gy) * Math.min(7 * dt, 1)
-        } else {
-          // Spring back to orbit
-          s.gx += (0 - s.gx) * Math.min(4 * dt, 1)
-          s.gy += (0 - s.gy) * Math.min(4 * dt, 1)
-        }
+        // Gravity: gentle pull scaled by strength, soft distance falloff
+        const dx   = px - base.x
+        const dy   = py - base.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        const pull = 65 * gravityStrength * (350 / (dist + 350))
+        const tx   = (dx / (dist + 1)) * pull
+        const ty   = (dy / (dist + 1)) * pull
+
+        // Slow drift toward/away from target — feels orbital, not springy
+        s.gx += (tx - s.gx) * Math.min(1.8 * dt, 1)
+        s.gy += (ty - s.gy) * Math.min(1.8 * dt, 1)
 
         el.setAttribute('cx', String(base.x + s.gx))
         el.setAttribute('cy', String(base.y + s.gy))
@@ -147,12 +156,12 @@ export default function AuroraBackground({
     }
 
     const onMove = (e: PointerEvent) => {
-      const p = toSVG(e.clientX, e.clientY)
-      px = p.x; py = p.y
+      const p  = toSVG(e.clientX, e.clientY)
+      rawPx = p.x; rawPy = p.y
       pointerActive = true
       clearTimeout(fadeTimer)
-      // Deactivate 200 ms after pointer stops moving
-      fadeTimer = setTimeout(() => { pointerActive = false }, 200)
+      // Give an 800 ms grace period before fading so brief pauses don't cut off
+      fadeTimer = setTimeout(() => { pointerActive = false }, 800)
     }
 
     const onLeave = () => {
