@@ -28,38 +28,34 @@
   margin-bottom: 40px;
 }
 
-.hero__meta {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 40px;
-  flex-wrap: wrap;
-}
-
-.hero__stat {
-  display: flex;
-  flex-direction: column;
-}
-
-.hero__stat-value {
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
-  font-weight: 700;
+.hero__diagram {
+  margin-bottom: 44px;
+  max-width: 360px;
   color: var(--text);
-  line-height: 1.2;
 }
 
-.hero__stat-label {
-  font-size: 0.75rem;
-  color: var(--text-subtle);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+.hero__diagram svg {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
-.hero__stat-sep {
-  width: 1px;
-  height: 36px;
-  background: var(--border);
+.hero__orbit-dot {
+  offset-path: path("M 365,100 A 165,85 0 0,1 35,100 A 165,85 0 0,1 365,100");
+  animation: hero-orbit 30s linear infinite;
+  will-change: offset-distance;
+}
+
+@keyframes hero-orbit {
+  from { offset-distance: 0%; }
+  to   { offset-distance: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__orbit-dot {
+    animation: none;
+    offset-distance: 25%;
+  }
 }
 
 .hero__actions {
@@ -88,13 +84,5 @@ a.hero__affiliation-link:hover {
   .hero {
     align-items: flex-start;
     padding-top: calc(80px + 48px);
-  }
-
-  .hero__stat-sep {
-    display: none;
-  }
-
-  .hero__meta {
-    gap: 16px;
   }
 }
