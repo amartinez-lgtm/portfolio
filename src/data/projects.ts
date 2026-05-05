@@ -41,11 +41,11 @@ export const projects: Project[] = [
   {
     id: 'inspectai',
     name: 'InspectAI',
-    tagline: 'FAI automation with deterministic auto-balloon',
+    tagline: 'FAI, PPAP, FMEA, and control plan automation — seconds, not days',
     description:
-      'First Article Inspection automation tool. The centerpiece is a deterministic balloon numbering engine that parses engineering drawings and places inspection callout balloons with 100% accuracy — after benchmarking GPT-4V at ~70% and building a better solution from scratch.',
+      'Automates the most time-consuming documentation in aerospace manufacturing. InspectAI compiles First Article Inspection packages, PPAPs, FMEAs, and control plans — pulling from engineering drawings, inspection data, and quality records to produce complete, standards-compliant deliverables in seconds. What used to take a quality engineer days of manual assembly now runs on demand. The auto-balloon engine parses engineering drawings with 100% accuracy (benchmarked against GPT-4V at ~70%, then replaced with a deterministic geometry parser).',
     loc: '38K LOC',
-    tags: ['TypeScript', 'React', 'PDF Processing', 'Computer Vision'],
+    tags: ['TypeScript', 'React', 'PDF Processing', 'Computer Vision', 'PPAP', 'FMEA'],
     url: 'https://inspectai.ffmfg.com',
     highlight: 'ai-wrong-tool',
     aiNote: 'Evaluated GPT-4V for balloon detection — 70% accuracy. Replaced with a deterministic geometry parser: 100% in production. AI was the wrong tool; knowing that is part of the skill.',
@@ -53,9 +53,9 @@ export const projects: Project[] = [
   {
     id: 'autodatapack',
     name: 'AutoDataPack',
-    tagline: 'AS9102 FAI assembler as a Windows .exe',
+    tagline: 'AS9102 data packages in 10 minutes — used to take hours',
     description:
-      'Desktop application that automates assembly of AS9102 First Article Inspection data packages. Takes raw inspection data and outputs a fully formatted, standards-compliant deliverable — distributed as a standalone Windows executable.',
+      'Eliminates the manual grind of AS9102 First Article Inspection data package assembly. AutoDataPack automatically populates the required AS9102 forms, pulls in inspection results, and compiles a complete, submission-ready data package — all in under 10 minutes. A process that previously took a quality engineer several hours of copying, formatting, and checking is now a single button press. Distributed as a standalone Windows .exe so it runs on any shop floor machine with no setup.',
     loc: '35K LOC',
     tags: ['TypeScript', 'Electron', 'AS9102', 'PDF Generation'],
   },
