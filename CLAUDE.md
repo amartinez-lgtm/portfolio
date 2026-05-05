@@ -8,16 +8,20 @@ This file gives any AI assistant (Claude, Codex, Cursor, etc.) full context to p
 
 **Avelino Martinez** — 10-year aerospace manufacturing veteran who builds software.
 - Quality Manager at Final Frontier Manufacturing (FFM), an AS9100-certified machine shop
-- Founder of Leva LLC (personal business umbrella)
+- Founder of Leva LLC — independent studio for 3D scanning, mapping, digital fabrication, and practical AI software
 - Positioning: "manufacturing domain expert who builds software"
+- Email: levallcworks@gmail.com
 - GitHub: https://github.com/amartinez-lgtm
+- LinkedIn: https://www.linkedin.com/in/avelino-martinez-31584b195
 - Cloudflare account: Levallcworks@gmail.com (personal account, not a work account)
 
 ## What This Project Is
 
 A personal portfolio site. Live at: **https://portfolio-4n2.pages.dev**
 
-Sections: Hero → Work → Side Hustles (Ventures) → Career Stories → About → Contact
+Current section order: **Hero → About → Work → Ventures → Stories → Contact**
+
+Note: About was intentionally moved before Work so visitors understand who Avelino is before seeing the projects.
 
 ## Tech Stack
 
@@ -26,7 +30,7 @@ Sections: Hero → Work → Side Hustles (Ventures) → Career Stories → About
 - Plain CSS with CSS custom properties (NO Tailwind, NO CSS-in-JS, NO styled-components)
 - No state management library — local state only
 - No router — single-page, anchor-link navigation
-- Deployed on Cloudflare Pages via GitHub integration
+- Deployed on Cloudflare Pages via GitHub integration (branch: `main`)
 
 ## Key Decisions Made
 
@@ -35,41 +39,67 @@ Sections: Hero → Work → Side Hustles (Ventures) → Career Stories → About
 - **No router** — single page with anchor links. Do not add React Router.
 - **All content in one file** — `src/data/projects.ts` is the single source of truth for all copy. No CMS.
 - **CSS co-located with components** — each `Component.tsx` has a `Component.css` next to it.
-- **Dark mode via CSS** — uses `prefers-color-scheme: dark` media query on `:root` CSS vars. No JS toggle needed yet.
+- **Always dark** — site is forced dark mode. `color-scheme: dark` is set on `:root`. No light mode toggle.
+- **AuroraBackground** — full-viewport animated starfield with orbital dots and gravity interaction. Rendered behind all content via `position: fixed`.
 
 ## Design Tokens (src/index.css)
 
-All design tokens are CSS custom properties on `:root`. Dark mode overrides them in a media query.
+All design tokens are CSS custom properties on `:root` (always dark).
 
 Key vars:
-- `--bg`, `--bg-subtle`, `--bg-muted` — background layers
+- `--bg`, `--bg-subtle`, `--bg-muted` — background layers (`transparent`, `#0f172a`, `#1e293b`)
 - `--text`, `--text-muted`, `--text-subtle` — text hierarchy
-- `--accent` (#0ea5e9 light / #38bdf8 dark) — brand color
-- `--accent-dim` — light tint of accent for backgrounds
-- `--border` — separator color
+- `--accent: #38bdf8` — brand color (sky blue)
+- `--accent-dim: #0c4a6e` — accent tint for backgrounds/glows
+- `--border: rgba(255,255,255,0.08)` — separator color
 - `--font-sans`, `--font-mono` — type stacks
 - `--max-w: 1100px` — max content width
-- `--section-pad: 96px` — vertical section padding
+- `--section-pad: 96px` — vertical section padding (64px on mobile)
 
 ## Content Data (src/data/projects.ts)
 
 Three exported arrays — edit these to update site content:
 
 ```typescript
-projects: Project[]        // 6 professional projects
-sideHustles: SideHustle[]  // 7 Leva LLC ventures (active/in-progress/planned)
+projects: Project[]          // 6 professional projects (with optional aiNote field)
+sideHustles: SideHustle[]    // 6 Leva LLC ventures (active/in-progress/planned)
 careerStories: CareerStory[] // 3 narrative career stories
 ```
 
-## Placeholders That Need Replacing
+### Project interface
 
-These are placeholder values that need real data from Avelino:
+```typescript
+interface Project {
+  id: string
+  name: string
+  tagline: string
+  description: string
+  loc: string
+  tags: string[]
+  url?: string
+  highlight?: 'ai-wrong-tool' | 'one-day'
+  aiNote?: string   // shown as a callout inside the expanded accordion row
+}
+```
 
-| Field | Current value | Location |
-|---|---|---|
-| Email | `avelino@levalabs.com` | `src/components/Contact.tsx` |
-| LinkedIn URL | `https://linkedin.com/in/avelinomartinez` | `src/components/Contact.tsx` |
-| LinkedIn display name | `Avelino Martinez` | `src/components/Contact.tsx` |
+`aiNote` is used for projects where AI was meaningfully used or evaluated. Currently set on:
+- **InspectAI** — GPT-4V was benchmarked, replaced with deterministic parser (100% vs 70%)
+- **PledgePact** — uses OpenAI for accountability nudges
+
+## Placeholders / Still Needed
+
+| Item | Status |
+|---|---|
+| Custom domain | Not set up. Do in Cloudflare Pages → Custom Domains. |
+| Profile photo in About | Not added yet |
+| Analytics | Not added. Cloudflare Web Analytics is free and easy. |
+| Mobile nav close-on-scroll | Not implemented |
+| Active section highlighting in nav | Not implemented |
+
+Contact info is now real (no more placeholders):
+- Email: `levallcworks@gmail.com` ✓
+- LinkedIn: real URL ✓
+- GitHub: `amartinez-lgtm` ✓
 
 ## Deployment Pipeline
 
@@ -80,6 +110,8 @@ git push origin main
   → serves: dist/
   → live in ~60 seconds at portfolio-4n2.pages.dev
 ```
+
+**Important:** Always push to `main`. Cloudflare only watches `main`. Feature branches do NOT deploy.
 
 Cloudflare Pages settings:
 - Build command: `npm run build`
@@ -101,23 +133,26 @@ Node 20+ required. No other services needed.
 
 | Component | Section ID | What it renders |
 |---|---|---|
-| `Nav` | — | Fixed top nav, scroll blur, mobile menu |
-| `Hero` | (top) | Headline, stats (161K LOC / 7 tools / 10 wks), CTAs |
-| `Work` | `#work` | 6 project cards from `projects[]` |
+| `AuroraBackground` | — | Full-viewport starfield with animated orbital dots and gravity interaction |
+| `Nav` | — | Fixed top nav, scroll blur, mobile hamburger menu |
+| `Hero` | (top) | Headline, "Manufacturing × AI × Software" badge, CTAs |
+| `About` | `#about` | Bio, Leva LLC description, AI decision-framework callout, sticky skills panel |
+| `Work` | `#work` | Interactive accordion list of 6 projects from `projects[]` |
 | `SideHustles` | `#ventures` | 3 groups (active/in-progress/planned) from `sideHustles[]` |
 | `CareerStories` | `#stories` | Numbered story list from `careerStories[]` |
-| `About` | `#about` | Bio paragraphs + sticky skills panel |
-| `Contact` | `#contact` | Email / LinkedIn / GitHub link cards |
+| `Contact` | `#contact` | Inquiry form (mailto fallback) + Email/LinkedIn/GitHub link cards |
 | `Footer` | — | Name + copyright |
 
-## What's NOT Done Yet
+## Work Section — Accordion Behavior
 
-- Real email and LinkedIn URL (Avelino needs to provide)
-- Custom domain (needs to be set up in Cloudflare Pages → Custom Domains)
-- Profile photo in About section
-- Any analytics (Cloudflare Web Analytics can be added for free)
-- Mobile nav close-on-scroll behavior
-- Active section highlighting in nav
+Projects render as a stacked list, not a grid. Each row:
+- **Collapsed**: shows index number, project name, tagline, AI chip (if `aiNote` set), highlight chip, LOC count, chevron
+- **Expanded**: smooth `grid-template-rows: 0fr → 1fr` animation, accent left border glow, full description, `aiNote` callout box, tags, Visit link
+- Mobile: index and badges hidden, tagline wraps, footer stacks vertically
+
+## Contact Form
+
+The form uses a `mailto:` fallback (no backend). On submit it calls `window.open('mailto:levallcworks@gmail.com?subject=...&body=...')` with pre-filled subject and body from the four form fields. Below the form are three link cards: Email, LinkedIn, GitHub.
 
 ## Coding Conventions
 
@@ -130,3 +165,30 @@ Node 20+ required. No other services needed.
 - No comments in code unless the WHY is non-obvious
 - Prefer editing existing files over creating new ones
 - Do not add features beyond what is asked
+
+## Session History (what has been built)
+
+### Session 1
+- Initial portfolio scaffold: Hero, Work, SideHustles, CareerStories, About, Contact, Footer
+- AuroraBackground with animated blobs (later replaced)
+
+### Session 2 (mobile-responsive + content polish)
+- Replaced aurora blobs with full-viewport orbital starfield system with gravity interaction
+- Forced dark mode site-wide
+- Updated hero copy and affiliation line
+- Added mobile-responsive styles across all components
+
+### Session 3 (today)
+- Hero badge: "Manufacturing × Software" → "Manufacturing × AI × Software"
+- Removed SmartWardrobe AI from Ventures/planned (was never built)
+- Added contact inquiry form above link cards (mailto fallback to levallcworks@gmail.com)
+- Moved About section before Work in page order; updated nav to match
+- Rewrote Work section as interactive accordion (numbered rows, animated chevron, smooth expand, AI chip badges)
+- Added `aiNote` field to Project interface; set on InspectAI and PledgePact
+- Added "How I think about problems" callout in About (AI vs software vs human framework)
+- Added AI/ML to skills panel
+- Rewrote Leva LLC bio paragraph to accurately describe the studio (3D scanning, LiDAR, photogrammetry, etc.)
+- Rewrote InspectAI description to lead with PPAP/FMEA/control plan automation impact
+- Rewrote AutoDataPack description to lead with "hours to 10 minutes" outcome
+- Fixed email everywhere to levallcworks@gmail.com
+- Fixed contact link hover direction (was translateX, now translateY)
