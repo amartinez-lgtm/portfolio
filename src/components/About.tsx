@@ -31,9 +31,16 @@ export default function About() {
                 roughly 161K lines of TypeScript and Python in about 10 weeks.
               </p>
               <p>
-                Outside work I run Leva LLC: 3D printing physical products, selling digital files, doing LiDAR
-                mapping jobs, and building whatever seems interesting. A golf iron manufacturing project is on the
-                workbench. So is a hydroponic garden.
+                Leva LLC is my independent studio for 3D scanning, mapping, digital fabrication, and practical
+                AI software. Through Leva, I work on projects that connect the physical world to digital systems —
+                handheld 3D scanning, LiDAR capture, photogrammetry, Blender mesh cleanup, CAD preparation,
+                3D printing, and experimental software tools. It's the umbrella for my outside work: product
+                development, scan-to-model workflows, digital assets, mapping experiments, and automation ideas
+                built from real-world problems.
+              </p>
+              <p>
+                The goal is simple: use modern tools to capture, clean, build, and improve the physical world
+                around us.
               </p>
             </div>
 
