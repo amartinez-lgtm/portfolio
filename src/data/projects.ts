@@ -31,24 +31,25 @@ export const projects: Project[] = [
   {
     id: 'qms',
     name: 'QMS',
-    tagline: 'Full AS9100D quality lifecycle system',
+    tagline: 'AI-powered AS9100D quality lifecycle system',
     description:
-      'End-to-end quality management system for an AS9100-certified aerospace machine shop. Covers NCRs, CARs, document control, supplier management, internal audits, and management review — replacing a patchwork of spreadsheets and paper forms.',
+      'End-to-end quality management system for an AS9100-certified aerospace machine shop. AI reads incoming purchase orders, extracts contractual quality clauses, and scans customer flow-down requirements — flagging gaps before production starts. Covers the full lifecycle: NCRs, CARs, document control, supplier management, internal audits, and management review. Replaced a patchwork of spreadsheets and paper forms with a single system that actually enforces compliance.',
     loc: '70K LOC',
-    tags: ['TypeScript', 'React', 'AS9100D', 'PostgreSQL'],
+    tags: ['TypeScript', 'React', 'AS9100D', 'PostgreSQL', 'OpenAI'],
     url: 'https://qms.ffmfg.com',
+    aiNote: 'AI reads purchase orders and customer contracts, extracts quality clauses, and scans flow-down requirements automatically — the kind of free-text parsing that deterministic code can\'t handle reliably.',
   },
   {
     id: 'inspectai',
     name: 'InspectAI',
     tagline: 'FAI, PPAP, FMEA, and control plan automation — seconds, not days',
     description:
-      'Automates the most time-consuming documentation in aerospace manufacturing. InspectAI compiles First Article Inspection packages, PPAPs, FMEAs, and control plans — pulling from engineering drawings, inspection data, and quality records to produce complete, standards-compliant deliverables in seconds. What used to take a quality engineer days of manual assembly now runs on demand. The auto-balloon engine parses engineering drawings with 100% accuracy (benchmarked against GPT-4V at ~70%, then replaced with a deterministic geometry parser).',
+      'Automates the most time-consuming documentation in aerospace manufacturing. InspectAI reads engineering drawings, pulls inspection data, and generates complete First Article Inspection packages, PPAPs, FMEAs, and control plans — standards-compliant deliverables in seconds instead of days. AI analyzes drawing annotations and maps dimensional callouts to inspection results. The auto-balloon engine was benchmarked against GPT-4V (~70% accuracy on callout detection), then replaced with a deterministic geometry parser that hits 100% in production — AI for the unstructured work, deterministic code for what has to be exact.',
     loc: '38K LOC',
     tags: ['TypeScript', 'React', 'PDF Processing', 'Computer Vision', 'PPAP', 'FMEA'],
     url: 'https://inspectai.ffmfg.com',
     highlight: 'ai-wrong-tool',
-    aiNote: 'Evaluated GPT-4V for balloon detection — 70% accuracy. Replaced with a deterministic geometry parser: 100% in production. AI was the wrong tool; knowing that is part of the skill.',
+    aiNote: 'AI handles drawing annotation analysis and unstructured data extraction. The balloon detection feature evaluated GPT-4V (70%) before switching to a deterministic geometry parser (100%). Right tool, right job.',
   },
   {
     id: 'autodatapack',

@@ -56,10 +56,15 @@
   transition: color 0.15s, background 0.15s;
 }
 
-.nav__link:hover {
+.nav__link:hover,
+.nav__link--active {
   color: var(--text);
   background: var(--bg-muted);
   text-decoration: none;
+}
+
+.nav__link--active {
+  color: var(--accent);
 }
 
 .nav__burger {

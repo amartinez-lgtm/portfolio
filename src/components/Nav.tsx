@@ -2,21 +2,45 @@ import { useState, useEffect } from 'react'
 import './Nav.css'
 
 const links = [
-  { label: 'About', href: '#about' },
-  { label: 'Work', href: '#work' },
+  { label: 'About',    href: '#about'    },
+  { label: 'Work',     href: '#work'     },
   { label: 'Ventures', href: '#ventures' },
-  { label: 'Stories', href: '#stories' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Stories',  href: '#stories'  },
+  { label: 'Contact',  href: '#contact'  },
 ]
 
-export default function Nav() {
-  const [scrolled, setScrolled] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
+const SECTION_IDS = links.map(l => l.href.slice(1))
 
+export default function Nav() {
+  const [scrolled,       setScrolled]       = useState(false)
+  const [menuOpen,       setMenuOpen]        = useState(false)
+  const [activeSection,  setActiveSection]   = useState('')
+
+  // Scroll state: blur nav + close mobile menu on scroll
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 24)
+    const handler = () => {
+      setScrolled(window.scrollY > 24)
+      if (window.scrollY > 24) setMenuOpen(false)
+    }
     window.addEventListener('scroll', handler, { passive: true })
     return () => window.removeEventListener('scroll', handler)
+  }, [])
+
+  // Active section via IntersectionObserver
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id)
+        })
+      },
+      { rootMargin: '-15% 0px -60% 0px' },
+    )
+    SECTION_IDS.forEach(id => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    })
+    return () => observer.disconnect()
   }, [])
 
   return (
@@ -31,7 +55,7 @@ export default function Nav() {
             <li key={l.href}>
               <a
                 href={l.href}
-                className="nav__link"
+                className={`nav__link${activeSection === l.href.slice(1) ? ' nav__link--active' : ''}`}
                 onClick={() => setMenuOpen(false)}
               >
                 {l.label}
