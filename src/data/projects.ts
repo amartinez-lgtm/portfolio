@@ -134,15 +134,6 @@ export const sideHustles: SideHustle[] = [
     status: 'in-progress',
   },
   {
-    id: 'smart-wardrobe',
-    name: 'SmartWardrobe AI',
-    tagline: 'Planned SaaS — outfit intelligence',
-    description:
-      'Planned SaaS product that uses AI to help users manage their wardrobe, build outfits, and track what they actually wear.',
-    tags: ['SaaS', 'AI', 'React', 'Planned'],
-    status: 'planned',
-  },
-  {
     id: 'qr-tracking',
     name: 'QR Tool Tracking SaaS',
     tagline: 'Planned — shop floor tool management',

@@ -5,7 +5,7 @@ export default function Hero() {
     <section className="hero section">
       <div className="container">
         <div className="hero__eyebrow">
-          <span className="tag">Manufacturing × Software</span>
+          <span className="tag">Manufacturing × AI × Software</span>
         </div>
 
         <h1 className="hero__headline">

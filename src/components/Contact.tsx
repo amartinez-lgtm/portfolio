@@ -1,20 +1,107 @@
+import { FormEvent, useState } from 'react'
 import './Contact.css'
 
 export default function Contact() {
+  const [submitted, setSubmitted] = useState(false)
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const form = e.currentTarget
+    const name = (form.elements.namedItem('name') as HTMLInputElement).value
+    const company = (form.elements.namedItem('company') as HTMLInputElement).value
+    const problem = (form.elements.namedItem('problem') as HTMLTextAreaElement).value
+    const today = (form.elements.namedItem('today') as HTMLTextAreaElement).value
+
+    const body = encodeURIComponent(
+      `Name: ${name}\nCompany / Role: ${company}\n\nProblem:\n${problem}\n\nHow they handle it today:\n${today}`
+    )
+    const subject = encodeURIComponent(`Portfolio inquiry from ${name}`)
+    window.location.href = `mailto:levallcworks@gmail.com?subject=${subject}&body=${body}`
+    setSubmitted(true)
+  }
+
   return (
     <section id="contact" className="section">
       <div className="container">
         <div className="contact__inner">
           <p className="section-label">Contact</p>
-          <h2 className="section-title">Let's talk</h2>
+          <h2 className="section-title">Got a workflow problem?</h2>
           <p className="contact__desc">
-            If you need software built for a manufacturing context, want to hire someone who understands the domain,
-            or just want to compare notes — reach out.
+            If you need software built for a manufacturing context, want to hire someone who
+            understands the domain, or just want to compare notes — reach out.
           </p>
+
+          {submitted ? (
+            <div className="contact__thanks">
+              Your email client should have opened. If not,{' '}
+              <a href="mailto:levallcworks@gmail.com">email directly</a>.
+            </div>
+          ) : (
+            <form className="contact__form" onSubmit={handleSubmit} noValidate>
+              <div className="contact__form-row">
+                <div className="contact__field">
+                  <label htmlFor="contact-name" className="contact__label">Name</label>
+                  <input
+                    id="contact-name"
+                    name="name"
+                    type="text"
+                    className="contact__input"
+                    placeholder="Your name"
+                    required
+                  />
+                </div>
+                <div className="contact__field">
+                  <label htmlFor="contact-company" className="contact__label">
+                    What do you do / company
+                  </label>
+                  <input
+                    id="contact-company"
+                    name="company"
+                    type="text"
+                    className="contact__input"
+                    placeholder="Role or company"
+                  />
+                </div>
+              </div>
+
+              <div className="contact__field">
+                <label htmlFor="contact-problem" className="contact__label">
+                  What problem are you trying to solve?
+                </label>
+                <textarea
+                  id="contact-problem"
+                  name="problem"
+                  className="contact__textarea"
+                  placeholder="Describe the workflow, pain point, or gap..."
+                  rows={4}
+                  required
+                />
+              </div>
+
+              <div className="contact__field">
+                <label htmlFor="contact-today" className="contact__label">
+                  How are you handling it today?
+                </label>
+                <textarea
+                  id="contact-today"
+                  name="today"
+                  className="contact__textarea"
+                  placeholder="Spreadsheets, manual process, existing software..."
+                  rows={3}
+                />
+              </div>
+
+              <button type="submit" className="btn btn-primary contact__submit">
+                Start the conversation
+              </button>
+            </form>
+          )}
+
+          <div className="contact__divider" />
 
           <div className="contact__links">
             <a
-              href="mailto:avelino@levalabs.com"
+              href="mailto:levallcworks@gmail.com"
               className="contact__link"
             >
               <span className="contact__link-icon">
@@ -25,7 +112,7 @@ export default function Contact() {
               </span>
               <span className="contact__link-text">
                 <span className="contact__link-label">Email</span>
-                <span className="contact__link-value">avelino@levalabs.com</span>
+                <span className="contact__link-value">levallcworks@gmail.com</span>
               </span>
             </a>
 
@@ -62,7 +149,7 @@ export default function Contact() {
               </span>
               <span className="contact__link-text">
                 <span className="contact__link-label">GitHub</span>
-                <span className="contact__link-value">avelinomartinez</span>
+                <span className="contact__link-value">amartinez-lgtm</span>
               </span>
             </a>
           </div>
