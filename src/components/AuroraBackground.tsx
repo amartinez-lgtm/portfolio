@@ -237,7 +237,7 @@ export default function AuroraBackground({
         ))}
 
         {/* ── Milky Way band ── */}
-        <g transform="rotate(-28 720 450)">
+        <g className="aurora__milkyway" transform="rotate(-28 720 450)">
           <ellipse cx="720" cy="450" rx="860" ry="170"
             fill="rgba(180, 210, 255, 0.07)" filter="url(#ao-mw-blur)"/>
           <ellipse cx="740" cy="420" rx="540" ry="90"

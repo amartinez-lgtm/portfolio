@@ -7,6 +7,12 @@
   pointer-events: none;
   overflow: hidden;
   background: #0a0a0b;
+  animation: ao-fadein 0.7s ease 0.2s both;
+}
+
+@keyframes ao-fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* ── Orbital SVG ── */
@@ -78,11 +84,16 @@
   pointer-events: none;
 }
 
-/* ── Mobile: drop distant rings ── */
+/* ── Mobile: drop expensive GPU filters and distant rings ── */
 
 @media (max-width: 640px) {
   .aurora__ring--far,
   .aurora__ring--sm {
+    display: none;
+  }
+  /* feTurbulence grain and feGaussianBlur Milky Way are very expensive on mobile */
+  .aurora__grain,
+  .aurora__milkyway {
     display: none;
   }
 }
