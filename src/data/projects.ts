@@ -7,6 +7,7 @@ export interface Project {
   tags: string[]
   url?: string
   highlight?: string
+  aiNote?: string
 }
 
 export interface SideHustle {
@@ -47,6 +48,7 @@ export const projects: Project[] = [
     tags: ['TypeScript', 'React', 'PDF Processing', 'Computer Vision'],
     url: 'https://inspectai.ffmfg.com',
     highlight: 'ai-wrong-tool',
+    aiNote: 'Evaluated GPT-4V for balloon detection — 70% accuracy. Replaced with a deterministic geometry parser: 100% in production. AI was the wrong tool; knowing that is part of the skill.',
   },
   {
     id: 'autodatapack',
@@ -75,6 +77,7 @@ export const projects: Project[] = [
       'Social app where users make public commitments and hold each other accountable using AI-assisted tracking and nudges. Built with real-time socket connections for live accountability feeds.',
     loc: '6K LOC',
     tags: ['Node.js', 'Express', 'Socket.io', 'Supabase', 'OpenAI'],
+    aiNote: 'Uses OpenAI to generate personalized accountability nudges and surface commitment patterns — a case where unstructured language generation is the right fit.',
   },
   {
     id: 'xyz-shopify',

@@ -16,7 +16,8 @@ export default function Contact() {
       `Name: ${name}\nCompany / Role: ${company}\n\nProblem:\n${problem}\n\nHow they handle it today:\n${today}`
     )
     const subject = encodeURIComponent(`Portfolio inquiry from ${name}`)
-    window.location.href = `mailto:levallcworks@gmail.com?subject=${subject}&body=${body}`
+    const mailtoUrl = `mailto:levallcworks@gmail.com?subject=${subject}&body=${body}`
+    window.open(mailtoUrl, '_self')
     setSubmitted(true)
   }
 

@@ -5,6 +5,7 @@ const skills = [
   { category: 'Frontend', items: ['React', 'Vite', 'CSS'] },
   { category: 'Backend', items: ['Node.js', 'FastAPI', 'Express', 'PostgreSQL', 'Supabase'] },
   { category: 'Infra', items: ['Cloudflare Pages', 'Cloudflare Workers', 'Docker'] },
+  { category: 'AI / ML', items: ['OpenAI API', 'GPT-4V', 'Prompt Engineering', 'LLM Evals'] },
   { category: 'Manufacturing', items: ['AS9100D', 'AS9102', 'FAI', 'NCR/CAR', 'ERP'] },
   { category: 'Tools', items: ['Pix4D', 'Drone2Map', 'trimesh', 'Electron', 'Shopify'] },
 ]
@@ -21,22 +22,33 @@ export default function About() {
             <div className="about__bio">
               <p>
                 I spent a decade on the manufacturing floor before I wrote production code. That sequence matters.
-                When I build a QMS, I've lived through the NCR process from both sides. When I build an inspection tool,
-                I know what a first article package is supposed to look like before I write the parser.
+                When I build a QMS, I've lived through the NCR process from both sides. When I build an inspection
+                tool, I know what a first article package is supposed to look like before I write the parser.
               </p>
               <p>
                 At Final Frontier Manufacturing, I run quality — AS9100D compliance, audits, supplier qualification,
-                the whole lifecycle. In parallel I've shipped 7 internal tools that the team actually uses, across
+                the whole lifecycle. In parallel I've shipped 7 internal tools the team actually uses, across
                 roughly 161K lines of TypeScript and Python in about 10 weeks.
               </p>
               <p>
-                Outside work I run Leva LLC, which is an umbrella for everything else: 3D printing physical products,
-                selling digital files, doing LiDAR mapping jobs, and building whatever seems interesting. A golf iron
-                manufacturing project is currently on the workbench. So is a hydroponic garden.
+                Outside work I run Leva LLC: 3D printing physical products, selling digital files, doing LiDAR
+                mapping jobs, and building whatever seems interesting. A golf iron manufacturing project is on the
+                workbench. So is a hydroponic garden.
               </p>
+            </div>
+
+            <div className="about__ai-callout">
+              <div className="about__ai-callout-header">
+                <span className="about__ai-chip">How I think about problems</span>
+              </div>
               <p>
-                I'm most useful when the problem requires both domain depth and technical execution — and when the
-                stakes are high enough that "close enough" isn't acceptable.
+                Every problem gets the same first question: is this a job for <strong>software</strong>,
+                {' '}<strong>AI</strong>, or a <strong>human</strong>? Manufacturing quality work is mostly a
+                software problem — structured rules, audit trails, deterministic output. When I benchmarked
+                GPT-4V for engineering drawing interpretation and it hit 70% accuracy, I scrapped it and built
+                a deterministic parser that gets 100%. But when a task is genuinely unstructured — language
+                generation, pattern recognition across noisy records, judgment calls — AI earns its place.
+                I've built both. I know where the line is.
               </p>
             </div>
           </div>
