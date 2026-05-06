@@ -19,6 +19,14 @@ export default function About() {
             <p className="section-label">About</p>
             <h2 className="section-title">Manufacturing domain expert who builds software</h2>
 
+            <div className="about__avatar-row">
+              <img
+                src="/avatar_jpg.jpeg"
+                alt="Avelino Martinez"
+                className="about__avatar"
+              />
+            </div>
+
             <div className="about__bio">
               <p>
                 I spent a decade on the manufacturing floor before I wrote production code. That sequence matters.

@@ -6,6 +6,18 @@
   margin-top: 0;
 }
 
+.about__avatar-row {
+  margin-top: 28px;
+}
+
+.about__avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+}
+
 .about__bio {
   display: flex;
   flex-direction: column;
