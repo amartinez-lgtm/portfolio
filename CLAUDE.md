@@ -91,7 +91,7 @@ interface Project {
 | Item | Status |
 |---|---|
 | Custom domain | Not set up. Do in Cloudflare Pages → Custom Domains. |
-| Profile photo in About | Not added yet |
+| Profile photo in About | ✓ Done — `public/avatar_jpg.jpeg`, 96px circular headshot above bio |
 | Analytics | Not added. Cloudflare Web Analytics is free and easy. |
 | Mobile nav close-on-scroll | Not implemented |
 | Active section highlighting in nav | Not implemented |
@@ -136,7 +136,7 @@ Node 20+ required. No other services needed.
 | `AuroraBackground` | — | Full-viewport starfield with animated orbital dots and gravity interaction |
 | `Nav` | — | Fixed top nav, scroll blur, mobile hamburger menu |
 | `Hero` | (top) | Headline, "Manufacturing × AI × Software" badge, CTAs |
-| `About` | `#about` | Bio, Leva LLC description, AI decision-framework callout, sticky skills panel |
+| `About` | `#about` | Bio, Leva LLC description, AI decision-framework callout, sticky skills panel, circular profile photo |
 | `Work` | `#work` | Interactive accordion list of 6 projects from `projects[]` |
 | `SideHustles` | `#ventures` | 3 groups (active/in-progress/planned) from `sideHustles[]` |
 | `CareerStories` | `#stories` | Numbered story list from `careerStories[]` |
@@ -178,7 +178,7 @@ The form uses a `mailto:` fallback (no backend). On submit it calls `window.open
 - Updated hero copy and affiliation line
 - Added mobile-responsive styles across all components
 
-### Session 3 (today)
+### Session 3
 - Hero badge: "Manufacturing × Software" → "Manufacturing × AI × Software"
 - Removed SmartWardrobe AI from Ventures/planned (was never built)
 - Added contact inquiry form above link cards (mailto fallback to levallcworks@gmail.com)
@@ -192,3 +192,8 @@ The form uses a `mailto:` fallback (no backend). On submit it calls `window.open
 - Rewrote AutoDataPack description to lead with "hours to 10 minutes" outcome
 - Fixed email everywhere to levallcworks@gmail.com
 - Fixed contact link hover direction (was translateX, now translateY)
+
+### Session 4
+- Added profile photo to About section (`public/avatar_jpg.jpeg`)
+- Circular headshot (96px) placed between section title and bio text in `About.tsx` / `About.css`
+- Photo uploaded via GitHub UI; pulled into local repo and deployed to main
