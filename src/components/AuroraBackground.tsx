@@ -65,15 +65,15 @@ interface OrbitDef {
 
 const ORBITS: OrbitDef[] = [
   // Grand outer ring — 2 dots, opposite sides
-  { cx: 720, cy: 450, rx: 680, ry: 300, tilt: -15 * D, period: 42, phase: 0,              r: 5,   color: 'amber' },
-  { cx: 720, cy: 450, rx: 680, ry: 300, tilt: -15 * D, period: 45, phase: Math.PI,        r: 3.5, color: 'gold'  },
-  // Mid ring — 2 dots, offset
-  { cx: 720, cy: 450, rx: 500, ry: 210, tilt: 11 * D,  period: 31, phase: 0,              r: 4,   color: 'blue'  },
-  { cx: 720, cy: 450, rx: 500, ry: 210, tilt: 11 * D,  period: 34, phase: Math.PI * 0.65, r: 3,   color: 'amber' },
+  { cx: 720, cy: 450, rx: 680, ry: 300, tilt: -15 * D, period: 42, phase: 0,                r: 5,   color: 'amber' },
+  { cx: 720, cy: 450, rx: 680, ry: 300, tilt: -15 * D, period: 45, phase: Math.PI,          r: 3.5, color: 'gold'  },
+  // Mid ring — 2 dots, opposite so they stay spread
+  { cx: 720, cy: 450, rx: 500, ry: 210, tilt: 11 * D,  period: 31, phase: Math.PI / 2,      r: 4,   color: 'blue'  },
+  { cx: 720, cy: 450, rx: 500, ry: 210, tilt: 11 * D,  period: 34, phase: Math.PI * 1.5,    r: 3,   color: 'amber' },
   // Inner ring
-  { cx: 720, cy: 450, rx: 335, ry: 148, tilt: 26 * D,  period: 24, phase: 0,              r: 4,   color: 'gold'  },
+  { cx: 720, cy: 450, rx: 335, ry: 148, tilt: 26 * D,  period: 24, phase: Math.PI / 4,      r: 4,   color: 'gold'  },
   // Between mid and outer
-  { cx: 720, cy: 450, rx: 590, ry: 255, tilt: -3 * D,  period: 37, phase: 2.4,            r: 3.5, color: 'blue'  },
+  { cx: 720, cy: 450, rx: 590, ry: 255, tilt: -3 * D,  period: 37, phase: Math.PI * 1.25,   r: 3.5, color: 'blue'  },
 ]
 
 // Parametric position on a tilted ellipse
