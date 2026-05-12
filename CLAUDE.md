@@ -197,3 +197,9 @@ The form uses a `mailto:` fallback (no backend). On submit it calls `window.open
 - Added profile photo to About section (`public/avatar_jpg.jpeg`)
 - Circular headshot (96px) placed between section title and bio text in `About.tsx` / `About.css`
 - Photo uploaded via GitHub UI; pulled into local repo and deployed to main
+
+### Session 5
+- Fixed mobile orbital dot clustering in `AuroraBackground.tsx`
+- Root cause: three dots shared `phase: 0`, causing them to bunch on the same side of the screen on mobile (mobile viewport shows only center ~416px of the 1440-wide SVG viewBox)
+- Fix: redistributed starting phases evenly at 45° intervals (0, π/4, π/2, π, 5π/4, 3π/2) so dots stay spread across the screen at all times
+- Branch: `claude/fix-mobile-balls-layout-KSqzV` — merge to `main` to deploy
