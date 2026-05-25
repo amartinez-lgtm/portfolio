@@ -13,6 +13,10 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     rollupOptions: {
+      input: {
+        main:  resolve(__dirname, 'index.html'),
+        token: resolve(__dirname, 'token/index.html'),
+      },
       output: {
         manualChunks: {
           react: ['react', 'react-dom'],

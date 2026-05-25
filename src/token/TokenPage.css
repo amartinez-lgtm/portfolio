@@ -1,0 +1,430 @@
+/* ── Token Page Base ── */
+.token-page {
+  min-height: 100vh;
+  background: #05070f;
+  color: var(--text);
+  font-family: var(--font-sans);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Scanline overlay */
+.token-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.12) 3px,
+    rgba(0, 0, 0, 0.12) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Radial glow behind token (ambient light effect) */
+.token-glow-bg {
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(56, 189, 248, 0.10) 0%, rgba(120, 40, 200, 0.06) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: ambientPulse 5s ease-in-out infinite alternate;
+}
+
+@keyframes ambientPulse {
+  from { opacity: 0.6; transform: translateX(-50%) scale(1); }
+  to   { opacity: 1;   transform: translateX(-50%) scale(1.2); }
+}
+
+/* ── Content wrapper ── */
+.token-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px 80px;
+  text-align: center;
+}
+
+/* ── Status badge ── */
+.token-status {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: #00f5ff;
+  text-shadow: 0 0 12px rgba(0, 245, 255, 0.9), 0 0 24px rgba(0, 245, 255, 0.4);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.token-status::before,
+.token-status::after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* ── Hero text ── */
+.token-headline {
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #f1f5f9 0%, #38bdf8 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 6s ease-in-out infinite alternate;
+}
+
+@keyframes gradientShift {
+  from { filter: hue-rotate(0deg); }
+  to   { filter: hue-rotate(30deg); }
+}
+
+.token-subhead {
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  color: var(--text-muted);
+  max-width: 420px;
+  line-height: 1.65;
+  margin-bottom: 8px;
+}
+
+.token-intro {
+  font-size: 0.9rem;
+  color: var(--text-subtle);
+  max-width: 380px;
+  line-height: 1.6;
+  margin-bottom: 44px;
+}
+
+/* ── Token Visual ── */
+.token-visual-wrap {
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.token-visual {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: linear-gradient(#0d1320, #0d1320) padding-box,
+              linear-gradient(135deg, #ff0080, #00f5ff, #00ff88, #bf00ff, #ff0080) border-box;
+  border: 3px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: tokenFloat 3.5s ease-in-out infinite alternate, rgbSpin 6s linear infinite;
+  box-shadow:
+    0 0 30px rgba(56, 189, 248, 0.35),
+    0 0 60px rgba(56, 189, 248, 0.15),
+    0 0 100px rgba(120, 40, 200, 0.1);
+  position: relative;
+}
+
+/* Outer ring glow */
+.token-visual::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  animation: ringPulse 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes tokenFloat {
+  from { transform: translateY(0px); }
+  to   { transform: translateY(-16px); }
+}
+
+@keyframes rgbSpin {
+  0%   { filter: hue-rotate(0deg) brightness(1); }
+  50%  { filter: hue-rotate(180deg) brightness(1.1); }
+  100% { filter: hue-rotate(360deg) brightness(1); }
+}
+
+@keyframes ringPulse {
+  from { transform: scale(1); opacity: 0.4; }
+  to   { transform: scale(1.06); opacity: 0.9; }
+}
+
+/* SVG face inside token */
+.token-face-svg {
+  width: 160px;
+  height: 160px;
+  opacity: 0.92;
+}
+
+/* ── Achievement Card ── */
+.achievement-card {
+  background: rgba(13, 19, 32, 0.80);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  max-width: 400px;
+  width: 100%;
+  margin-bottom: 32px;
+  box-shadow:
+    0 0 30px rgba(56, 189, 248, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  text-align: left;
+}
+
+.achievement-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.achievement-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.achievement-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.achievement-sub {
+  font-size: 0.8rem;
+  color: var(--text-subtle);
+  font-family: var(--font-mono);
+}
+
+.achievement-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 16px 0;
+}
+
+.achievement-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  margin-bottom: 8px;
+}
+
+.achievement-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.achievement-chip {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.achievement-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.achievement-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.achievement-stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+
+.achievement-stat-value {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.achievement-stat-value.legendary {
+  background: linear-gradient(90deg, #ff0080, #bf00ff, #00f5ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: legendaryShimmer 3s ease-in-out infinite alternate;
+}
+
+.achievement-stat-value.xp {
+  color: #00ff88;
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+}
+
+@keyframes legendaryShimmer {
+  from { filter: hue-rotate(0deg); }
+  to   { filter: hue-rotate(60deg); }
+}
+
+/* ── CTA Buttons ── */
+.token-ctas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 64px;
+}
+
+.token-ctas .btn {
+  justify-content: center;
+  padding: 13px 24px;
+  font-size: 0.9rem;
+}
+
+.token-ctas .btn-primary {
+  background: linear-gradient(135deg, #38bdf8, #818cf8);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+}
+
+.token-ctas .btn-primary:hover {
+  opacity: 1;
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.5);
+  transform: translateY(-2px);
+}
+
+/* ── Info Sections ── */
+.token-sections {
+  width: 100%;
+  max-width: 540px;
+  border-top: 1px solid var(--border);
+}
+
+.token-section {
+  padding: 40px 0;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.token-section-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #38bdf8;
+  margin-bottom: 12px;
+}
+
+.token-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.token-section-body {
+  font-size: 0.925rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.built-with-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.built-with-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  background: rgba(56, 189, 248, 0.06);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  color: #7dd3fc;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.built-with-chip:hover {
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
+}
+
+/* ── Footer ── */
+.token-footer {
+  padding: 32px 24px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-subtle);
+}
+
+.token-footer a {
+  color: var(--text-subtle);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.token-footer a:hover {
+  color: #38bdf8;
+  border-bottom-color: rgba(56, 189, 248, 0.4);
+  text-decoration: none;
+}
+
+/* ── Mobile responsive ── */
+@media (max-width: 480px) {
+  .token-content {
+    padding: 36px 20px 64px;
+  }
+
+  .token-visual {
+    width: 190px;
+    height: 190px;
+  }
+
+  .token-face-svg {
+    width: 136px;
+    height: 136px;
+  }
+
+  .achievement-card {
+    padding: 22px 20px;
+  }
+
+  .achievement-stats {
+    gap: 16px;
+  }
+
+  .token-ctas {
+    max-width: 100%;
+  }
+}
