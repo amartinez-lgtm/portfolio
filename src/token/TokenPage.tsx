@@ -1,191 +1,201 @@
 import { useEffect, useState } from 'react'
 import './TokenPage.css'
 
-/* EDIT: Skills shown in the achievement unlock card */
-const ACHIEVEMENT_SKILLS = [
-  '3D Scanning', 'CAD Design', '3D Printing', 'AI Prototyping',
-  'Product Development', 'Quality Systems',
+/* EDIT: Navigation cards — update hrefs and descriptions to match your pages */
+const NAV_ITEMS = [
+  {
+    icon: '👤',
+    title: 'About Me',
+    sub: 'Quality manager, 10-year aerospace veteran',
+    href: '/#about',
+  },
+  {
+    icon: '💻',
+    title: 'Projects',
+    sub: '6 production tools shipped from the shop floor',
+    href: '/#work',
+  },
+  {
+    icon: '⚙️',
+    title: 'Services',
+    sub: '3D scanning, LiDAR mapping, AI prototyping',
+    href: '/#ventures',
+  },
+  {
+    icon: '🛒',
+    title: 'Products',
+    sub: 'Shop Leva LLC on Shopify',
+    href: 'https://leva-llc.myshopify.com', /* EDIT: replace with your real Shopify URL */
+  },
+  {
+    icon: '✉️',
+    title: 'Contact',
+    sub: "Let's talk — levallcworks@gmail.com",
+    href: '/#contact',
+  },
 ]
 
-/* EDIT: Tech/tools shown in the "Built With" section */
-const BUILT_WITH_SKILLS = [
-  '3D Scanning', 'Blender', 'Onshape', '3D Printing',
-  'NFC', 'AI Prototyping', 'CAD', 'Product Design',
+/* EDIT: Skills shown in the achievement card */
+const ACHIEVEMENT_SKILLS = [
+  '3D Scanning', 'CAD', '3D Printing', 'AI Prototyping', 'Quality Systems',
 ]
 
 export default function TokenPage() {
-  const [unlocked, setUnlocked] = useState(false)
+  const [visible, setVisible] = useState(false)
 
-  // Short delay so the page renders first, then the card flies in
   useEffect(() => {
-    const t = setTimeout(() => setUnlocked(true), 350)
+    const t = setTimeout(() => setVisible(true), 200)
     return () => clearTimeout(t)
   }, [])
 
   return (
-    <div className="token-page">
+    <div className="tp">
 
-      {/* Subtle CRT scanline texture overlay */}
-      <div className="token-scanlines" aria-hidden="true" />
+      {/* ── HERO ─────────────────────────────────────────────────────── */}
+      <section className="tp-hero">
 
-      {/* ── STATUS BAR ──────────────────────────────────────────────────── */}
-      {/* EDIT: Change the status bar text here */}
-      <header className="token-status-bar">
-        <span className="token-status-bar__dot" aria-hidden="true" />
-        <span className="token-status-bar__text">NFC Token Verified</span>
-        <span className="token-status-bar__signal" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </span>
-      </header>
+        {/* EDIT: Status pill text */}
+        <div className="tp-status-pill">
+          <span className="tp-status-dot" />
+          NFC Token Verified
+        </div>
 
-      <main className="token-main">
-
-        {/* ── HEADLINE ────────────────────────────────────────────────────── */}
-        {/* EDIT: Main headline and subhead copy */}
-        <section className="token-headline-section">
-          <p className="token-eyebrow">Achievement Unlocked</p>
-          <h1 className="token-headline">
-            You found Avelino's<br />smart portfolio token.
-          </h1>
-        </section>
-
-        {/* ── TOKEN VISUAL ────────────────────────────────────────────────── */}
-        {/* Floating coin with RGB border and spinning orbital rings */}
-        <section className="token-visual-section" aria-hidden="true">
-          <div className="token-visual">
-            <div className="token-visual__ring" />
-            <div className="token-visual__body">
-              <div className="token-visual__face">
-                <div className="token-visual__face-ring token-visual__face-ring--1" />
-                <div className="token-visual__face-ring token-visual__face-ring--2" />
-                <div className="token-visual__face-ring token-visual__face-ring--3" />
-                {/* Low-poly face SVG — evokes the 3D-scanned face on the physical token */}
-                <svg
-                  className="token-face-svg"
-                  viewBox="0 0 100 100"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-label="Low-poly face portrait"
-                >
-                  {/* Hair / forehead */}
-                  <polygon points="28,32 50,18 72,32 67,44 33,44" fill="#1e293b" />
-                  <polygon points="16,48 28,32 33,48" fill="#0f172a" />
-                  <polygon points="72,32 84,48 67,48" fill="#0f172a" />
-                  {/* Face center */}
-                  <polygon points="33,44 67,44 70,68 30,68" fill="#334155" />
-                  {/* Left cheek */}
-                  <polygon points="16,48 33,44 30,68 18,64" fill="#1e293b" />
-                  {/* Right cheek */}
-                  <polygon points="84,48 67,44 70,68 82,64" fill="#1e293b" />
-                  {/* Left eye */}
-                  <polygon points="36,51 46,49 45,57 35,57" fill="#0f172a" />
-                  <polygon points="38,52 43,51 42,55 37,55" fill="#94a3b8" />
-                  {/* Right eye */}
-                  <polygon points="54,49 64,51 65,57 55,57" fill="#0f172a" />
-                  <polygon points="57,51 62,51 63,55 58,55" fill="#94a3b8" />
-                  {/* Nose */}
-                  <polygon points="48,60 52,60 51,66 49,66" fill="#1e293b" />
-                  {/* Mouth */}
-                  <polygon points="41,72 50,69 59,72 54,77 46,77" fill="#0f172a" />
-                  {/* Chin */}
-                  <polygon points="30,68 70,68 66,80 34,80" fill="#2d3d50" />
-                  <polygon points="34,80 66,80 50,88" fill="#1a2536" />
-                  {/* Neck */}
-                  <polygon points="43,86 57,86 60,96 40,96" fill="#0f172a" />
-                </svg>
-                <div className="token-visual__face-center" />
-              </div>
-            </div>
+        {/* Floating token coin */}
+        <div className="tp-coin-outer" aria-hidden="true">
+          <div className="tp-coin-ring" />
+          <div className="tp-coin-body">
+            <svg
+              className="tp-face"
+              viewBox="0 0 100 100"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* Hair / forehead */}
+              <polygon points="30,26 50,16 70,26 68,40 32,40" fill="#1e293b" />
+              <polygon points="18,44 30,26 32,40 20,56" fill="#0f172a" />
+              <polygon points="82,44 70,26 68,40 80,56" fill="#0f172a" />
+              {/* Face upper */}
+              <polygon points="32,40 68,40 70,58 30,58" fill="#334155" />
+              {/* Face lower */}
+              <polygon points="30,58 70,58 65,76 35,76" fill="#2d4060" />
+              {/* Cheeks */}
+              <polygon points="20,56 32,40 30,58 18,64" fill="#1e2d3d" />
+              <polygon points="80,56 68,40 70,58 82,64" fill="#1a2836" />
+              {/* Left eye */}
+              <polygon points="34,44 46,42 45,51 33,51" fill="#0a1020" />
+              <polygon points="36,45 43,44 42,49 35,49" fill="#7dd3fc" />
+              <polygon points="37,46 40,45 40,48 37,48" fill="#f1f5f9" />
+              {/* Right eye */}
+              <polygon points="54,42 66,44 67,51 55,51" fill="#0a1020" />
+              <polygon points="57,44 64,45 65,49 58,49" fill="#7dd3fc" />
+              <polygon points="60,46 63,45 63,48 60,48" fill="#f1f5f9" />
+              {/* Nose */}
+              <polygon points="47,55 53,55 52,63 48,63" fill="#1a2536" />
+              {/* Mouth */}
+              <polygon points="38,68 50,64 62,68 56,73 44,73" fill="#0a1020" />
+              <polygon points="42,68 50,66 58,68 50,69" fill="#94a3b8" opacity="0.4" />
+              {/* Chin */}
+              <polygon points="35,76 65,76 60,85 40,85" fill="#243448" />
+              <polygon points="40,85 60,85 50,91" fill="#1a2838" />
+              {/* Neck */}
+              <polygon points="44,89 56,89 58,99 42,99" fill="#0f172a" />
+            </svg>
           </div>
-        </section>
+        </div>
 
-        {/* ── ACHIEVEMENT CARD ────────────────────────────────────────────── */}
-        {/* EDIT: Achievement name, skills, rarity, and XP */}
-        <section
-          className={`token-achievement-card${unlocked ? ' token-achievement-card--visible' : ''}`}
-          aria-label="Achievement details"
-        >
-          <div className="token-achievement-card__header">
-            <span className="token-achievement-card__icon" aria-hidden="true">🏆</span>
+        {/* EDIT: Main headline and subheadline */}
+        <p className="tp-eyebrow">Achievement Unlocked</p>
+        <h1 className="tp-headline">You found Avelino's<br />portfolio token.</h1>
+        <p className="tp-sub">
+          This 3D-printed NFC object was built as a physical gateway into my work.
+        </p>
+
+      </section>
+
+      {/* ── ACHIEVEMENT CARD ──────────────────────────────────────────── */}
+      <section className="tp-section">
+        <div className={`tp-card tp-achievement${visible ? ' tp-in' : ''}`}>
+          <div className="tp-achievement-top">
+            <span className="tp-trophy" aria-hidden="true">🏆</span>
             <div>
-              <p className="token-achievement-card__label">Achievement</p>
-              <p className="token-achievement-card__title">Met the Maker</p>
+              <p className="tp-micro">Achievement</p>
+              {/* EDIT: Achievement name */}
+              <p className="tp-achievement-name">Met the Maker</p>
             </div>
+            <span className="tp-rarity">Legendary</span>
           </div>
-
-          <div className="token-achievement-card__body">
-            <div className="token-achievement-card__skills">
-              {ACHIEVEMENT_SKILLS.map((s) => (
-                <span key={s} className="token-chip">{s}</span>
-              ))}
-            </div>
-
-            <div className="token-achievement-card__meta">
-              <div className="token-achievement-card__meta-item">
-                <span className="token-achievement-card__meta-label">Rarity</span>
-                <span className="token-achievement-card__rarity">Legendary</span>
-              </div>
-              <div className="token-achievement-card__meta-item">
-                <span className="token-achievement-card__meta-label">Reward</span>
-                <span className="token-achievement-card__xp">XP +1000</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── CTAs ────────────────────────────────────────────────────────── */}
-        {/* EDIT: Button labels and hrefs */}
-        <section className="token-ctas">
-          <a href="/" className="token-btn token-btn--primary">
-            Enter Portfolio
-          </a>
-          <a href="/#work" className="token-btn token-btn--ghost">
-            View Projects
-          </a>
-          <a href="/#contact" className="token-btn token-btn--ghost">
-            Contact Me
-          </a>
-        </section>
-
-        {/* ── WHAT YOU SCANNED ────────────────────────────────────────────── */}
-        {/* EDIT: Explanation copy */}
-        <section className="token-info-section">
-          <h2 className="token-section-title">What You Scanned</h2>
-          <p className="token-body-text">
-            This is a custom NFC token — a chip embedded inside a 3D-printed object.
-            When you tapped it with your phone, it sent your browser here instantly.
-            No app, no QR code, no friction. Just tap and go.
-          </p>
-        </section>
-
-        {/* ── BUILT WITH ──────────────────────────────────────────────────── */}
-        <section className="token-info-section">
-          <h2 className="token-section-title">Built With</h2>
-          <div className="token-chips-row">
-            {BUILT_WITH_SKILLS.map((s) => (
-              <span key={s} className="token-chip token-chip--dim">{s}</span>
+          <div className="tp-chips">
+            {ACHIEVEMENT_SKILLS.map((s) => (
+              <span key={s} className="tp-chip">{s}</span>
             ))}
           </div>
-        </section>
+          <div className="tp-xp">
+            {/* EDIT: XP value */}
+            <span className="tp-xp-label">XP</span>
+            <span className="tp-xp-value">+1000</span>
+          </div>
+        </div>
+      </section>
 
-        {/* ── WHY IT EXISTS ───────────────────────────────────────────────── */}
-        {/* EDIT: "Why it exists" paragraph */}
-        <section className="token-info-section">
-          <h2 className="token-section-title">Why It Exists</h2>
-          <p className="token-body-text">
-            A portfolio site is passive — you have to find it. A physical token changes
-            the dynamic. If you're holding this, we're already in the same room.
-            This is how I introduce myself when a URL isn't enough.
+      {/* ── NAVIGATION CARDS ──────────────────────────────────────────── */}
+      <section className="tp-section">
+        {/* EDIT: Section heading */}
+        <p className="tp-section-label">Explore My Work</p>
+        <div className="tp-nav-list">
+          {NAV_ITEMS.map((item, i) => (
+            <a
+              key={item.title}
+              href={item.href}
+              className="tp-nav-card"
+              style={{ animationDelay: `${i * 60 + 300}ms` }}
+            >
+              <span className="tp-nav-icon" aria-hidden="true">{item.icon}</span>
+              <span className="tp-nav-text">
+                <span className="tp-nav-title">{item.title}</span>
+                <span className="tp-nav-sub">{item.sub}</span>
+              </span>
+              <svg className="tp-chevron" viewBox="0 0 8 14" fill="none">
+                <path d="M1 1l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* ── ABOUT THE TOKEN ───────────────────────────────────────────── */}
+      <section className="tp-section tp-about-section">
+        <p className="tp-section-label">About This Token</p>
+
+        {/* EDIT: "What you scanned" description */}
+        <div className="tp-info-card">
+          <p className="tp-info-label">What you scanned</p>
+          <p className="tp-info-body">
+            An NFC chip embedded inside a 3D-printed object. Tap it with any modern
+            phone and your browser opens here instantly — no app, no QR code.
           </p>
-        </section>
+        </div>
 
-      </main>
+        {/* EDIT: "Why it exists" description */}
+        <div className="tp-info-card">
+          <p className="tp-info-label">Why it exists</p>
+          <p className="tp-info-body">
+            I wanted my business card to be something people actually keep — not paper,
+            but a useful object that shows what I build before I even explain it.
+          </p>
+        </div>
 
-      {/* ── FOOTER ──────────────────────────────────────────────────────────── */}
-      {/* EDIT: Footer link and name */}
-      <footer className="token-footer">
-        Avelino Martinez · Leva LLC · <a href="/">portfolio-4n2.pages.dev</a>
+        <div className="tp-built-chips">
+          {/* EDIT: "Built with" skills */}
+          {['3D Scanning', 'Blender', 'Onshape', '3D Printing', 'NFC', 'CAD'].map((s) => (
+            <span key={s} className="tp-built-chip">{s}</span>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FOOTER ───────────────────────────────────────────────────── */}
+      <footer className="tp-footer">
+        {/* EDIT: Footer name and link */}
+        <span>Avelino Martinez · Leva LLC</span>
+        <a href="/">portfolio-4n2.pages.dev</a>
       </footer>
 
     </div>
