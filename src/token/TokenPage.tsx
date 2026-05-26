@@ -63,6 +63,17 @@ export default function TokenPage() {
     resize()
     window.addEventListener('resize', resize)
 
+    // Measure coin center once at mount — fixed viewport coords for the wave origin.
+    // Reading every frame causes hexes to vanish when coin scrolls off-screen.
+    let cx = window.innerWidth / 2
+    let cy = window.innerHeight * 0.45
+    const coinEl = coinRef.current
+    if (coinEl) {
+      const rect = coinEl.getBoundingClientRect()
+      cx = rect.left + rect.width / 2
+      cy = rect.top + rect.height / 2
+    }
+
     function draw(now: number) {
       const ctx = canvas!.getContext('2d')!
       const W = canvas!.width
@@ -72,16 +83,6 @@ export default function TokenPage() {
       const R = 22
       const colStep = R * 1.5
       const rowStep = R * Math.sqrt(3)
-
-      // Read actual coin position from DOM every frame (accounts for float animation)
-      let cx = W / 2
-      let cy = H * 0.45
-      const coinEl = coinRef.current
-      if (coinEl) {
-        const rect = coinEl.getBoundingClientRect()
-        cx = rect.left + rect.width / 2
-        cy = rect.top + rect.height / 2
-      }
 
       const cols = Math.ceil(W / colStep) + 4
       const rows = Math.ceil(H / rowStep) + 4
@@ -95,12 +96,12 @@ export default function TokenPage() {
           const dy = y - cy
           const dist = Math.sqrt(dx * dx + dy * dy)
 
-          // Sharp pulse: only the crest of the wave lights hexes up; trough is dark
-          const rawSin = Math.sin((dist - now * 0.035) / 160 * Math.PI * 2)
+          // Sharp pulse: only the crest lights hexes; trough is completely dark
+          const rawSin = Math.sin((dist - now * 0.028) / 180 * Math.PI * 2)
           const wave = Math.pow(Math.max(0, rawSin), 2.5)
 
-          // Fade to nothing at screen edges
-          const falloff = 1 - Math.min(dist / (Math.sqrt(W * W + H * H) * 0.5 * 0.95), 1)
+          // Very gentle falloff — keeps hexes visible when scrolled far down the page
+          const falloff = 1 - Math.min(dist / (Math.max(W, H) * 4.5), 1)
           const alpha = wave * falloff
 
           if (alpha < 0.015) continue
