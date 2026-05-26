@@ -22,6 +22,17 @@
   color: var(--text-subtle);
 }
 
+.footer__token-link {
+  color: var(--text-subtle);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.footer__token-link:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
 @media (max-width: 640px) {
   .footer__inner {
     flex-direction: column;
