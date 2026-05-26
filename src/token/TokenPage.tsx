@@ -109,12 +109,12 @@ export default function TokenPage() {
           }
           ctx.closePath()
 
-          ctx.strokeStyle = `hsla(${hue}, 100%, 62%, ${Math.min(alpha * 0.9, 0.88)})`
-          ctx.lineWidth = 0.75
+          ctx.strokeStyle = `hsla(${hue}, 100%, 65%, ${Math.min(alpha * 1.1, 0.95)})`
+          ctx.lineWidth = 1.0
           ctx.stroke()
 
-          if (wave > 0.55) {
-            ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${(wave - 0.55) * alpha * 0.14})`
+          if (wave > 0.45) {
+            ctx.fillStyle = `hsla(${hue}, 100%, 55%, ${(wave - 0.45) * alpha * 0.22})`
             ctx.fill()
           }
         }
@@ -132,10 +132,11 @@ export default function TokenPage() {
   }, [])
 
   return (
-    <div className="tp">
+    <>
+    {/* Hex grid canvas — outside .tp so overflow-x:hidden doesn't clip it */}
+    <canvas ref={canvasRef} className="tp-hexgrid" aria-hidden="true" />
 
-      {/* Hex grid canvas — radiating RGB rings from coin center */}
-      <canvas ref={canvasRef} className="tp-hexgrid" aria-hidden="true" />
+    <div className="tp">
 
       {/* Cycling color bloom behind everything */}
       <div className="tp-bloom" aria-hidden="true" />
@@ -260,5 +261,6 @@ export default function TokenPage() {
       </footer>
 
     </div>
+    </>
   )
 }
