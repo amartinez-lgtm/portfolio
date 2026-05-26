@@ -90,11 +90,14 @@ interface Project {
 
 | Item | Status |
 |---|---|
-| Custom domain | Not set up. Do in Cloudflare Pages → Custom Domains. |
-| Profile photo in About | ✓ Done — `public/avatar_jpg.jpeg`, 96px circular headshot above bio |
+| Custom domain | Not set up. Do in Cloudflare Pages → Custom Domains. ~$10-15/yr on Cloudflare Registrar. |
 | Analytics | Not added. Cloudflare Web Analytics is free and easy. |
 | Mobile nav close-on-scroll | Not implemented |
 | Active section highlighting in nav | Not implemented |
+| Shopify Products URL in token page | Placeholder `https://leva-llc.myshopify.com` — update in `src/token/TokenPage.tsx` `NAV_ITEMS` array |
+| Profile photo in About | ✓ Done — `public/avatar_jpg.jpeg` |
+| NFC token page | ✓ Done — live at `/token` |
+| Session start hook | ✓ Done — auto-runs `npm install` on cloud sessions |
 
 Contact info is now real (no more placeholders):
 - Email: `levallcworks@gmail.com` ✓
@@ -141,7 +144,29 @@ Node 20+ required. No other services needed.
 | `SideHustles` | `#ventures` | 3 groups (active/in-progress/planned) from `sideHustles[]` |
 | `CareerStories` | `#stories` | Numbered story list from `careerStories[]` |
 | `Contact` | `#contact` | Inquiry form (mailto fallback) + Email/LinkedIn/GitHub link cards |
-| `Footer` | — | Name + copyright |
+| `Footer` | — | Name + copyright + subtle `◈ Token` link to `/token` |
+
+## NFC Token Page (`/token`)
+
+A completely separate React app (Vite multi-page build) for the physical 3D-printed NFC smart business card.
+
+**URL:** `https://portfolio-4n2.pages.dev/token`
+
+**Architecture:**
+- Entry: `token/index.html` → `src/token/main.tsx` → `src/token/TokenPage.tsx`
+- Styles: `src/token/TokenPage.css` (all classes prefixed `tp-` to avoid collision)
+- Separate React root (`#token-root`), imports `src/index.css` for base tokens only
+- `vite.config.ts` has two `rollupOptions.input` entries: `main` and `token`
+- `public/_redirects` has `/token /token/index.html 200` before the SPA catch-all
+
+**Design:** Pure black background (`#000`), full-spectrum keyboard RGB hue-cycling on the coin ring, floating avatar photo inside spinning conic-gradient ring, iOS-style navigation cards, glassmorphism achievement card.
+
+**Edit content in `src/token/TokenPage.tsx`:**
+- `NAV_ITEMS` array — navigation card titles, subtitles, and hrefs (update Shopify URL here)
+- `ACHIEVEMENT_SKILLS` array — chips inside the achievement card
+- Every section has a `/* EDIT: */` comment above it
+
+**NFC tag URL to program:** `https://portfolio-4n2.pages.dev/token`
 
 ## Work Section — Accordion Behavior
 
@@ -197,3 +222,14 @@ The form uses a `mailto:` fallback (no backend). On submit it calls `window.open
 - Added profile photo to About section (`public/avatar_jpg.jpeg`)
 - Circular headshot (96px) placed between section title and bio text in `About.tsx` / `About.css`
 - Photo uploaded via GitHub UI; pulled into local repo and deployed to main
+
+### Session 5
+- Built NFC token landing page at `/token` — completely separate React app via Vite multi-page build
+- Token page design: pure black background, full-spectrum keyboard RGB hue-cycling, real avatar photo inside spinning conic-gradient coin ring, iOS-style navigation cards (About / Projects / Services / Products / Contact), glassmorphism achievement card ("Met the Maker", Legendary, XP +1000), animated color bloom background
+- Added `◈ Token` link in main site footer
+- Fixed `tsconfig.json` — removed deprecated `baseUrl`/`paths` (no `@/` imports exist in codebase)
+- Added missing `.eslintrc.cjs` — linter was broken; now passes clean
+- Added `public/_redirects` rule for `/token` route
+- Added `vite.config.ts` multi-page input for `token/index.html`
+- Added SessionStart hook (`.claude/hooks/session-start.sh`) — auto-runs `npm install` on cloud sessions so the project is always ready on any device
+- Added `.claude/settings.json` to register the hook
