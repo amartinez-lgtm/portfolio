@@ -159,12 +159,20 @@ A completely separate React app (Vite multi-page build) for the physical 3D-prin
 - `vite.config.ts` has two `rollupOptions.input` entries: `main` and `token`
 - `public/_redirects` has `/token /token/index.html 200` before the SPA catch-all
 
-**Design:** Pure black background (`#000`), full-spectrum keyboard RGB hue-cycling on the coin ring, floating avatar photo inside spinning conic-gradient ring, iOS-style navigation cards, glassmorphism achievement card.
+**Design:** Pure black background (`#000`), canvas-based RGB hexagon grid radiating outward from coin center (see below), full-spectrum keyboard RGB hue-cycling on the coin ring, floating avatar photo inside spinning conic-gradient ring, iOS-style navigation cards, glassmorphism achievement card.
 
 **Edit content in `src/token/TokenPage.tsx`:**
 - `NAV_ITEMS` array — navigation card titles, subtitles, and hrefs (update Shopify URL here)
 - `ACHIEVEMENT_SKILLS` array — chips inside the achievement card
 - Every section has a `/* EDIT: */` comment above it
+
+**Hex grid background:**
+- A `<canvas>` element sits as a sibling BEFORE `<div className="tp">` (NOT inside it) — this is critical. `.tp` has `overflow-x: hidden` which traps `position: fixed` children on mobile WebKit and makes them invisible.
+- Canvas is `position: fixed; inset: 0; z-index: 0`. `.tp` is `position: relative; z-index: 1; background: transparent`. Black comes from `html, body { background: #000 }` in `TokenPage.css`.
+- Wave origin is measured once at mount via `coinRef.getBoundingClientRect()` and locked as local `cx/cy` vars in the canvas `useEffect` closure — NOT re-read per frame. Re-reading every frame caused hexes to vanish on scroll (coin scrolls off-screen → negative `getBoundingClientRect().top` → all hexes exceed falloff threshold).
+- Falloff radius is `4.5 × Math.max(W, H)` so hexes stay visible throughout the entire scrollable page.
+- Wave shape: `Math.pow(Math.max(0, Math.sin(...)), 2.5)` — hexes are completely dark except at the wave crest. Speed: `0.028`.
+- Coin (`tp-coin-link`) is wrapped in `<a href="/#about">` — tapping navigates to the About section on the main portfolio.
 
 **NFC tag URL to program:** `https://portfolio-4n2.pages.dev/token`
 
@@ -233,3 +241,11 @@ The form uses a `mailto:` fallback (no backend). On submit it calls `window.open
 - Added `vite.config.ts` multi-page input for `token/index.html`
 - Added SessionStart hook (`.claude/hooks/session-start.sh`) — auto-runs `npm install` on cloud sessions so the project is always ready on any device
 - Added `.claude/settings.json` to register the hook
+
+### Session 6
+- Added canvas-based RGB hexagon grid background to token page — rings pulse outward from coin center with full-spectrum hue per ring
+- Wave shape is `Math.pow(Math.max(0, sin), 2.5)` so hexes are completely dark except when the wave crest passes over them
+- Fixed z-index layering: canvas moved outside `.tp` wrapper (mobile WebKit `overflow-x: hidden` was trapping the fixed canvas inside the scroll container and hiding it)
+- Fixed hexes disappearing on scroll: wave origin locked at mount via `getBoundingClientRect()` (not re-read per frame); falloff radius set to 4.5× viewport so rings are visible throughout the full scrollable page
+- Made coin (`tp-coin-outer`) tappable: wrapped in `<a href="/#about">` with scale hover/press transitions
+- `tp` background changed to `transparent`; black page background moved to `html, body` so canvas shows through
