@@ -43,6 +43,7 @@ const ACHIEVEMENT_SKILLS = [
 export default function TokenPage() {
   const [visible, setVisible] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const coinRef = useRef<HTMLAnchorElement>(null)
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 200)
@@ -72,9 +73,15 @@ export default function TokenPage() {
       const colStep = R * 1.5
       const rowStep = R * Math.sqrt(3)
 
-      // Approximate center of coin: horizontally centered, ~30% down viewport
-      const cx = W / 2
-      const cy = H * 0.30
+      // Read actual coin position from DOM every frame (accounts for float animation)
+      let cx = W / 2
+      let cy = H * 0.45
+      const coinEl = coinRef.current
+      if (coinEl) {
+        const rect = coinEl.getBoundingClientRect()
+        cx = rect.left + rect.width / 2
+        cy = rect.top + rect.height / 2
+      }
 
       const cols = Math.ceil(W / colStep) + 4
       const rows = Math.ceil(H / rowStep) + 4
@@ -88,17 +95,18 @@ export default function TokenPage() {
           const dy = y - cy
           const dist = Math.sqrt(dx * dx + dy * dy)
 
-          // Ripple wave radiating outward from coin center
-          const wave = Math.sin((dist - now * 0.07) / 140 * Math.PI * 2) * 0.5 + 0.5
+          // Sharp pulse: only the crest of the wave lights hexes up; trough is dark
+          const rawSin = Math.sin((dist - now * 0.035) / 160 * Math.PI * 2)
+          const wave = Math.pow(Math.max(0, rawSin), 2.5)
 
           // Fade to nothing at screen edges
-          const falloff = 1 - Math.min(dist / (Math.sqrt(W * W + H * H) * 0.5 * 0.9), 1)
+          const falloff = 1 - Math.min(dist / (Math.sqrt(W * W + H * H) * 0.5 * 0.95), 1)
           const alpha = wave * falloff
 
-          if (alpha < 0.02) continue
+          if (alpha < 0.015) continue
 
-          // Rainbow hue radiating with the wave
-          const hue = ((dist * 1.1 - now * 0.022) % 360 + 360) % 360
+          // Rainbow hue per ring, slowly drifting
+          const hue = ((dist * 1.2 - now * 0.01) % 360 + 360) % 360
 
           ctx.beginPath()
           for (let i = 0; i < 6; i++) {
@@ -109,14 +117,12 @@ export default function TokenPage() {
           }
           ctx.closePath()
 
-          ctx.strokeStyle = `hsla(${hue}, 100%, 65%, ${Math.min(alpha * 1.1, 0.95)})`
+          ctx.strokeStyle = `hsla(${hue}, 100%, 65%, ${Math.min(alpha, 0.95)})`
           ctx.lineWidth = 1.0
           ctx.stroke()
 
-          if (wave > 0.45) {
-            ctx.fillStyle = `hsla(${hue}, 100%, 55%, ${(wave - 0.45) * alpha * 0.22})`
-            ctx.fill()
-          }
+          ctx.fillStyle = `hsla(${hue}, 100%, 45%, ${alpha * 0.18})`
+          ctx.fill()
         }
       }
 
@@ -151,7 +157,7 @@ export default function TokenPage() {
         </div>
 
         {/* Floating token coin — tappable, links to About section */}
-        <a href="/#about" className="tp-coin-link" aria-label="Learn about Avelino Martinez">
+        <a ref={coinRef} href="/#about" className="tp-coin-link" aria-label="Learn about Avelino Martinez">
           <div className="tp-coin-outer">
             {/* Hue-cycle wrapper rotates all colors through full spectrum */}
             <div className="tp-coin-hue">
