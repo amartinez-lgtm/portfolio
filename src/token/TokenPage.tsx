@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './TokenPage.css'
 
 /* EDIT: Navigation cards — update hrefs and descriptions to match your pages */
@@ -42,14 +42,100 @@ const ACHIEVEMENT_SKILLS = [
 
 export default function TokenPage() {
   const [visible, setVisible] = useState(false)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 200)
     return () => clearTimeout(t)
   }, [])
 
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    let animId: number
+
+    function resize() {
+      canvas!.width = window.innerWidth
+      canvas!.height = window.innerHeight
+    }
+    resize()
+    window.addEventListener('resize', resize)
+
+    function draw(now: number) {
+      const ctx = canvas!.getContext('2d')!
+      const W = canvas!.width
+      const H = canvas!.height
+      ctx.clearRect(0, 0, W, H)
+
+      const R = 22
+      const colStep = R * 1.5
+      const rowStep = R * Math.sqrt(3)
+
+      // Approximate center of coin: horizontally centered, ~30% down viewport
+      const cx = W / 2
+      const cy = H * 0.30
+
+      const cols = Math.ceil(W / colStep) + 4
+      const rows = Math.ceil(H / rowStep) + 4
+
+      for (let col = -2; col < cols; col++) {
+        for (let row = -2; row < rows; row++) {
+          const x = col * colStep
+          const y = row * rowStep + (col % 2 !== 0 ? rowStep / 2 : 0)
+
+          const dx = x - cx
+          const dy = y - cy
+          const dist = Math.sqrt(dx * dx + dy * dy)
+
+          // Ripple wave radiating outward from coin center
+          const wave = Math.sin((dist - now * 0.07) / 140 * Math.PI * 2) * 0.5 + 0.5
+
+          // Fade to nothing at screen edges
+          const falloff = 1 - Math.min(dist / (Math.sqrt(W * W + H * H) * 0.5 * 0.9), 1)
+          const alpha = wave * falloff
+
+          if (alpha < 0.02) continue
+
+          // Rainbow hue radiating with the wave
+          const hue = ((dist * 1.1 - now * 0.022) % 360 + 360) % 360
+
+          ctx.beginPath()
+          for (let i = 0; i < 6; i++) {
+            const angle = (i * 60) * Math.PI / 180
+            const vx = x + R * 0.87 * Math.cos(angle)
+            const vy = y + R * 0.87 * Math.sin(angle)
+            i === 0 ? ctx.moveTo(vx, vy) : ctx.lineTo(vx, vy)
+          }
+          ctx.closePath()
+
+          ctx.strokeStyle = `hsla(${hue}, 100%, 62%, ${Math.min(alpha * 0.9, 0.88)})`
+          ctx.lineWidth = 0.75
+          ctx.stroke()
+
+          if (wave > 0.55) {
+            ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${(wave - 0.55) * alpha * 0.14})`
+            ctx.fill()
+          }
+        }
+      }
+
+      animId = requestAnimationFrame(draw)
+    }
+
+    animId = requestAnimationFrame(draw)
+
+    return () => {
+      cancelAnimationFrame(animId)
+      window.removeEventListener('resize', resize)
+    }
+  }, [])
+
   return (
     <div className="tp">
+
+      {/* Hex grid canvas — radiating RGB rings from coin center */}
+      <canvas ref={canvasRef} className="tp-hexgrid" aria-hidden="true" />
 
       {/* Cycling color bloom behind everything */}
       <div className="tp-bloom" aria-hidden="true" />
@@ -63,17 +149,19 @@ export default function TokenPage() {
           NFC Token Verified
         </div>
 
-        {/* Floating token coin — avatar photo inside RGB spinning ring */}
-        <div className="tp-coin-outer" aria-hidden="true">
-          {/* Hue-cycle wrapper rotates all colors through full spectrum */}
-          <div className="tp-coin-hue">
-            <div className="tp-coin-ring" />
+        {/* Floating token coin — tappable, links to About section */}
+        <a href="/#about" className="tp-coin-link" aria-label="Learn about Avelino Martinez">
+          <div className="tp-coin-outer">
+            {/* Hue-cycle wrapper rotates all colors through full spectrum */}
+            <div className="tp-coin-hue">
+              <div className="tp-coin-ring" />
+            </div>
+            <div className="tp-coin-body">
+              {/* EDIT: Replace /avatar_jpg.jpeg with any photo in public/ */}
+              <img src="/avatar_jpg.jpeg" alt="Avelino Martinez" className="tp-avatar" />
+            </div>
           </div>
-          <div className="tp-coin-body">
-            {/* EDIT: Replace /avatar_jpg.jpeg with any photo in public/ */}
-            <img src="/avatar_jpg.jpeg" alt="Avelino Martinez" className="tp-avatar" />
-          </div>
-        </div>
+        </a>
 
         {/* EDIT: Main headline and subheadline */}
         <p className="tp-eyebrow">Achievement Unlocked</p>

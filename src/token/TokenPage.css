@@ -57,21 +57,31 @@
   position: relative;
 }
 
-/* Cycling color bloom behind everything */
+/* Hex grid canvas — sits below bloom */
+.tp-hexgrid {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Cycling color bloom — softened so hex grid shows through */
 .tp-bloom {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
   animation: tp-bloom 5s linear infinite;
-  opacity: 0.9;
+  opacity: 0.35;
 }
 
 /* ── HERO ───────────────────────────────────────────── */
 
 .tp-hero {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -113,12 +123,29 @@
 
 /* ── COIN VISUAL ────────────────────────────────────── */
 
+/* Clickable coin link wrapper */
+.tp-coin-link {
+  display: block;
+  border-radius: 50%;
+  text-decoration: none;
+  margin-bottom: 40px;
+  transition: transform 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tp-coin-link:hover {
+  transform: scale(1.05);
+}
+
+.tp-coin-link:active {
+  transform: scale(0.96);
+}
+
 /* Outer wrapper handles float animation */
 .tp-coin-outer {
   position: relative;
   width: 230px;
   height: 230px;
-  margin-bottom: 40px;
   animation: tp-float 4s ease-in-out infinite;
   flex-shrink: 0;
 }
@@ -203,7 +230,7 @@
 
 .tp-section {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   padding: 0 20px 48px;
   max-width: 540px;
   margin: 0 auto;
@@ -467,7 +494,7 @@
 
 .tp-footer {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -518,10 +545,15 @@
   .tp-status-pill,
   .tp-eyebrow,
   .tp-bloom,
+  .tp-hexgrid,
   .tp-nav-card {
     animation: none;
     opacity: 1;
     filter: none;
+  }
+
+  .tp-coin-link {
+    transition: none;
   }
 
   .tp-achievement,
