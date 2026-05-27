@@ -94,7 +94,8 @@ interface Project {
 | Analytics | Not added. Cloudflare Web Analytics is free and easy. |
 | Mobile nav close-on-scroll | Not implemented |
 | Active section highlighting in nav | Not implemented |
-| Shopify Products URL in token page | Placeholder `https://leva-llc.myshopify.com` — update in `src/token/TokenPage.tsx` `NAV_ITEMS` array |
+| Shopify Products URL in token page | Placeholder `https://leva-llc.myshopify.com` — will be replaced when `/shop` is built (next session) |
+| `/shop` route (XYZ Designs storefront) | 🔜 Next session — spec + phasing plan saved below in this file |
 | Profile photo in About | ✓ Done — `public/avatar_jpg.jpeg` |
 | NFC token page | ✓ Done — live at `/token` |
 | Session start hook | ✓ Done — auto-runs `npm install` on cloud sessions |
@@ -334,3 +335,27 @@ export interface Product {
 5. Do you have a Resend account / API key already?
 6. Do you have a Stripe account with Payment Links ready?
 7. Do you have any product images ready, or use placeholders for now?
+
+### ⚠️ Architectural decision — Router (must resolve before any code)
+
+The portfolio currently has **no router**. The `/token` page is a separate Vite entry point. The main app is pure anchor-link navigation.
+
+`/shop/[slug]` is a dynamic route — impossible without a router. Options:
+
+| Option | Verdict |
+|---|---|
+| **Add React Router** | ✅ Recommended. Right long-term move now that there's a real storefront with dynamic pages. |
+| **Vite multi-page** | ❌ Works for `/shop` but can't do `/shop/[slug]` — would need a separate HTML file per product. |
+| **Separate app** (like `/token`) | ❌ Totally isolated, slug pages still need a router inside anyway. |
+
+**Recommendation: add React Router.** "No router" rule made sense for a one-page portfolio. A storefront with dynamic product pages is the right moment for it.
+
+### Recommended build phases
+
+Rather than building everything at once, phase the work:
+
+**Phase 1 (first shop session):** Shop index + product pages + Stripe Payment Links only. No backend, no email gate. Working storefront in one session.
+
+**Phase 2 (second shop session):** Email gate modal + R2 signed URL download flow + D1 email logging + Resend confirmation email.
+
+This keeps each session focused and ships something real at the end of every session.
