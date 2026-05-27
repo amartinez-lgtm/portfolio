@@ -2,7 +2,7 @@
 
 Personal portfolio site for Avelino Martinez. Built with React + Vite + TypeScript, deployed on Cloudflare Pages.
 
-**Live URL:** https://portfolio-4n2.pages.dev
+**Live URL:** https://levallc.com
 
 ---
 
@@ -76,7 +76,7 @@ CSS custom properties defined in `src/index.css`:
 
 - [ ] Replace placeholder email (`avelino@levalabs.com`) with real email
 - [ ] Replace placeholder LinkedIn URL with real profile slug
-- [ ] Custom domain setup in Cloudflare Pages
+- [x] Custom domain setup — levallc.com ✓
 - [ ] Add real profile photo to About section
 - [ ] Consider adding a `/uses` or `/now` page
 - [ ] SmartWardrobe AI and QR Tool Tracking pages when those launch

@@ -17,7 +17,7 @@ This file gives any AI assistant (Claude, Codex, Cursor, etc.) full context to p
 
 ## What This Project Is
 
-A personal portfolio site. Live at: **https://portfolio-4n2.pages.dev**
+A personal portfolio site. Live at: **https://levallc.com**
 
 Current section order: **Hero → About → Work → Ventures → Stories → Contact**
 
@@ -90,7 +90,7 @@ interface Project {
 
 | Item | Status |
 |---|---|
-| Custom domain | Not set up. Do in Cloudflare Pages → Custom Domains. ~$10-15/yr on Cloudflare Registrar. |
+| Custom domain | ✓ Done — `levallc.com` registered on Cloudflare, attached to Pages project. |
 | Analytics | Not added. Cloudflare Web Analytics is free and easy. |
 | Mobile nav close-on-scroll | Not implemented |
 | Active section highlighting in nav | Not implemented |
@@ -111,7 +111,7 @@ git push origin main
   → Cloudflare Pages detects push
   → runs: npm run build
   → serves: dist/
-  → live in ~60 seconds at portfolio-4n2.pages.dev
+  → live in ~60 seconds at levallc.com
 ```
 
 **Important:** Always push to `main`. Cloudflare only watches `main`. Feature branches do NOT deploy.
@@ -150,7 +150,7 @@ Node 20+ required. No other services needed.
 
 A completely separate React app (Vite multi-page build) for the physical 3D-printed NFC smart business card.
 
-**URL:** `https://portfolio-4n2.pages.dev/token`
+**URL:** `https://levallc.com/token`
 
 **Architecture:**
 - Entry: `token/index.html` → `src/token/main.tsx` → `src/token/TokenPage.tsx`
@@ -174,7 +174,7 @@ A completely separate React app (Vite multi-page build) for the physical 3D-prin
 - Wave shape: `Math.pow(Math.max(0, Math.sin(...)), 2.5)` — hexes are completely dark except at the wave crest. Speed: `0.028`.
 - Coin (`tp-coin-link`) is wrapped in `<a href="/#about">` — tapping navigates to the About section on the main portfolio.
 
-**NFC tag URL to program:** `https://portfolio-4n2.pages.dev/token`
+**NFC tag URL to program:** `https://levallc.com/token`
 
 ## Work Section — Accordion Behavior
 
