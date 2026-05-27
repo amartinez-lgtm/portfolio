@@ -249,3 +249,88 @@ The form uses a `mailto:` fallback (no backend). On submit it calls `window.open
 - Fixed hexes disappearing on scroll: wave origin locked at mount via `getBoundingClientRect()` (not re-read per frame); falloff radius set to 4.5× viewport so rings are visible throughout the full scrollable page
 - Made coin (`tp-coin-outer`) tappable: wrapped in `<a href="/#about">` with scale hover/press transitions
 - `tp` background changed to `transparent`; black page background moved to `html, body` so canvas shows through
+
+### Session 7
+- Registered custom domain `levallc.com` on Cloudflare Registrar ($10.46/yr, auto-renews May 2027)
+- Attached `levallc.com` to Cloudflare Pages portfolio project — Active + SSL enabled
+- Updated all `portfolio-4n2.pages.dev` references in codebase to `levallc.com`
+- NFC tag programmed with old URL still works; new tags should use `https://levallc.com/token`
+
+---
+
+## Next Session — XYZ Designs Shop (`/shop`)
+
+### What we're building
+Integrating 3D printing business (XYZ Designs) into the portfolio as a `/shop` route. Replacing Shopify with a zero-monthly-cost print-on-demand + free download storefront.
+
+### Spec (do not start until clarifying questions are answered)
+
+**Routes to add:**
+- `/shop` — product grid, hero section "XYZ Designs — Made-to-order 3D prints + free downloads"
+- `/shop/[slug]` — individual product page with image gallery, specs, CTAs
+
+**Product card CTAs:**
+- "Download Free 3MF" → email gate modal → signed R2 URL
+- "Order Printed — $XX" → external Stripe Payment Link (created manually in Stripe dashboard)
+
+**Product data source of truth** (`src/data/products.ts`):
+```ts
+export interface Product {
+  slug: string
+  title: string
+  description: string
+  longDescription: string
+  images: string[]
+  printedPrice: number
+  stripePaymentLink: string
+  r2FileKey: string          // key in Cloudflare R2 bucket
+  specs: {
+    material: string
+    dimensions: string
+    printTimeHours: number
+  }
+  featured: boolean
+}
+```
+
+**Free download flow:**
+1. User clicks "Download Free 3MF"
+2. Email gate modal: name + email (required)
+3. POST to `/api/download` Worker endpoint
+4. Worker: logs email + slug to D1, generates signed R2 URL (15 min expiry), returns URL
+5. Frontend redirects to signed URL → file downloads
+6. Confirmation email via Resend (free tier)
+
+**Order flow:** "Order Printed" → Stripe Payment Link. No checkout to build.
+
+**Worker endpoints:**
+- `POST /api/download` — body: `{ productSlug, email, name }` → returns `{ signedUrl }`
+- `GET /api/downloads/count/:slug` → download count for social proof
+
+**Infrastructure needed:**
+- R2 bucket: `xyz-designs-files` (private)
+- D1 database: `xyz-designs-db`, table: `downloads (id, email, name, product_slug, timestamp)`
+- Resend API key in Wrangler secrets
+- Worker via Cloudflare Pages Functions: `/functions/api/[[route]].ts`
+
+**Constraints:**
+- TypeScript only — no Python, no Shopify, no FastAPI
+- All secrets via Wrangler secrets, never committed
+- Code clarity over brevity — Avelino is in active learning mode, comments on non-obvious CF patterns
+- Reuse existing portfolio design system (plain CSS, design tokens)
+
+### ⚠️ Discrepancies to resolve at session start
+
+1. **Tailwind vs plain CSS** — the spec mentions TailwindCSS but this portfolio uses **plain CSS with CSS custom properties** (intentional, enforced rule). Clarify before writing any component code.
+2. **No existing Worker** — this will be the first Cloudflare Worker/Function in the repo. Need to confirm Wrangler setup from scratch.
+3. **Hono** — spec mentions Hono. Confirm whether to use Hono inside the Pages Function or raw `fetch` handler. Hono is fine but adds a dependency.
+4. **Deployed URL** — spec still references `portfolio-4n2.pages.dev`; correct URL is now `levallc.com`.
+
+### Questions to ask before writing any code
+1. Current repo file structure (run `find src -type f | sort`)
+2. Does a `wrangler.toml` exist yet?
+3. Confirm Tailwind vs plain CSS decision
+4. Confirm Hono or raw handler preference
+5. Do you have a Resend account / API key already?
+6. Do you have a Stripe account with Payment Links ready?
+7. Do you have any product images ready, or use placeholders for now?
