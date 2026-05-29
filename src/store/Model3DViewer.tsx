@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import * as THREE from 'three'
+import {
+  Scene, Color, PerspectiveCamera, WebGLRenderer,
+  AmbientLight, DirectionalLight, Vector3, Group,
+  Box3, MeshStandardMaterial, type Mesh,
+} from 'three'
 import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
@@ -20,115 +24,114 @@ export default function Model3DViewer({ parts, color = '#1c1c1c', mini = false }
     setLoading(true)
     setError(false)
 
-    // Use actual rendered width; fall back to 320 if layout hasn't happened yet
-    const W = wrap.clientWidth || 320
-    const H = mini ? wrap.clientHeight || Math.round(W * 0.75) : Math.round(W * 0.75)
+    let animId: number | undefined
+    let renderer: WebGLRenderer | null = null
+    let controls: OrbitControls | null = null
 
-    const scene = new THREE.Scene()
-    scene.background = new THREE.Color('#f0ede9')
-
-    const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 1000)
-    camera.position.set(0, 1.5, 7)
-
-    let renderer: THREE.WebGLRenderer
     try {
-      renderer = new THREE.WebGLRenderer({ antialias: !mini, powerPreference: 'low-power' })
+      const W = wrap.clientWidth || 320
+      const H = mini ? wrap.clientHeight || Math.round(W * 0.75) : Math.round(W * 0.75)
+
+      const scene = new Scene()
+      scene.background = new Color('#080808')
+
+      const camera = new PerspectiveCamera(42, W / H, 0.1, 1000)
+      camera.position.set(0, 1.5, 7)
+
+      renderer = new WebGLRenderer({ antialias: !mini, powerPreference: 'low-power' })
+      renderer.setSize(W, H)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, mini ? 1.5 : 2))
+      if (mini) renderer.domElement.style.pointerEvents = 'none'
+      mount.appendChild(renderer.domElement)
+
+      // Dramatic product lighting (Yeezy-style)
+      scene.add(new AmbientLight(0xffffff, 0.12))
+      const key = new DirectionalLight(0xffffff, 3.5)
+      key.position.set(4, 7, 4)
+      scene.add(key)
+      const rim = new DirectionalLight(0x88aaff, 1.8)
+      rim.position.set(-5, 3, -6)
+      scene.add(rim)
+      const bottom = new DirectionalLight(0xffffff, 0.25)
+      bottom.position.set(0, -4, 2)
+      scene.add(bottom)
+
+      if (!mini) {
+        controls = new OrbitControls(camera, renderer.domElement)
+        controls.enableDamping = true
+        controls.dampingFactor = 0.07
+        controls.autoRotate = true
+        controls.autoRotateSpeed = 1.4
+        controls.enablePan = false
+        controls.minDistance = 2
+        controls.maxDistance = 14
+      }
+
+      const mat = new MeshStandardMaterial({
+        color: new Color(color),
+        roughness: 0.5,
+        metalness: 0.05,
+      })
+
+      const loader = new ThreeMFLoader()
+      const assembly = new Group()
+      let rotY = 0
+
+      Promise.all(
+        parts.map(p => new Promise<void>(resolve => {
+          loader.load(p.url, obj => { assembly.add(obj); resolve() }, undefined, () => resolve())
+        }))
+      ).then(() => {
+        if (assembly.children.length === 0) { setError(true); setLoading(false); return }
+        assembly.traverse(child => {
+          if ((child as Mesh).isMesh) (child as Mesh).material = mat
+        })
+        const box = new Box3().setFromObject(assembly)
+        const center = box.getCenter(new Vector3())
+        const size = box.getSize(new Vector3())
+        assembly.position.copy(center).negate()
+        assembly.scale.setScalar(3.8 / Math.max(size.x, size.y, size.z))
+        scene.add(assembly)
+        setLoading(false)
+      })
+
+      function animate() {
+        animId = requestAnimationFrame(animate)
+        if (mini) {
+          rotY += 0.008
+          assembly.rotation.y = rotY
+        } else {
+          controls!.update()
+        }
+        renderer!.render(scene, camera)
+      }
+      animate()
+
+      function handleResize() {
+        const w = wrap!.clientWidth
+        const h = mini ? wrap!.clientHeight || Math.round(w * 0.75) : Math.round(w * 0.75)
+        camera.aspect = w / h
+        camera.updateProjectionMatrix()
+        renderer!.setSize(w, h)
+      }
+      window.addEventListener('resize', handleResize)
+
+      // Register cleanup — captured in outer scope via let
+      const registeredHandleResize = handleResize
+      return () => {
+        if (animId !== undefined) cancelAnimationFrame(animId)
+        window.removeEventListener('resize', registeredHandleResize)
+        controls?.dispose()
+        renderer?.dispose()
+        if (renderer && mount?.contains(renderer.domElement)) mount.removeChild(renderer.domElement)
+      }
     } catch {
       setError(true)
       setLoading(false)
-      return
-    }
-    renderer.setSize(W, H)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, mini ? 1.5 : 2))
-    if (mini) renderer.domElement.style.pointerEvents = 'none'
-    mount.appendChild(renderer.domElement)
-
-    // Three-point lighting
-    scene.add(new THREE.AmbientLight(0xfff8f0, 0.65))
-    const key = new THREE.DirectionalLight(0xffffff, 0.9)
-    key.position.set(5, 8, 5)
-    scene.add(key)
-    const fill = new THREE.DirectionalLight(0xfff0e0, 0.25)
-    fill.position.set(-5, 1, -4)
-    scene.add(fill)
-    scene.add(Object.assign(new THREE.DirectionalLight(0xffffff, 0.12), {
-      position: new THREE.Vector3(0, -4, -6)
-    }))
-
-    const controls = mini ? null : (() => {
-      const c = new OrbitControls(camera, renderer.domElement)
-      c.enableDamping = true
-      c.dampingFactor = 0.07
-      c.autoRotate = true
-      c.autoRotateSpeed = 1.4
-      c.enablePan = false
-      c.minDistance = 2
-      c.maxDistance = 14
-      return c
-    })()
-
-    const mat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(color),
-      roughness: 0.42,
-      metalness: 0.06,
-    })
-
-    // Load ALL parts simultaneously — display as combined assembly
-    const loader = new ThreeMFLoader()
-    const assembly = new THREE.Group()
-    let rotY = 0
-
-    Promise.all(
-      parts.map(p => new Promise<void>(resolve => {
-        loader.load(p.url, obj => { assembly.add(obj); resolve() }, undefined, () => resolve())
-      }))
-    ).then(() => {
-      if (assembly.children.length === 0) {
-        setError(true)
-        setLoading(false)
-        return
+      if (renderer) {
+        try { renderer.dispose() } catch { /* ignore */ }
+        try { if (mount?.contains(renderer.domElement)) mount.removeChild(renderer.domElement) } catch { /* ignore */ }
       }
-      assembly.traverse(child => {
-        if ((child as THREE.Mesh).isMesh) (child as THREE.Mesh).material = mat
-      })
-      // Center + scale the full assembly
-      const box = new THREE.Box3().setFromObject(assembly)
-      const center = box.getCenter(new THREE.Vector3())
-      const size = box.getSize(new THREE.Vector3())
-      assembly.position.copy(center).negate()
-      assembly.scale.setScalar(3.8 / Math.max(size.x, size.y, size.z))
-      scene.add(assembly)
-      setLoading(false)
-    })
-
-    let animId: number
-    function animate() {
-      animId = requestAnimationFrame(animate)
-      if (mini) {
-        rotY += 0.008
-        assembly.rotation.y = rotY
-      } else {
-        controls!.update()
-      }
-      renderer.render(scene, camera)
-    }
-    animate()
-
-    function handleResize() {
-      const w = wrap!.clientWidth
-      const h = mini ? wrap!.clientHeight || Math.round(w * 0.75) : Math.round(w * 0.75)
-      camera.aspect = w / h
-      camera.updateProjectionMatrix()
-      renderer.setSize(w, h)
-    }
-    window.addEventListener('resize', handleResize)
-
-    return () => {
-      cancelAnimationFrame(animId)
-      window.removeEventListener('resize', handleResize)
-      controls?.dispose()
-      renderer!.dispose()
-      if (mount?.contains(renderer!.domElement)) mount.removeChild(renderer!.domElement)
     }
   }, [parts, color, mini])
 
@@ -154,7 +157,7 @@ export default function Model3DViewer({ parts, color = '#1c1c1c', mini = false }
           <span>Loading 3D model…</span>
         </div>
       )}
-      {error && <div className="mv-loading"><span>Could not load model</span></div>}
+      {error && <div className="mv-loading mv-loading--err"><span>◈</span><span>Could not load model</span></div>}
       {!loading && !error && (
         <div className="mv-hint" aria-hidden="true">Drag to rotate</div>
       )}

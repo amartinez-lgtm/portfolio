@@ -3,7 +3,8 @@ import { storeProducts } from '../data/store'
 import type { StoreProduct } from '../data/store'
 import './StorePage.css'
 
-const Model3DViewer = lazy(() => import('./Model3DViewer'))
+// Retry once on failure — handles transient network errors loading the large Three.js chunk
+const Model3DViewer = lazy(() => import('./Model3DViewer').catch(() => import('./Model3DViewer')))
 
 class ViewerBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { err: boolean }> {
   state = { err: false }
