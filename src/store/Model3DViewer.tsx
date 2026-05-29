@@ -24,9 +24,6 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
     setLoading(true)
     setError(false)
 
-    // On touch devices, skip OrbitControls so single-touch doesn't block drawer scroll
-    const isTouch = window.matchMedia('(pointer: coarse)').matches
-
     let animId: number | undefined
     let renderer: WebGLRenderer | null = null
     let controls: OrbitControls | null = null
@@ -59,8 +56,9 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
       bottom.position.set(0, -4, 2)
       scene.add(bottom)
 
-      // OrbitControls only on non-touch (desktop) full viewer
-      if (!mini && !isTouch) {
+      // Full viewer: OrbitControls with touch support (drag / pinch to manipulate)
+      // Mini viewer: constant auto-spin, no controls
+      if (!mini) {
         controls = new OrbitControls(camera, renderer.domElement)
         controls.enableDamping = true
         controls.dampingFactor = 0.07
@@ -78,7 +76,12 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
       })
 
       const loader = new ThreeMFLoader()
+      // spinner: outer group rotates on world Y; assembly: inner group holds orientation fix.
+      // Two groups prevent Euler-angle interference when both x and y rotations would otherwise
+      // combine on the same object and cause the model to orbit instead of spin in place.
+      const spinner = new Group()
       const assembly = new Group()
+      spinner.add(assembly)
       let rotY = 0
 
       Promise.all(
@@ -90,22 +93,23 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
         assembly.traverse(child => {
           if ((child as Mesh).isMesh) (child as Mesh).material = mat
         })
-        // Apply CAD→Three.js orientation correction before computing bounding box
+        // Apply CAD orientation fix to inner assembly only
         if (rotationX !== 0) assembly.rotation.x = rotationX
-        const box = new Box3().setFromObject(assembly)
-        const center = box.getCenter(new Vector3())
-        const size = box.getSize(new Vector3())
-        assembly.position.copy(center).negate()
-        assembly.scale.setScalar(3.8 / Math.max(size.x, size.y, size.z))
-        scene.add(assembly)
+        // Scale first, then recompute center — setting position before scale leaves model off-center
+        const rawBox = new Box3().setFromObject(spinner)
+        const rawSize = rawBox.getSize(new Vector3())
+        spinner.scale.setScalar(3.8 / Math.max(rawSize.x, rawSize.y, rawSize.z))
+        const scaledBox = new Box3().setFromObject(spinner)
+        spinner.position.copy(scaledBox.getCenter(new Vector3())).negate()
+        scene.add(spinner)
         setLoading(false)
       })
 
       function animate() {
         animId = requestAnimationFrame(animate)
-        if (mini || isTouch) {
+        if (mini) {
           rotY += 0.008
-          assembly.rotation.y = rotY
+          spinner.rotation.y = rotY
         } else {
           controls!.update()
         }
@@ -122,11 +126,9 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
       }
       window.addEventListener('resize', handleResize)
 
-      // Register cleanup — captured in outer scope via let
-      const registeredHandleResize = handleResize
       return () => {
         if (animId !== undefined) cancelAnimationFrame(animId)
-        window.removeEventListener('resize', registeredHandleResize)
+        window.removeEventListener('resize', handleResize)
         controls?.dispose()
         renderer?.dispose()
         if (renderer && mount?.contains(renderer.domElement)) mount.removeChild(renderer.domElement)
