@@ -102,8 +102,7 @@ export default function StorePage() {
           </svg>
           Portfolio
         </a>
-        {/* EDIT: Replace with <img src="/xyz-logo.png"> once logo is in public/ */}
-        <span className="sp-header__brand">XYZ</span>
+        <img src="/Photoroom_20250521_201123.jpeg" alt="XYZ" className="sp-logo" />
       </header>
 
       <section className="sp-hero">
@@ -123,6 +122,10 @@ export default function StorePage() {
           </div>
         </div>
       </section>
+
+      <div className="sp-banner">
+        <img src="/XYZ.png" alt="XYZ — 3D Prints for Everyday Living" />
+      </div>
 
       <main className="sp-main">
 
