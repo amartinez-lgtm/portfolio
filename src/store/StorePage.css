@@ -127,15 +127,12 @@ html, body {
   width: 100%;
   overflow: hidden;
   border-bottom: 1px solid rgba(0,0,0,0.06);
-  max-height: 180px;
 }
 
 .sp-banner img {
   width: 100%;
-  height: 180px;
+  height: auto;
   display: block;
-  object-fit: cover;
-  object-position: center;
 }
 
 /* ── MAIN ───────────────────────────────────────────── */
@@ -498,14 +495,6 @@ html, body {
 
   .sp-stats {
     font-size: 0.75rem;
-  }
-
-  .sp-banner {
-    max-height: 130px;
-  }
-
-  .sp-banner img {
-    height: 130px;
   }
 
   .sp-filters {
