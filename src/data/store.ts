@@ -56,9 +56,10 @@ export const storeProducts: StoreProduct[] = [
     name: 'Paper Towel Dispenser',
     type: 'physical',
     description:
-      'Wall-mounted dispenser for standard paper towel rolls. Minimal profile, no visible hardware when mounted.',
+      'Wall-mounted holder for multifold paper towels. Minimal rounded form, mounts flush to the wall with no visible hardware. Available in Matte Black, White, or Gray.',
     price: 'Made to Order',
-    tags: ['Home', 'Kitchen'],
+    tags: ['Home', 'Kitchen', 'Bathroom'],
+    image: '/products/ptd-ai-hero.png',
     status: 'available',
   },
   {
