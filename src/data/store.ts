@@ -74,7 +74,7 @@ export const storeProducts: StoreProduct[] = [
       ],
       color: '#909090',
       rotationX: -Math.PI / 2,
-      rotationZ: Math.PI / 2,
+      rotationZ: -Math.PI / 2,
     },
     status: 'available',
   },
