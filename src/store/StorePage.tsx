@@ -102,16 +102,17 @@ export default function StorePage() {
           </svg>
           Portfolio
         </a>
-        <span className="sp-header__brand">Leva LLC</span>
+        {/* EDIT: Replace with <img src="/xyz-logo.png"> once logo is in public/ */}
+        <span className="sp-header__brand">XYZ</span>
       </header>
 
-      <main className="sp-main">
-        <div className="sp-hero">
-          <p className="sp-eyebrow">Leva LLC Store</p>
-          <h1 className="sp-headline">3D-Printed Objects,<br />Built In-House</h1>
+      <section className="sp-hero">
+        <div className="sp-hero__inner">
+          <p className="sp-eyebrow">by Leva LLC</p>
+          <h1 className="sp-headline">3D Prints for<br />Everyday Living</h1>
           <p className="sp-sub">
-            Made-to-order physical products and free STL downloads.
-            Every item designed and printed by Avelino Martinez.
+            Made-to-order objects designed and printed in-house.
+            Built to last, sized for real life.
           </p>
           <div className="sp-stats">
             <span><strong>{availableCount}</strong> available now</span>
@@ -121,6 +122,9 @@ export default function StorePage() {
             <span>Custom orders welcome</span>
           </div>
         </div>
+      </section>
+
+      <main className="sp-main">
 
         <div className="sp-filters">
           {FILTER_LABELS.map(({ value, label }) => (
@@ -144,20 +148,22 @@ export default function StorePage() {
           <div className="sp-custom-cta__inner">
             <p className="sp-custom-cta__title">Need something custom?</p>
             <p className="sp-custom-cta__body">
-              Have a design in mind? I do custom 3D printing, scanning, and fabrication through Leva LLC.
+              Have a design in mind? XYZ does custom 3D printing, scanning, and fabrication.
+              Every order is handled personally by Avelino Martinez.
             </p>
             <a
-              href="mailto:levallcworks@gmail.com?subject=Custom%20Order%20Inquiry"
+              href="mailto:levallcworks@gmail.com?subject=Custom%20Order%20Inquiry%20%E2%80%94%20XYZ"
               className="sp-btn sp-btn--primary"
             >
               Get in Touch
             </a>
           </div>
         </div>
+
       </main>
 
       <footer className="sp-footer">
-        <span>© {new Date().getFullYear()} Leva LLC · Avelino Martinez</span>
+        <span>XYZ · Leva LLC · Avelino Martinez</span>
         <a href="/">portfolio-4n2.pages.dev</a>
       </footer>
 

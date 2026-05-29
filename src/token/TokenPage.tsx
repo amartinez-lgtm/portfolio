@@ -24,7 +24,7 @@ const NAV_ITEMS = [
   {
     icon: '🛒',
     title: 'Products',
-    sub: '3D-printed objects & free STL files',
+    sub: 'XYZ — 3D prints for everyday living',
     href: '/store',
   },
   {
