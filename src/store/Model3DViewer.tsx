@@ -8,9 +8,9 @@ import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 interface ModelPart { label: string; url: string }
-interface Props { parts: ModelPart[]; color?: string; mini?: boolean }
+interface Props { parts: ModelPart[]; color?: string; mini?: boolean; rotationX?: number }
 
-export default function Model3DViewer({ parts, color = '#1c1c1c', mini = false }: Props) {
+export default function Model3DViewer({ parts, color = '#404040', mini = false, rotationX = 0 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const mountRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
@@ -23,6 +23,9 @@ export default function Model3DViewer({ parts, color = '#1c1c1c', mini = false }
 
     setLoading(true)
     setError(false)
+
+    // On touch devices, skip OrbitControls so single-touch doesn't block drawer scroll
+    const isTouch = window.matchMedia('(pointer: coarse)').matches
 
     let animId: number | undefined
     let renderer: WebGLRenderer | null = null
@@ -44,19 +47,20 @@ export default function Model3DViewer({ parts, color = '#1c1c1c', mini = false }
       if (mini) renderer.domElement.style.pointerEvents = 'none'
       mount.appendChild(renderer.domElement)
 
-      // Dramatic product lighting (Yeezy-style)
-      scene.add(new AmbientLight(0xffffff, 0.12))
+      // Dramatic product lighting
+      scene.add(new AmbientLight(0xffffff, 0.3))
       const key = new DirectionalLight(0xffffff, 3.5)
       key.position.set(4, 7, 4)
       scene.add(key)
       const rim = new DirectionalLight(0x88aaff, 1.8)
       rim.position.set(-5, 3, -6)
       scene.add(rim)
-      const bottom = new DirectionalLight(0xffffff, 0.25)
+      const bottom = new DirectionalLight(0xffffff, 0.3)
       bottom.position.set(0, -4, 2)
       scene.add(bottom)
 
-      if (!mini) {
+      // OrbitControls only on non-touch (desktop) full viewer
+      if (!mini && !isTouch) {
         controls = new OrbitControls(camera, renderer.domElement)
         controls.enableDamping = true
         controls.dampingFactor = 0.07
@@ -69,8 +73,8 @@ export default function Model3DViewer({ parts, color = '#1c1c1c', mini = false }
 
       const mat = new MeshStandardMaterial({
         color: new Color(color),
-        roughness: 0.5,
-        metalness: 0.05,
+        roughness: 0.45,
+        metalness: 0.08,
       })
 
       const loader = new ThreeMFLoader()
@@ -86,6 +90,8 @@ export default function Model3DViewer({ parts, color = '#1c1c1c', mini = false }
         assembly.traverse(child => {
           if ((child as Mesh).isMesh) (child as Mesh).material = mat
         })
+        // Apply CAD→Three.js orientation correction before computing bounding box
+        if (rotationX !== 0) assembly.rotation.x = rotationX
         const box = new Box3().setFromObject(assembly)
         const center = box.getCenter(new Vector3())
         const size = box.getSize(new Vector3())
@@ -97,7 +103,7 @@ export default function Model3DViewer({ parts, color = '#1c1c1c', mini = false }
 
       function animate() {
         animId = requestAnimationFrame(animate)
-        if (mini) {
+        if (mini || isTouch) {
           rotY += 0.008
           assembly.rotation.y = rotY
         } else {
@@ -133,7 +139,7 @@ export default function Model3DViewer({ parts, color = '#1c1c1c', mini = false }
         try { if (mount?.contains(renderer.domElement)) mount.removeChild(renderer.domElement) } catch { /* ignore */ }
       }
     }
-  }, [parts, color, mini])
+  }, [parts, color, mini, rotationX])
 
   if (mini) {
     return (

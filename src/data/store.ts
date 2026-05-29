@@ -12,7 +12,7 @@ export interface StoreProduct {
   tags: string[]
   image?: string
   images?: string[]
-  model3d?: { parts: ModelPart[]; color?: string }
+  model3d?: { parts: ModelPart[]; color?: string; rotationX?: number }
   status: 'available' | 'coming-soon'
   downloadUrl?: string
 }
@@ -73,7 +73,8 @@ export const storeProducts: StoreProduct[] = [
         { label: 'Body', url: '/products/ptd-body.3mf' },
         { label: 'Lid', url: '/products/ptd-lid.3mf' },
       ],
-      color: '#1c1c1c',
+      color: '#404040',
+      rotationX: -Math.PI / 2,
     },
     status: 'available',
   },
