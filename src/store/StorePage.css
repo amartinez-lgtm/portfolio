@@ -202,11 +202,19 @@ html, body {
   flex-direction: column;
   transition: box-shadow 0.2s, transform 0.15s;
   box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .sp-card:hover {
   box-shadow: 0 8px 28px rgba(0,0,0,0.1);
   transform: translateY(-2px);
+}
+
+.sp-card:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
 .sp-card--soon {
@@ -230,6 +238,7 @@ html, body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: top;
   display: block;
 }
 
@@ -263,6 +272,39 @@ html, body {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(0,0,0,0.25);
+}
+
+/* "Tap to view" hint — appears on hover/focus */
+.sp-card__tap-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border-radius: 99px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.sp-card:hover .sp-card__tap-hint,
+.sp-card:focus .sp-card__tap-hint {
+  opacity: 1;
+}
+
+.sp-card__cta-hint {
+  font-size: 0.8rem;
+  color: #c2410c;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .sp-card__soon-badge {
@@ -551,4 +593,168 @@ html, body {
   .sp-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+/* ── PRODUCT DRAWER ─────────────────────────────────── */
+
+@keyframes sp-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes sp-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.sp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  animation: sp-fade-in 0.22s ease;
+}
+
+.sp-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  z-index: 201;
+  max-height: 88svh;
+  display: flex;
+  flex-direction: column;
+  animation: sp-slide-up 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  /* Center as modal on wide screens */
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.sp-drawer__handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(0,0,0,0.14);
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+/* Image gallery */
+.sp-drawer__gallery {
+  position: relative;
+  flex-shrink: 0;
+  background: #f0ede9;
+  overflow: hidden;
+}
+
+.sp-drawer__img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+
+.sp-drawer__no-img {
+  aspect-ratio: 4 / 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: rgba(0,0,0,0.25);
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sp-drawer__no-img span:first-child {
+  font-size: 2.5rem;
+}
+
+/* Dot indicators */
+.sp-drawer__dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+}
+
+.sp-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.sp-dot--active {
+  background: #fff;
+  transform: scale(1.25);
+}
+
+/* Scrollable info body */
+.sp-drawer__body {
+  padding: 20px 20px 8px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sp-drawer__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sp-drawer__name {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.sp-drawer__desc {
+  font-size: 0.9375rem;
+  color: #52525b;
+  line-height: 1.65;
+}
+
+/* Sticky CTA at bottom */
+.sp-drawer__cta {
+  padding: 14px 20px max(20px, env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(0,0,0,0.06);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sp-drawer__cancel {
+  background: none;
+  border: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #71717a;
+  cursor: pointer;
+  padding: 6px;
+  font-family: var(--font-sans);
+  transition: color 0.15s;
+}
+
+.sp-drawer__cancel:hover {
+  color: #111;
 }

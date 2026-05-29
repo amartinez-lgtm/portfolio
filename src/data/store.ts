@@ -6,6 +6,7 @@ export interface StoreProduct {
   price: string
   tags: string[]
   image?: string
+  images?: string[]
   status: 'available' | 'coming-soon'
   downloadUrl?: string
 }
@@ -60,6 +61,7 @@ export const storeProducts: StoreProduct[] = [
     price: 'Made to Order',
     tags: ['Home', 'Kitchen', 'Bathroom'],
     image: '/products/ptd-ai-hero.png',
+    images: ['/products/ptd-2.jpeg', '/products/ptd-3.jpeg'],
     status: 'available',
   },
   {

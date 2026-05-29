@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { storeProducts } from '../data/store'
 import type { StoreProduct } from '../data/store'
 import './StorePage.css'
@@ -11,19 +11,125 @@ const FILTER_LABELS: { value: Filter; label: string }[] = [
   { value: 'digital', label: 'Digital Downloads' },
 ]
 
-function ProductCard({ product }: { product: StoreProduct }) {
+function handleOrderEmail(product: StoreProduct) {
+  const subject = encodeURIComponent(`Product Inquiry: ${product.name}`)
+  const body = encodeURIComponent(
+    `Hi Avelino,\n\nI'm interested in ordering: ${product.name}\n\nPlease let me know about availability and pricing.\n\nThanks`
+  )
+  window.open(`mailto:levallcworks@gmail.com?subject=${subject}&body=${body}`)
+}
+
+function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: () => void }) {
+  const [imgIdx, setImgIdx] = useState(0)
+  const touchStartY = useRef(0)
   const isComingSoon = product.status === 'coming-soon'
 
-  function handleOrder() {
-    const subject = encodeURIComponent(`Product Inquiry: ${product.name}`)
-    const body = encodeURIComponent(
-      `Hi Avelino,\n\nI'm interested in ordering: ${product.name}\n\nPlease let me know about availability and pricing.\n\nThanks`
-    )
-    window.open(`mailto:levallcworks@gmail.com?subject=${subject}&body=${body}`)
+  const allImages = [product.image, ...(product.images ?? [])].filter(Boolean) as string[]
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartY.current = e.touches[0].clientY
+  }
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (e.changedTouches[0].clientY - touchStartY.current > 72) onClose()
   }
 
   return (
-    <div className={`sp-card${isComingSoon ? ' sp-card--soon' : ''}`}>
+    <>
+      <div className="sp-overlay" onClick={onClose} aria-hidden="true" />
+      <div
+        className="sp-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label={product.name}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="sp-drawer__handle" aria-hidden="true" />
+
+        {/* Image gallery */}
+        <div className="sp-drawer__gallery">
+          {allImages.length > 0 ? (
+            <>
+              <img
+                key={allImages[imgIdx]}
+                src={allImages[imgIdx]}
+                alt={product.name}
+                className="sp-drawer__img"
+              />
+              {allImages.length > 1 && (
+                <div className="sp-drawer__dots">
+                  {allImages.map((_, i) => (
+                    <button
+                      key={i}
+                      className={`sp-dot${i === imgIdx ? ' sp-dot--active' : ''}`}
+                      onClick={() => setImgIdx(i)}
+                      aria-label={`Photo ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="sp-drawer__no-img">
+              <span aria-hidden="true">{product.type === 'digital' ? '⬡' : '◈'}</span>
+              <span>Photo coming soon</span>
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="sp-drawer__body">
+          <div className="sp-drawer__meta">
+            <span className={`sp-badge sp-badge--${product.type}`}>
+              {product.type === 'physical' ? 'Physical' : 'Digital'}
+            </span>
+            <span className="sp-card__price">{product.price}</span>
+          </div>
+          <h2 className="sp-drawer__name">{product.name}</h2>
+          <p className="sp-drawer__desc">{product.description}</p>
+          <div className="sp-card__tags">
+            {product.tags.map((t) => <span key={t} className="sp-tag">{t}</span>)}
+          </div>
+        </div>
+
+        {/* Sticky CTA */}
+        <div className="sp-drawer__cta">
+          {product.type === 'digital' ? (
+            isComingSoon || !product.downloadUrl ? (
+              <button className="sp-btn sp-btn--ghost" disabled>Download STL — Coming Soon</button>
+            ) : (
+              <a href={product.downloadUrl} className="sp-btn sp-btn--primary" download>
+                Download STL
+              </a>
+            )
+          ) : (
+            <button
+              className="sp-btn sp-btn--primary"
+              onClick={() => handleOrderEmail(product)}
+              disabled={isComingSoon}
+            >
+              Request Order
+            </button>
+          )}
+          <button className="sp-drawer__cancel" onClick={onClose}>Cancel</button>
+        </div>
+      </div>
+    </>
+  )
+}
+
+function ProductCard({ product, onTap }: { product: StoreProduct; onTap: () => void }) {
+  const isComingSoon = product.status === 'coming-soon'
+
+  return (
+    <div
+      className={`sp-card${isComingSoon ? ' sp-card--soon' : ''}`}
+      onClick={onTap}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onTap()}
+      aria-label={`View ${product.name}`}
+    >
       <div className="sp-card__image">
         {product.image ? (
           <img src={product.image} alt={product.name} />
@@ -35,8 +141,9 @@ function ProductCard({ product }: { product: StoreProduct }) {
             <span className="sp-card__placeholder-label">Photo coming soon</span>
           </div>
         )}
-        {isComingSoon && (
-          <div className="sp-card__soon-badge">Coming Soon</div>
+        {isComingSoon && <div className="sp-card__soon-badge">Coming Soon</div>}
+        {!isComingSoon && (
+          <div className="sp-card__tap-hint" aria-hidden="true">Tap to view</div>
         )}
       </div>
 
@@ -47,36 +154,15 @@ function ProductCard({ product }: { product: StoreProduct }) {
           </span>
           <span className="sp-card__price">{product.price}</span>
         </div>
-
         <h3 className="sp-card__name">{product.name}</h3>
         <p className="sp-card__desc">{product.description}</p>
-
         <div className="sp-card__tags">
-          {product.tags.map((t) => (
-            <span key={t} className="sp-tag">{t}</span>
-          ))}
+          {product.tags.map((t) => <span key={t} className="sp-tag">{t}</span>)}
         </div>
-
         <div className="sp-card__footer">
-          {product.type === 'digital' ? (
-            isComingSoon || !product.downloadUrl ? (
-              <button className="sp-btn sp-btn--ghost" disabled>
-                Download STL
-              </button>
-            ) : (
-              <a href={product.downloadUrl} className="sp-btn sp-btn--primary" download>
-                Download STL
-              </a>
-            )
-          ) : (
-            <button
-              className="sp-btn sp-btn--primary"
-              onClick={handleOrder}
-              disabled={isComingSoon}
-            >
-              Request Order
-            </button>
-          )}
+          <div className="sp-card__cta-hint">
+            View details →
+          </div>
         </div>
       </div>
     </div>
@@ -85,11 +171,11 @@ function ProductCard({ product }: { product: StoreProduct }) {
 
 export default function StorePage() {
   const [filter, setFilter] = useState<Filter>('all')
+  const [selected, setSelected] = useState<StoreProduct | null>(null)
 
   const filtered = storeProducts.filter(
     (p) => filter === 'all' || p.type === filter
   )
-
   const availableCount = storeProducts.filter((p) => p.status === 'available').length
 
   return (
@@ -128,7 +214,6 @@ export default function StorePage() {
       </div>
 
       <main className="sp-main">
-
         <div className="sp-filters">
           {FILTER_LABELS.map(({ value, label }) => (
             <button
@@ -143,7 +228,7 @@ export default function StorePage() {
 
         <div className="sp-grid">
           {filtered.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} onTap={() => setSelected(product)} />
           ))}
         </div>
 
@@ -162,7 +247,6 @@ export default function StorePage() {
             </a>
           </div>
         </div>
-
       </main>
 
       <footer className="sp-footer">
@@ -170,6 +254,7 @@ export default function StorePage() {
         <a href="/">portfolio-4n2.pages.dev</a>
       </footer>
 
+      {selected && <ProductDrawer product={selected} onClose={() => setSelected(null)} />}
     </div>
   )
 }
