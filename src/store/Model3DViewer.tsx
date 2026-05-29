@@ -30,7 +30,14 @@ export default function Model3DViewer({ parts, color = '#1c1c1c', mini = false }
     const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 1000)
     camera.position.set(0, 1.5, 7)
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true })
+    let renderer: THREE.WebGLRenderer
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: !mini, powerPreference: 'low-power' })
+    } catch {
+      setError(true)
+      setLoading(false)
+      return
+    }
     renderer.setSize(W, H)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, mini ? 1.5 : 2))
     if (mini) renderer.domElement.style.pointerEvents = 'none'
@@ -120,8 +127,8 @@ export default function Model3DViewer({ parts, color = '#1c1c1c', mini = false }
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', handleResize)
       controls?.dispose()
-      renderer.dispose()
-      if (mount?.contains(renderer.domElement)) mount.removeChild(renderer.domElement)
+      renderer!.dispose()
+      if (mount?.contains(renderer!.domElement)) mount.removeChild(renderer!.domElement)
     }
   }, [parts, color, mini])
 

@@ -1,9 +1,15 @@
-import { useState, useRef, lazy, Suspense } from 'react'
+import { useState, useRef, lazy, Suspense, Component, type ReactNode } from 'react'
 import { storeProducts } from '../data/store'
 import type { StoreProduct } from '../data/store'
 import './StorePage.css'
 
 const Model3DViewer = lazy(() => import('./Model3DViewer'))
+
+class ViewerBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { err: boolean }> {
+  state = { err: false }
+  static getDerivedStateFromError() { return { err: true } }
+  render() { return this.state.err ? this.props.fallback : this.props.children }
+}
 
 type Filter = 'all' | 'physical' | 'digital'
 
@@ -70,14 +76,18 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
         {/* Gallery area */}
         <div className="sp-drawer__gallery">
           {view === '3d' && product.model3d ? (
-            <Suspense fallback={
-              <div className="sp-drawer__no-img">
-                <div className="mv-spinner" />
-                <span>Loading…</span>
-              </div>
+            <ViewerBoundary fallback={
+              <div className="sp-drawer__no-img"><span>3D model unavailable</span></div>
             }>
-              <Model3DViewer parts={product.model3d.parts} color={product.model3d.color} />
-            </Suspense>
+              <Suspense fallback={
+                <div className="sp-drawer__no-img">
+                  <div className="mv-spinner" />
+                  <span>Loading…</span>
+                </div>
+              }>
+                <Model3DViewer parts={product.model3d.parts} color={product.model3d.color} />
+              </Suspense>
+            </ViewerBoundary>
           ) : allImages.length > 0 ? (
             <>
               <img
@@ -162,9 +172,15 @@ function ProductCard({ product, onTap }: { product: StoreProduct; onTap: () => v
     >
       <div className="sp-card__image">
         {product.model3d ? (
-          <Suspense fallback={<div className="sp-card__placeholder"><div className="mv-spinner" /></div>}>
-            <Model3DViewer mini parts={product.model3d.parts} color={product.model3d.color} />
-          </Suspense>
+          <ViewerBoundary fallback={
+            product.image
+              ? <img src={product.image} alt={product.name} />
+              : <div className="sp-card__placeholder"><span className="sp-card__placeholder-icon" aria-hidden="true">◈</span></div>
+          }>
+            <Suspense fallback={<div className="sp-card__placeholder"><div className="mv-spinner" /></div>}>
+              <Model3DViewer mini parts={product.model3d.parts} color={product.model3d.color} />
+            </Suspense>
+          </ViewerBoundary>
         ) : product.image ? (
           <img src={product.image} alt={product.name} />
         ) : (
