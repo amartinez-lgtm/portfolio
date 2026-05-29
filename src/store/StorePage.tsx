@@ -1,7 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, lazy, Suspense } from 'react'
 import { storeProducts } from '../data/store'
 import type { StoreProduct } from '../data/store'
 import './StorePage.css'
+
+const Model3DViewer = lazy(() => import('./Model3DViewer'))
 
 type Filter = 'all' | 'physical' | 'digital'
 
@@ -21,6 +23,7 @@ function handleOrderEmail(product: StoreProduct) {
 
 function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: () => void }) {
   const [imgIdx, setImgIdx] = useState(0)
+  const [view, setView] = useState<'3d' | 'photos'>(product.model3d ? '3d' : 'photos')
   const touchStartY = useRef(0)
   const isComingSoon = product.status === 'coming-soon'
 
@@ -46,9 +49,36 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
       >
         <div className="sp-drawer__handle" aria-hidden="true" />
 
-        {/* Image gallery */}
+        {/* View toggle — only if product has a 3D model */}
+        {product.model3d && (
+          <div className="sp-view-tabs">
+            <button
+              className={`sp-view-tab${view === '3d' ? ' sp-view-tab--active' : ''}`}
+              onClick={() => setView('3d')}
+            >
+              ◈ 3D Model
+            </button>
+            <button
+              className={`sp-view-tab${view === 'photos' ? ' sp-view-tab--active' : ''}`}
+              onClick={() => setView('photos')}
+            >
+              Photos
+            </button>
+          </div>
+        )}
+
+        {/* Gallery area */}
         <div className="sp-drawer__gallery">
-          {allImages.length > 0 ? (
+          {view === '3d' && product.model3d ? (
+            <Suspense fallback={
+              <div className="sp-drawer__no-img">
+                <div className="mv-spinner" />
+                <span>Loading…</span>
+              </div>
+            }>
+              <Model3DViewer parts={product.model3d.parts} color={product.model3d.color} />
+            </Suspense>
+          ) : allImages.length > 0 ? (
             <>
               <img
                 key={allImages[imgIdx]}

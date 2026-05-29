@@ -1,3 +1,8 @@
+export interface ModelPart {
+  label: string
+  url: string
+}
+
 export interface StoreProduct {
   id: string
   name: string
@@ -7,6 +12,7 @@ export interface StoreProduct {
   tags: string[]
   image?: string
   images?: string[]
+  model3d?: { parts: ModelPart[]; color?: string }
   status: 'available' | 'coming-soon'
   downloadUrl?: string
 }
@@ -62,6 +68,13 @@ export const storeProducts: StoreProduct[] = [
     tags: ['Home', 'Kitchen', 'Bathroom'],
     image: '/products/ptd-ai-hero.png',
     images: ['/products/ptd-2.jpeg', '/products/ptd-3.jpeg'],
+    model3d: {
+      parts: [
+        { label: 'Body', url: '/products/ptd-body.3mf' },
+        { label: 'Lid', url: '/products/ptd-lid.3mf' },
+      ],
+      color: '#1c1c1c',
+    },
     status: 'available',
   },
   {

@@ -642,6 +642,137 @@ html, body {
 }
 
 /* Image gallery */
+/* 3D / Photos tab toggle */
+.sp-view-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  flex-shrink: 0;
+}
+
+.sp-view-tab {
+  flex: 1;
+  padding: 11px 0;
+  background: none;
+  border: none;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  color: #a1a1aa;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: -0.01em;
+}
+
+.sp-view-tab--active {
+  color: #111;
+  border-bottom-color: #111;
+}
+
+/* ── 3D VIEWER (mv- prefix) ─────────────────────────── */
+
+.mv-root {
+  position: relative;
+  background: #f0ede9;
+  overflow: hidden;
+}
+
+.mv-canvas {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: block;
+}
+
+.mv-canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.mv-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #f0ede9;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.35);
+}
+
+@keyframes mv-spin {
+  to { transform: rotate(360deg); }
+}
+
+.mv-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid rgba(0,0,0,0.1);
+  border-top-color: #c2410c;
+  border-radius: 50%;
+  animation: mv-spin 0.8s linear infinite;
+}
+
+.mv-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border-radius: 99px;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0.75;
+}
+
+.mv-parts {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 99px;
+  padding: 3px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.mv-part-btn {
+  padding: 4px 14px;
+  border-radius: 99px;
+  border: none;
+  background: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  color: #71717a;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.mv-part-btn--active {
+  background: #111;
+  color: #fff;
+}
+
 .sp-drawer__gallery {
   position: relative;
   flex-shrink: 0;
