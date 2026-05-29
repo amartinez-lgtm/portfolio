@@ -16,6 +16,7 @@ export default defineConfig({
       input: {
         main:  resolve(__dirname, 'index.html'),
         token: resolve(__dirname, 'token/index.html'),
+        store: resolve(__dirname, 'store/index.html'),
       },
       output: {
         manualChunks: {

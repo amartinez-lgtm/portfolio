@@ -24,8 +24,8 @@ const NAV_ITEMS = [
   {
     icon: '🛒',
     title: 'Products',
-    sub: 'Shop Leva LLC on Shopify',
-    href: 'https://leva-llc.myshopify.com', /* EDIT: replace with your real Shopify URL */
+    sub: '3D-printed objects & free STL files',
+    href: '/store',
   },
   {
     icon: '✉️',
