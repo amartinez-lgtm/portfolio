@@ -70,7 +70,7 @@ export const storeProducts: StoreProduct[] = [
     images: ['/products/ptd-2.jpeg', '/products/ptd-3.jpeg'],
     model3d: {
       parts: [
-        { label: 'Body', url: '/products/ptd-body.3mf' },
+        { label: 'Assembly', url: '/products/ptd-assembly.3mf' },
       ],
       color: '#909090',
       rotationX: -Math.PI / 2,
