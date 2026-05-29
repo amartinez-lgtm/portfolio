@@ -77,12 +77,15 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
         <div className="sp-drawer__gallery">
           {view === '3d' && product.model3d ? (
             <ViewerBoundary fallback={
-              <div className="sp-drawer__no-img"><span>3D model unavailable</span></div>
+              <div className="sp-drawer__no-img">
+                <span aria-hidden="true">◈</span>
+                <span>3D unavailable — tap Photos</span>
+              </div>
             }>
               <Suspense fallback={
                 <div className="sp-drawer__no-img">
                   <div className="mv-spinner" />
-                  <span>Loading…</span>
+                  <span>Loading 3D model…</span>
                 </div>
               }>
                 <Model3DViewer parts={product.model3d.parts} color={product.model3d.color} />
