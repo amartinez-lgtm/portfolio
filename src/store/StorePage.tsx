@@ -102,7 +102,7 @@ export default function StorePage() {
           </svg>
           Portfolio
         </a>
-        <img src="/Photoroom_20250521_201123.jpeg" alt="XYZ" className="sp-logo" />
+        <img src="/Photoroom_20250521_195827.jpeg" alt="XYZ" className="sp-logo" />
       </header>
 
       <section className="sp-hero">
