@@ -191,8 +191,6 @@ html, body {
 
 .sp-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
   margin-bottom: 64px;
 }
 
@@ -475,17 +473,88 @@ html, body {
 
 /* ── RESPONSIVE ─────────────────────────────────────── */
 
+/* Mobile-first: 2 columns by default on phones */
+.sp-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
 @media (max-width: 600px) {
-  .sp-hero__inner {
-    padding: 44px 24px 40px;
+  .sp-main {
+    padding: 24px 14px 64px;
   }
 
-  .sp-grid {
-    grid-template-columns: 1fr;
+  .sp-hero__inner {
+    padding: 28px 16px 24px;
+  }
+
+  .sp-headline {
+    font-size: 1.875rem;
+  }
+
+  .sp-sub {
+    font-size: 0.875rem;
+  }
+
+  .sp-stats {
+    font-size: 0.75rem;
+  }
+
+  .sp-banner {
+    max-height: 130px;
+  }
+
+  .sp-banner img {
+    height: 130px;
+  }
+
+  .sp-filters {
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .sp-filter-btn {
+    padding: 6px 14px;
+    font-size: 0.75rem;
+  }
+
+  /* Compact card body for 2-col layout */
+  .sp-card__body {
+    padding: 11px 11px 13px;
+    gap: 7px;
+  }
+
+  .sp-card__name {
+    font-size: 0.875rem;
+  }
+
+  .sp-card__desc {
+    font-size: 0.75rem;
+    /* Cap at 3 lines so cards don't get uneven */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .sp-card__tags {
+    display: none;
+  }
+
+  .sp-btn {
+    padding: 8px 12px;
+    font-size: 0.8125rem;
   }
 
   .sp-custom-cta__inner {
     padding: 24px 20px;
+  }
+}
+
+@media (min-width: 600px) {
+  .sp-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
   }
 }
 
