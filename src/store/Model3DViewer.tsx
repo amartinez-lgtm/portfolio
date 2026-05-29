@@ -36,7 +36,7 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
       scene.background = new Color('#111111')
 
       const camera = new PerspectiveCamera(42, W / H, 0.1, 1000)
-      camera.position.set(4, 3, 5.5)
+      camera.position.set(0, 1.5, 7)
 
       renderer = new WebGLRenderer({ antialias: !mini, powerPreference: 'low-power' })
       renderer.setSize(W, H)

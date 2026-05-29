@@ -71,7 +71,6 @@ export const storeProducts: StoreProduct[] = [
     model3d: {
       parts: [
         { label: 'Body', url: '/products/ptd-body.3mf' },
-        { label: 'Lid', url: '/products/ptd-lid.3mf' },
       ],
       color: '#909090',
       rotationX: -Math.PI / 2,
