@@ -36,7 +36,7 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
       const H = mini ? wrap.clientHeight || Math.round(W * 0.75) : Math.round(W * 0.75)
 
       const scene = new Scene()
-      scene.background = new Color('#080808')
+      scene.background = new Color('#111111')
 
       const camera = new PerspectiveCamera(42, W / H, 0.1, 1000)
       camera.position.set(0, 1.5, 7)
@@ -47,8 +47,8 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
       if (mini) renderer.domElement.style.pointerEvents = 'none'
       mount.appendChild(renderer.domElement)
 
-      // Dramatic product lighting
-      scene.add(new AmbientLight(0xffffff, 0.3))
+      // Product lighting — high ambient so dark models stay visible
+      scene.add(new AmbientLight(0xffffff, 0.55))
       const key = new DirectionalLight(0xffffff, 3.5)
       key.position.set(4, 7, 4)
       scene.add(key)
@@ -154,6 +154,10 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
     )
   }
 
+  const showDragHint = !loading && !error &&
+    typeof window !== 'undefined' &&
+    !window.matchMedia('(pointer: coarse)').matches
+
   return (
     <div ref={wrapRef} className="mv-root">
       <div ref={mountRef} className="mv-canvas" />
@@ -164,7 +168,7 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
         </div>
       )}
       {error && <div className="mv-loading mv-loading--err"><span>◈</span><span>Could not load model</span></div>}
-      {!loading && !error && (
+      {showDragHint && (
         <div className="mv-hint" aria-hidden="true">Drag to rotate</div>
       )}
     </div>

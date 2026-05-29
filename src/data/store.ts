@@ -73,7 +73,7 @@ export const storeProducts: StoreProduct[] = [
         { label: 'Body', url: '/products/ptd-body.3mf' },
         { label: 'Lid', url: '/products/ptd-lid.3mf' },
       ],
-      color: '#404040',
+      color: '#909090',
       rotationX: -Math.PI / 2,
     },
     status: 'available',
