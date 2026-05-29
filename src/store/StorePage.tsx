@@ -161,7 +161,11 @@ function ProductCard({ product, onTap }: { product: StoreProduct; onTap: () => v
       aria-label={`View ${product.name}`}
     >
       <div className="sp-card__image">
-        {product.image ? (
+        {product.model3d ? (
+          <Suspense fallback={<div className="sp-card__placeholder"><div className="mv-spinner" /></div>}>
+            <Model3DViewer mini parts={product.model3d.parts} color={product.model3d.color} />
+          </Suspense>
+        ) : product.image ? (
           <img src={product.image} alt={product.name} />
         ) : (
           <div className="sp-card__placeholder">
