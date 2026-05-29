@@ -8,9 +8,9 @@ import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 interface ModelPart { label: string; url: string }
-interface Props { parts: ModelPart[]; color?: string; mini?: boolean; rotationX?: number }
+interface Props { parts: ModelPart[]; color?: string; mini?: boolean; rotationX?: number; rotationZ?: number }
 
-export default function Model3DViewer({ parts, color = '#404040', mini = false, rotationX = 0 }: Props) {
+export default function Model3DViewer({ parts, color = '#404040', mini = false, rotationX = 0, rotationZ = 0 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const mountRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
@@ -38,9 +38,9 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
       const camera = new PerspectiveCamera(42, W / H, 0.1, 1000)
       camera.position.set(0, 1.5, 7)
 
-      renderer = new WebGLRenderer({ antialias: !mini, powerPreference: 'low-power' })
+      renderer = new WebGLRenderer({ antialias: true, powerPreference: 'low-power' })
       renderer.setSize(W, H)
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, mini ? 1.5 : 2))
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, mini ? 2 : 2.5))
       if (mini) renderer.domElement.style.pointerEvents = 'none'
       mount.appendChild(renderer.domElement)
 
@@ -95,6 +95,7 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
         })
         // Apply CAD orientation fix to inner assembly only
         if (rotationX !== 0) assembly.rotation.x = rotationX
+        if (rotationZ !== 0) assembly.rotation.z = rotationZ
         // Scale first, then recompute center — setting position before scale leaves model off-center
         const rawBox = new Box3().setFromObject(spinner)
         const rawSize = rawBox.getSize(new Vector3())
@@ -141,7 +142,7 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
         try { if (mount?.contains(renderer.domElement)) mount.removeChild(renderer.domElement) } catch { /* ignore */ }
       }
     }
-  }, [parts, color, mini, rotationX])
+  }, [parts, color, mini, rotationX, rotationZ])
 
   if (mini) {
     return (

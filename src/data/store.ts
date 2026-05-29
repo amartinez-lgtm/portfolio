@@ -12,7 +12,7 @@ export interface StoreProduct {
   tags: string[]
   image?: string
   images?: string[]
-  model3d?: { parts: ModelPart[]; color?: string; rotationX?: number }
+  model3d?: { parts: ModelPart[]; color?: string; rotationX?: number; rotationZ?: number }
   status: 'available' | 'coming-soon'
   downloadUrl?: string
 }
@@ -74,6 +74,7 @@ export const storeProducts: StoreProduct[] = [
       ],
       color: '#909090',
       rotationX: -Math.PI / 2,
+      rotationZ: Math.PI / 2,
     },
     status: 'available',
   },
