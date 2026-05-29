@@ -36,7 +36,7 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
       scene.background = new Color('#111111')
 
       const camera = new PerspectiveCamera(42, W / H, 0.1, 1000)
-      camera.position.set(0, 1.5, 7)
+      camera.position.set(4, 3, 5.5)
 
       renderer = new WebGLRenderer({ antialias: !mini, powerPreference: 'low-power' })
       renderer.setSize(W, H)
@@ -98,7 +98,7 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
         // Scale first, then recompute center — setting position before scale leaves model off-center
         const rawBox = new Box3().setFromObject(spinner)
         const rawSize = rawBox.getSize(new Vector3())
-        spinner.scale.setScalar(3.8 / Math.max(rawSize.x, rawSize.y, rawSize.z))
+        spinner.scale.setScalar(4.5 / Math.max(rawSize.x, rawSize.y, rawSize.z))
         const scaledBox = new Box3().setFromObject(spinner)
         spinner.position.copy(scaledBox.getCenter(new Vector3())).negate()
         scene.add(spinner)
