@@ -17,7 +17,12 @@ This file gives any AI assistant (Claude, Codex, Cursor, etc.) full context to p
 
 ## What This Project Is
 
-A personal portfolio site. Live at: **https://portfolio-4n2.pages.dev**
+A personal portfolio site + Leva LLC store. Live at: **https://levallc.com**
+
+- Portfolio: `https://levallc.com`
+- Store: `https://levallc.com/store`
+- Token page: `https://levallc.com/token`
+- Cloudflare fallback domain: `https://portfolio-4n2.pages.dev` (still works)
 
 Current section order: **Hero → About → Work → Ventures → Stories → Contact**
 
@@ -90,7 +95,7 @@ interface Project {
 
 | Item | Status |
 |---|---|
-| Custom domain | Not set up. Do in Cloudflare Pages → Custom Domains. ~$10-15/yr on Cloudflare Registrar. |
+| Custom domain | ✓ Done — `levallc.com` pointing to Cloudflare Pages |
 | Analytics | Not added. Cloudflare Web Analytics is free and easy. |
 | Mobile nav close-on-scroll | Not implemented |
 | Active section highlighting in nav | Not implemented |
@@ -111,7 +116,7 @@ git push origin main
   → Cloudflare Pages detects push
   → runs: npm run build
   → serves: dist/
-  → live in ~60 seconds at portfolio-4n2.pages.dev
+  → live in ~60 seconds at levallc.com (and portfolio-4n2.pages.dev)
 ```
 
 **Important:** Always push to `main`. Cloudflare only watches `main`. Feature branches do NOT deploy.
@@ -145,12 +150,14 @@ Node 20+ required. No other services needed.
 | `CareerStories` | `#stories` | Numbered story list from `careerStories[]` |
 | `Contact` | `#contact` | Inquiry form (mailto fallback) + Email/LinkedIn/GitHub link cards |
 | `Footer` | — | Name + copyright + subtle `◈ Token` link to `/token` |
+| `StorePage` | `/store` | Leva LLC product store — filter tabs, product cards, detail drawer with image gallery + Three.js 3D model viewer |
+| `Model3DViewer` | — | Lazy-loaded Three.js viewer for 3MF files; used inside the store product drawer |
 
 ## NFC Token Page (`/token`)
 
 A completely separate React app (Vite multi-page build) for the physical 3D-printed NFC smart business card.
 
-**URL:** `https://portfolio-4n2.pages.dev/token`
+**URL:** `https://levallc.com/token`
 
 **Architecture:**
 - Entry: `token/index.html` → `src/token/main.tsx` → `src/token/TokenPage.tsx`
@@ -174,7 +181,46 @@ A completely separate React app (Vite multi-page build) for the physical 3D-prin
 - Wave shape: `Math.pow(Math.max(0, Math.sin(...)), 2.5)` — hexes are completely dark except at the wave crest. Speed: `0.028`.
 - Coin (`tp-coin-link`) is wrapped in `<a href="/#about">` — tapping navigates to the About section on the main portfolio.
 
-**NFC tag URL to program:** `https://portfolio-4n2.pages.dev/token`
+**NFC tag URL to program:** `https://levallc.com/token`
+
+## Store Page (`/store`)
+
+A separate React app (Vite multi-page build) for the Leva LLC physical + digital product store.
+
+**URL:** `https://levallc.com/store`
+
+**Architecture:**
+- Entry: `store/index.html` → `src/store/main.tsx` → `src/store/StorePage.tsx`
+- Styles: `src/store/StorePage.css`
+- Product data: `src/data/store.ts` — single source of truth for all store content
+- 3D viewer: `src/store/Model3DViewer.tsx` — lazy-loaded Three.js component, reads `.3mf` files from `/public/products/`
+- `vite.config.ts` has three `rollupOptions.input` entries: `main`, `token`, `store`
+- `public/_redirects` has `/store /store/index.html 200`
+
+**Product assets** live in `public/products/` — images and 3MF model files.
+
+**StoreProduct interface:**
+```typescript
+interface StoreProduct {
+  id: string
+  name: string
+  type: 'physical' | 'digital'
+  description: string
+  price: string
+  tags: string[]
+  image?: string         // hero image
+  images?: string[]      // additional gallery images
+  model3d?: { parts: ModelPart[]; color?: string; rotationX?: number; rotationZ?: number }
+  status: 'available' | 'coming-soon'
+  downloadUrl?: string
+}
+```
+
+**Edit content in `src/data/store.ts`** — add/update products here. To add images, drop files in `public/products/` and reference them as `/products/filename.jpg`.
+
+**Current products (9 total):**
+- Physical (available): NFC Portfolio Token, Light Switch Cover, Planter Pot Small, Planter Pot Large, Paper Towel Dispenser (has photos + 3D model), Soap Dispenser
+- Digital STL (coming-soon): Light Switch Cover STL, Planter Pot STL, Soap Dispenser STL
 
 ## Work Section — Accordion Behavior
 
@@ -249,3 +295,13 @@ The form uses a `mailto:` fallback (no backend). On submit it calls `window.open
 - Fixed hexes disappearing on scroll: wave origin locked at mount via `getBoundingClientRect()` (not re-read per frame); falloff radius set to 4.5× viewport so rings are visible throughout the full scrollable page
 - Made coin (`tp-coin-outer`) tappable: wrapped in `<a href="/#about">` with scale hover/press transitions
 - `tp` background changed to `transparent`; black page background moved to `html, body` so canvas shows through
+
+### Session 7 (store + domain)
+- Built Leva LLC store at `/store` — Vite multi-page entry (`store/index.html`), `src/store/StorePage.tsx`, `src/store/StorePage.css`
+- Product data in `src/data/store.ts` — `StoreProduct` interface with `type`, `status`, `model3d`, `images`, `downloadUrl` fields
+- Product detail drawer: image gallery with thumbnail nav, Three.js 3D model viewer (`Model3DViewer.tsx`) lazy-loaded with error boundary
+- Paper towel dispenser is the hero product: 5 photos + 3MF assembly model in `/public/products/`
+- 9 products total: 6 physical (available), 3 digital STLs (coming-soon)
+- Custom domain confirmed live: **levallc.com** — portfolio at root, store at `/store`, token at `/token`
+- `_redirects` has `/store /store/index.html 200` rule
+- CLAUDE.md updated to reflect levallc.com as canonical domain
