@@ -234,9 +234,12 @@ export default function StorePage() {
   const [filter, setFilter] = useState<Filter>('all')
   const [selected, setSelected] = useState<StoreProduct | null>(null)
 
-  const filtered = storeProducts.filter(
-    (p) => filter === 'all' || p.type === filter
-  )
+  const filtered = storeProducts.filter((p) => {
+    if (filter === 'all') return true
+    if (filter === 'physical') return p.type === 'physical'
+    if (filter === 'digital') return p.stlStatus != null
+    return true
+  })
   const availableCount = storeProducts.filter((p) => p.status === 'available').length
 
   return (
