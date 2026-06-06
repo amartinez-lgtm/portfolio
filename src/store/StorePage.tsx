@@ -243,12 +243,6 @@ export default function StorePage() {
     <div className="sp">
 
       <header className="sp-header">
-        <a href="/" className="sp-back">
-          <svg viewBox="0 0 8 14" fill="none" aria-hidden="true">
-            <path d="M7 1L1 7l6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Portfolio
-        </a>
         <img src="/Photoroom_20250521_195827.jpeg" alt="XYZ" className="sp-logo" />
       </header>
 
@@ -263,7 +257,7 @@ export default function StorePage() {
           <div className="sp-stats">
             <span><strong>{availableCount}</strong> available now</span>
             <span className="sp-stats__sep" aria-hidden="true">·</span>
-            <span>Free STL files dropping soon</span>
+            <span>Free STL files — just ask</span>
             <span className="sp-stats__sep" aria-hidden="true">·</span>
             <span>Custom orders welcome</span>
           </div>
@@ -312,7 +306,7 @@ export default function StorePage() {
 
       <footer className="sp-footer">
         <span>XYZ · Leva LLC · Avelino Martinez</span>
-        <a href="/">portfolio-4n2.pages.dev</a>
+        <span>levallc.com</span>
       </footer>
 
       {selected && <ProductDrawer product={selected} onClose={() => setSelected(null)} />}
