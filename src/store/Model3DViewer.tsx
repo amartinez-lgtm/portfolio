@@ -60,6 +60,7 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
 
       const camera = new PerspectiveCamera(42, W / H, 0.1, 1000)
       camera.position.set(0, 1.5, 7)
+      camera.lookAt(0, 0, 0)
 
       renderer = new WebGLRenderer({ antialias: true, powerPreference: 'low-power' })
       renderer.setSize(W, H)
@@ -133,7 +134,7 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
       const animate = () => {
         animId = requestAnimationFrame(animate)
         if (mini) {
-          rotY += 0.008
+          rotY += 0.004
           spinner.rotation.y = rotY
         } else {
           controls!.update()
