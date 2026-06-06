@@ -127,6 +127,9 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
             <span className={`sp-badge sp-badge--${product.type}`}>
               {product.type === 'physical' ? 'Physical' : 'Digital'}
             </span>
+            {product.stlStatus && (
+              <span className="sp-badge sp-badge--digital">Digital</span>
+            )}
             <span className="sp-card__price">{product.price}</span>
           </div>
           <h2 className="sp-drawer__name">{product.name}</h2>
@@ -138,22 +141,23 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
 
         {/* Sticky CTA */}
         <div className="sp-drawer__cta">
-          {product.type === 'digital' ? (
-            isComingSoon || !product.downloadUrl ? (
-              <button className="sp-btn sp-btn--ghost" disabled>Download STL — Coming Soon</button>
-            ) : (
-              <a href={product.downloadUrl} className="sp-btn sp-btn--primary" download>
-                Download STL
+          <button
+            className="sp-btn sp-btn--primary"
+            onClick={() => handleOrderEmail(product)}
+            disabled={isComingSoon}
+          >
+            Request Order
+          </button>
+          {product.stlStatus && (
+            product.stlStatus === 'available' && product.downloadUrl ? (
+              <a href={product.downloadUrl} className="sp-btn sp-btn--outline" download>
+                Download STL — Free
               </a>
+            ) : (
+              <button className="sp-btn sp-btn--outline" disabled>
+                Download STL — Coming Soon
+              </button>
             )
-          ) : (
-            <button
-              className="sp-btn sp-btn--primary"
-              onClick={() => handleOrderEmail(product)}
-              disabled={isComingSoon}
-            >
-              Request Order
-            </button>
           )}
           <button className="sp-drawer__cancel" onClick={onClose}>Cancel</button>
         </div>
@@ -206,6 +210,9 @@ function ProductCard({ product, onTap }: { product: StoreProduct; onTap: () => v
           <span className={`sp-badge sp-badge--${product.type}`}>
             {product.type === 'physical' ? 'Physical' : 'Digital'}
           </span>
+          {product.stlStatus && (
+            <span className="sp-badge sp-badge--digital">Digital</span>
+          )}
           <span className="sp-card__price">{product.price}</span>
         </div>
         <h3 className="sp-card__name">{product.name}</h3>

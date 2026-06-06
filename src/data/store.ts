@@ -15,6 +15,7 @@ export interface StoreProduct {
   model3d?: { parts: ModelPart[]; color?: string; rotationX?: number; rotationY?: number; rotationZ?: number }
   status: 'available' | 'coming-soon'
   downloadUrl?: string
+  stlStatus?: 'available' | 'coming-soon'
 }
 
 export const storeProducts: StoreProduct[] = [
@@ -35,6 +36,7 @@ export const storeProducts: StoreProduct[] = [
       color: '#909090',
     },
     status: 'available',
+    stlStatus: 'coming-soon',
   },
   {
     id: 'soap-dispenser',
@@ -52,6 +54,7 @@ export const storeProducts: StoreProduct[] = [
       color: '#909090',
     },
     status: 'available',
+    stlStatus: 'coming-soon',
   },
   {
     id: 'light-switch-pot',
@@ -72,6 +75,7 @@ export const storeProducts: StoreProduct[] = [
       color: '#7a9e7e',
     },
     status: 'available',
+    stlStatus: 'coming-soon',
   },
   {
     id: 'candle-holder',
@@ -88,6 +92,7 @@ export const storeProducts: StoreProduct[] = [
       color: '#c8a87a',
     },
     status: 'available',
+    stlStatus: 'coming-soon',
   },
   {
     id: 'bookshelf',
@@ -104,6 +109,7 @@ export const storeProducts: StoreProduct[] = [
       color: '#a0856a',
     },
     status: 'available',
+    stlStatus: 'coming-soon',
   },
   {
     id: 'display-stand',
@@ -120,5 +126,6 @@ export const storeProducts: StoreProduct[] = [
       color: '#909090',
     },
     status: 'available',
+    stlStatus: 'coming-soon',
   },
 ]

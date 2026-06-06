@@ -443,6 +443,12 @@ html, body {
   color: #a1a1aa;
 }
 
+.sp-btn--outline {
+  background: transparent;
+  border: 1.5px solid #1a1a1a;
+  color: #1a1a1a;
+}
+
 .sp-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
