@@ -73,7 +73,6 @@ export const storeProducts: StoreProduct[] = [
         { label: 'Assembly', url: '/products/ptd-assembly.3mf' },
       ],
       color: '#909090',
-      rotationX: -Math.PI / 2,
     },
     status: 'available',
   },
