@@ -772,6 +772,95 @@ html, body {
   -webkit-backdrop-filter: blur(6px);
 }
 
+/* Calibration overlay — only shown with ?calibrate in the URL */
+.mv-cal {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(10, 10, 14, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+  z-index: 5;
+  max-width: 200px;
+}
+.mv-cal__title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+.mv-cal__axes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mv-cal__axis {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.mv-cal__axis button {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.mv-cal__axis button:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+.mv-cal__label {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.mv-cal__row {
+  display: flex;
+  gap: 6px;
+}
+.mv-cal__btn {
+  flex: 1;
+  padding: 7px 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.mv-cal__btn:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+.mv-cal__code {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6rem;
+  line-height: 1.4;
+  color: #7dd3fc;
+  word-break: break-all;
+  user-select: all;
+}
+.mv-cal__hint {
+  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
 .sp-drawer__gallery {
   position: relative;
   flex-shrink: 0;

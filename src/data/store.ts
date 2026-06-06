@@ -12,7 +12,7 @@ export interface StoreProduct {
   tags: string[]
   image?: string
   images?: string[]
-  model3d?: { parts: ModelPart[]; color?: string; rotationX?: number; rotationZ?: number }
+  model3d?: { parts: ModelPart[]; color?: string; rotationX?: number; rotationY?: number; rotationZ?: number }
   status: 'available' | 'coming-soon'
   downloadUrl?: string
 }

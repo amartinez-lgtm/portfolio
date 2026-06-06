@@ -89,7 +89,7 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
                   <span>Loading 3D model…</span>
                 </div>
               }>
-                <Model3DViewer parts={product.model3d.parts} color={product.model3d.color} rotationX={product.model3d.rotationX} rotationZ={product.model3d.rotationZ} />
+                <Model3DViewer parts={product.model3d.parts} color={product.model3d.color} rotationX={product.model3d.rotationX} rotationY={product.model3d.rotationY} rotationZ={product.model3d.rotationZ} />
               </Suspense>
             </ViewerBoundary>
           ) : allImages.length > 0 ? (
@@ -182,7 +182,7 @@ function ProductCard({ product, onTap }: { product: StoreProduct; onTap: () => v
               : <div className="sp-card__placeholder"><span className="sp-card__placeholder-icon" aria-hidden="true">◈</span></div>
           }>
             <Suspense fallback={<div className="sp-card__placeholder"><div className="mv-spinner" /></div>}>
-              <Model3DViewer mini parts={product.model3d.parts} color={product.model3d.color} rotationX={product.model3d.rotationX} rotationZ={product.model3d.rotationZ} />
+              <Model3DViewer mini parts={product.model3d.parts} color={product.model3d.color} rotationX={product.model3d.rotationX} rotationY={product.model3d.rotationY} rotationZ={product.model3d.rotationZ} />
             </Suspense>
           </ViewerBoundary>
         ) : product.image ? (

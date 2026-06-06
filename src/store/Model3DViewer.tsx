@@ -8,13 +8,36 @@ import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 interface ModelPart { label: string; url: string }
-interface Props { parts: ModelPart[]; color?: string; mini?: boolean; rotationX?: number; rotationZ?: number }
+interface Props { parts: ModelPart[]; color?: string; mini?: boolean; rotationX?: number; rotationY?: number; rotationZ?: number }
 
-export default function Model3DViewer({ parts, color = '#404040', mini = false, rotationX = 0, rotationZ = 0 }: Props) {
+const HALF_PI = Math.PI / 2
+
+export default function Model3DViewer({ parts, color = '#404040', mini = false, rotationX = 0, rotationY = 0, rotationZ = 0 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const mountRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+
+  // Calibration mode: append ?calibrate to the URL to dial in a model's orientation.
+  // Freezes the spin and exposes 90° rotation buttons + a live readout to bake into store.ts.
+  const calibrate = !mini && typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).has('calibrate')
+  const [rot, setRot] = useState({ x: rotationX, y: rotationY, z: rotationZ })
+  const [frozen, setFrozen] = useState(calibrate)
+  const assemblyRef = useRef<Group | null>(null)
+  const controlsRef = useRef<OrbitControls | null>(null)
+  const rotRef = useRef(rot)
+  rotRef.current = rot
+
+  // Live-apply calibration rotation to the loaded model without rebuilding the scene
+  useEffect(() => {
+    if (assemblyRef.current) assemblyRef.current.rotation.set(rot.x, rot.y, rot.z)
+  }, [rot])
+
+  // Freeze / resume auto-spin without rebuilding the scene
+  useEffect(() => {
+    if (controlsRef.current) controlsRef.current.autoRotate = !frozen
+  }, [frozen])
 
   useEffect(() => {
     const wrap = wrapRef.current
@@ -62,11 +85,12 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
         controls = new OrbitControls(camera, renderer.domElement)
         controls.enableDamping = true
         controls.dampingFactor = 0.07
-        controls.autoRotate = true
+        controls.autoRotate = !frozen
         controls.autoRotateSpeed = 1.4
         controls.enablePan = false
         controls.minDistance = 2
         controls.maxDistance = 14
+        controlsRef.current = controls
       }
 
       const mat = new MeshStandardMaterial({
@@ -82,6 +106,7 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
       const spinner = new Group()
       const assembly = new Group()
       spinner.add(assembly)
+      assemblyRef.current = assembly
       let rotY = 0
 
       Promise.all(
@@ -93,9 +118,8 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
         assembly.traverse(child => {
           if ((child as Mesh).isMesh) (child as Mesh).material = mat
         })
-        // Apply CAD orientation fix to inner assembly only
-        if (rotationX !== 0) assembly.rotation.x = rotationX
-        if (rotationZ !== 0) assembly.rotation.z = rotationZ
+        // Apply CAD orientation fix to inner assembly only (live-updatable in calibrate mode)
+        assembly.rotation.set(rotRef.current.x, rotRef.current.y, rotRef.current.z)
         // Scale first, then recompute center — setting position before scale leaves model off-center
         const rawBox = new Box3().setFromObject(spinner)
         const rawSize = rawBox.getSize(new Vector3())
@@ -106,7 +130,7 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
         setLoading(false)
       })
 
-      function animate() {
+      const animate = () => {
         animId = requestAnimationFrame(animate)
         if (mini) {
           rotY += 0.008
@@ -118,7 +142,7 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
       }
       animate()
 
-      function handleResize() {
+      const handleResize = () => {
         const w = wrap!.clientWidth
         const h = mini ? wrap!.clientHeight || Math.round(w * 0.75) : Math.round(w * 0.75)
         camera.aspect = w / h
@@ -142,7 +166,10 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
         try { if (mount?.contains(renderer.domElement)) mount.removeChild(renderer.domElement) } catch { /* ignore */ }
       }
     }
-  }, [parts, color, mini, rotationX, rotationZ])
+    // frozen/rot are applied live via separate effects, so they intentionally stay out of deps
+    // to avoid rebuilding the scene on every calibration tap.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parts, color, mini, rotationX, rotationY, rotationZ])
 
   if (mini) {
     return (
@@ -171,9 +198,60 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
         </div>
       )}
       {error && <div className="mv-loading mv-loading--err"><span>◈</span><span>Could not load model</span></div>}
-      {showDragHint && (
+      {showDragHint && !calibrate && (
         <div className="mv-hint" aria-hidden="true">Drag to rotate</div>
       )}
+      {calibrate && !loading && !error && (
+        <CalibratePanel
+          rot={rot}
+          frozen={frozen}
+          onRotate={(axis, dir) => setRot(r => ({ ...r, [axis]: r[axis] + dir * HALF_PI }))}
+          onReset={() => setRot({ x: 0, y: 0, z: 0 })}
+          onToggleFreeze={() => setFrozen(f => !f)}
+        />
+      )}
+    </div>
+  )
+}
+
+function fmt(v: number) {
+  const turns = v / Math.PI
+  // normalize to a readable -2..2 range of π
+  const norm = ((turns % 2) + 2) % 2
+  const signed = norm > 1 ? norm - 2 : norm
+  return `${signed.toFixed(2)}π`
+}
+
+function CalibratePanel({
+  rot, frozen, onRotate, onReset, onToggleFreeze,
+}: {
+  rot: { x: number; y: number; z: number }
+  frozen: boolean
+  onRotate: (axis: 'x' | 'y' | 'z', dir: 1 | -1) => void
+  onReset: () => void
+  onToggleFreeze: () => void
+}) {
+  const code = `rotationX: ${rot.x.toFixed(4)}, rotationY: ${rot.y.toFixed(4)}, rotationZ: ${rot.z.toFixed(4)}`
+  return (
+    <div className="mv-cal">
+      <div className="mv-cal__title">Calibrate orientation</div>
+      <div className="mv-cal__axes">
+        {(['x', 'y', 'z'] as const).map(axis => (
+          <div key={axis} className="mv-cal__axis">
+            <button onClick={() => onRotate(axis, -1)} aria-label={`${axis} minus`}>−</button>
+            <span className="mv-cal__label">{axis.toUpperCase()} {fmt(rot[axis])}</span>
+            <button onClick={() => onRotate(axis, 1)} aria-label={`${axis} plus`}>+</button>
+          </div>
+        ))}
+      </div>
+      <div className="mv-cal__row">
+        <button className="mv-cal__btn" onClick={onToggleFreeze}>
+          {frozen ? '▶ Spin' : '⏸ Freeze'}
+        </button>
+        <button className="mv-cal__btn" onClick={onReset}>Reset</button>
+      </div>
+      <div className="mv-cal__code">{code}</div>
+      <div className="mv-cal__hint">Send these numbers to Avelino</div>
     </div>
   )
 }
