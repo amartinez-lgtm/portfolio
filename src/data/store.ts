@@ -105,4 +105,20 @@ export const storeProducts: StoreProduct[] = [
     },
     status: 'available',
   },
+  {
+    id: 'display-stand',
+    name: 'Display Stand',
+    type: 'physical',
+    description:
+      'Elevated riser stand that lifts objects off the surface. Clean minimal form, works for plants, decor, or any display piece.',
+    price: 'Made to Order',
+    tags: ['Home', 'Decor'],
+    model3d: {
+      parts: [
+        { label: 'Assembly', url: '/products/stand-assembly.3mf' },
+      ],
+      color: '#909090',
+    },
+    status: 'available',
+  },
 ]
