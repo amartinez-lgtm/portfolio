@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import './TokenPage.css'
+import ChatWidget from '../components/ChatWidget'
 
 /* EDIT: Navigation cards — update hrefs and descriptions to match your pages */
 const NAV_ITEMS = [
@@ -270,6 +271,7 @@ export default function TokenPage() {
       </footer>
 
     </div>
+    <ChatWidget />
     </>
   )
 }

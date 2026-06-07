@@ -1,44 +1,34 @@
 /* ═══════════════════════════════════════
-   FLOATING ORB
+   SATELLITE ORB
 ═══════════════════════════════════════ */
 
 .chat-orb {
   position: fixed;
   width: 64px;
   height: 64px;
-  border-radius: 50%;
   border: none;
+  background: transparent;
   cursor: pointer;
   z-index: 1000;
   padding: 0;
   overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  /* Glass sphere */
-  background: radial-gradient(
-    circle at 38% 30%,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(125, 211, 252, 0.85) 12%,
-    rgba(56, 189, 248, 0.8) 28%,
-    rgba(14, 116, 144, 0.92) 55%,
-    rgba(8, 47, 73, 1) 78%,
-    rgba(2, 12, 24, 1) 100%
-  );
+  /* Satellite glow — drop-shadow works on irregular shapes */
+  filter:
+    drop-shadow(0 0 10px rgba(56, 189, 248, 0.65))
+    drop-shadow(0 0 22px rgba(56, 189, 248, 0.3));
 
-  box-shadow:
-    0 0 22px rgba(56, 189, 248, 0.75),
-    0 0 44px rgba(56, 189, 248, 0.38),
-    0 0 88px rgba(56, 189, 248, 0.15);
-
-  animation: orb-breathe 2.6s ease-in-out infinite;
-  transition: transform 0.2s, box-shadow 0.2s;
+  animation: sat-breathe 2.8s ease-in-out infinite;
+  transition: filter 0.2s;
 }
 
 .chat-orb:hover {
-  transform: scale(1.14);
-  box-shadow:
-    0 0 32px rgba(56, 189, 248, 0.95),
-    0 0 64px rgba(56, 189, 248, 0.55),
-    0 0 110px rgba(56, 189, 248, 0.22);
+  filter:
+    drop-shadow(0 0 16px rgba(56, 189, 248, 0.9))
+    drop-shadow(0 0 36px rgba(56, 189, 248, 0.5));
 }
 
 .chat-orb:hover .chat-orb__label {
@@ -48,99 +38,79 @@
 
 .chat-orb--parked {
   animation: none;
-  box-shadow:
-    0 0 14px rgba(56, 189, 248, 0.6),
-    0 0 28px rgba(56, 189, 248, 0.28);
+  filter:
+    drop-shadow(0 0 8px rgba(56, 189, 248, 0.55))
+    drop-shadow(0 0 16px rgba(56, 189, 248, 0.22));
 }
 
-@keyframes orb-breathe {
+@keyframes sat-breathe {
   0%, 100% {
-    box-shadow:
-      0 0 22px rgba(56, 189, 248, 0.75),
-      0 0 44px rgba(56, 189, 248, 0.38),
-      0 0 88px rgba(56, 189, 248, 0.15);
+    filter:
+      drop-shadow(0 0 10px rgba(56, 189, 248, 0.65))
+      drop-shadow(0 0 22px rgba(56, 189, 248, 0.28));
   }
   50% {
-    box-shadow:
-      0 0 34px rgba(56, 189, 248, 0.95),
-      0 0 66px rgba(56, 189, 248, 0.5),
-      0 0 110px rgba(56, 189, 248, 0.2);
+    filter:
+      drop-shadow(0 0 20px rgba(56, 189, 248, 0.9))
+      drop-shadow(0 0 40px rgba(56, 189, 248, 0.45));
   }
 }
 
-/* Specular highlight */
-.chat-orb__shine {
-  position: absolute;
-  top: 10px;
-  left: 14px;
-  width: 20px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.45);
-  filter: blur(3px);
-  pointer-events: none;
-}
-
-/* Glowing eye */
-.chat-orb__eye {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #fff 0%, rgba(125, 211, 252, 0.9) 45%, rgba(56, 189, 248, 0.5) 100%);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.9), 0 0 18px rgba(56, 189, 248, 0.9);
-  animation: eye-pulse 2.6s ease-in-out infinite;
-  pointer-events: none;
+/* Sensor eye pulse */
+.sat-eye {
+  animation: eye-pulse 2.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 @keyframes eye-pulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -50%) scale(1.18); }
+  0%, 100% { opacity: 0.88; }
+  50%       { opacity: 1; }
 }
 
-/* Orbiting ring with a bright node */
-.chat-orb__ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 86px;
-  height: 86px;
-  border-radius: 50%;
-  border: 1px solid rgba(56, 189, 248, 0.28);
-  animation: ring-orbit 7s linear infinite;
-  pointer-events: none;
+/* LED status blinks */
+.sat-led-a {
+  animation: led-cycle 1.9s ease-in-out infinite;
 }
 
-.chat-orb__ring::before {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #38bdf8;
-  box-shadow: 0 0 8px rgba(56, 189, 248, 1), 0 0 16px rgba(56, 189, 248, 0.6);
+.sat-led-b {
+  animation: led-cycle 2.4s ease-in-out infinite 0.6s;
 }
 
-@keyframes ring-orbit {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to   { transform: translate(-50%, -50%) rotate(360deg); }
+@keyframes led-cycle {
+  0%, 100% { opacity: 1; }
+  45%, 55%  { opacity: 0.15; }
 }
 
-/* Hover tooltip label */
+/* Antenna tip ping */
+.sat-antenna {
+  animation: antenna-ping 1.6s ease-in-out infinite;
+}
+
+@keyframes antenna-ping {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+/* Thruster exhaust flicker */
+.sat-thruster {
+  animation: thruster 0.35s ease-in-out infinite alternate;
+}
+
+@keyframes thruster {
+  from { opacity: 0.35; }
+  to   { opacity: 0.85; }
+}
+
+/* Hover label */
 .chat-orb__label {
   position: absolute;
   right: calc(100% + 14px);
   top: 50%;
   transform: translateY(-50%) translateX(6px);
   white-space: nowrap;
-  background: rgba(15, 23, 42, 0.92);
-  border: 1px solid rgba(56, 189, 248, 0.28);
+  background: rgba(8, 20, 38, 0.92);
+  border: 1px solid rgba(56, 189, 248, 0.3);
   border-radius: 8px;
   color: #38bdf8;
   font-family: var(--font-sans);
@@ -154,7 +124,7 @@
 
 
 /* ═══════════════════════════════════════
-   CHAT PANEL  (fixed bottom-right)
+   CHAT PANEL
 ═══════════════════════════════════════ */
 
 .chat-panel {
@@ -191,37 +161,33 @@
 }
 
 .chat-panel__avatar {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   flex-shrink: 0;
   background: radial-gradient(
     circle at 38% 32%,
-    rgba(255, 255, 255, 0.85) 0%,
-    rgba(56, 189, 248, 0.8) 25%,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(56, 189, 248, 0.75) 25%,
     rgba(14, 116, 144, 0.9) 55%,
     rgba(8, 47, 73, 1) 100%
   );
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-  position: relative;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.5));
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .chat-panel__avatar-eye {
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: radial-gradient(circle, #fff 0%, rgba(125, 211, 252, 0.9) 60%);
   box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
-  animation: eye-pulse 2.6s ease-in-out infinite;
+  animation: eye-pulse 2.8s ease-in-out infinite;
 }
 
-.chat-panel__title {
-  flex: 1;
-  min-width: 0;
-}
+.chat-panel__title { flex: 1; min-width: 0; }
 
 .chat-panel__name {
   font-size: 14px;
@@ -261,10 +227,7 @@
   flex-shrink: 0;
 }
 
-.chat-panel__email:hover {
-  opacity: 1;
-  text-decoration: none;
-}
+.chat-panel__email:hover { opacity: 1; text-decoration: none; }
 
 .chat-panel__close {
   background: none;
@@ -297,10 +260,7 @@
   scrollbar-color: rgba(255, 255, 255, 0.07) transparent;
 }
 
-.chat-panel__msg {
-  display: flex;
-}
-
+.chat-panel__msg           { display: flex; }
 .chat-panel__msg--user     { justify-content: flex-end; }
 .chat-panel__msg--assistant { justify-content: flex-start; }
 
@@ -327,7 +287,6 @@
   border-radius: 12px 12px 12px 4px;
 }
 
-/* Streaming cursor */
 .chat-panel__cursor {
   display: inline-block;
   width: 2px;
@@ -343,7 +302,6 @@
   50%       { opacity: 0; }
 }
 
-/* Typing indicator */
 .chat-panel__bubble--typing {
   display: flex;
   gap: 5px;
@@ -393,7 +351,7 @@
   border-color: rgba(56, 189, 248, 0.45);
 }
 
-/* Input row */
+/* Input */
 .chat-panel__input-row {
   display: flex;
   align-items: center;
@@ -453,7 +411,5 @@
     height: 420px;
   }
 
-  .chat-orb__label {
-    display: none;
-  }
+  .chat-orb__label { display: none; }
 }
