@@ -89,7 +89,7 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
                   <span>Loading 3D model…</span>
                 </div>
               }>
-                <Model3DViewer parts={product.model3d.parts} color={product.model3d.color} rotationX={product.model3d.rotationX} rotationZ={product.model3d.rotationZ} />
+                <Model3DViewer parts={product.model3d.parts} color={product.model3d.color} rotationX={product.model3d.rotationX} rotationY={product.model3d.rotationY} rotationZ={product.model3d.rotationZ} />
               </Suspense>
             </ViewerBoundary>
           ) : allImages.length > 0 ? (
@@ -127,6 +127,9 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
             <span className={`sp-badge sp-badge--${product.type}`}>
               {product.type === 'physical' ? 'Physical' : 'Digital'}
             </span>
+            {product.stlStatus && (
+              <span className="sp-badge sp-badge--digital">Digital</span>
+            )}
             <span className="sp-card__price">{product.price}</span>
           </div>
           <h2 className="sp-drawer__name">{product.name}</h2>
@@ -138,22 +141,23 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
 
         {/* Sticky CTA */}
         <div className="sp-drawer__cta">
-          {product.type === 'digital' ? (
-            isComingSoon || !product.downloadUrl ? (
-              <button className="sp-btn sp-btn--ghost" disabled>Download STL — Coming Soon</button>
-            ) : (
-              <a href={product.downloadUrl} className="sp-btn sp-btn--primary" download>
-                Download STL
+          <button
+            className="sp-btn sp-btn--primary"
+            onClick={() => handleOrderEmail(product)}
+            disabled={isComingSoon}
+          >
+            Request Order
+          </button>
+          {product.stlStatus && (
+            product.stlStatus === 'available' && product.downloadUrl ? (
+              <a href={product.downloadUrl} className="sp-btn sp-btn--outline" download>
+                Download STL — Free
               </a>
+            ) : (
+              <button className="sp-btn sp-btn--outline" disabled>
+                Download STL — Coming Soon
+              </button>
             )
-          ) : (
-            <button
-              className="sp-btn sp-btn--primary"
-              onClick={() => handleOrderEmail(product)}
-              disabled={isComingSoon}
-            >
-              Request Order
-            </button>
           )}
           <button className="sp-drawer__cancel" onClick={onClose}>Cancel</button>
         </div>
@@ -182,7 +186,7 @@ function ProductCard({ product, onTap }: { product: StoreProduct; onTap: () => v
               : <div className="sp-card__placeholder"><span className="sp-card__placeholder-icon" aria-hidden="true">◈</span></div>
           }>
             <Suspense fallback={<div className="sp-card__placeholder"><div className="mv-spinner" /></div>}>
-              <Model3DViewer mini parts={product.model3d.parts} color={product.model3d.color} rotationX={product.model3d.rotationX} rotationZ={product.model3d.rotationZ} />
+              <Model3DViewer mini parts={product.model3d.parts} color={product.model3d.color} rotationX={product.model3d.rotationX} rotationY={product.model3d.rotationY} rotationZ={product.model3d.rotationZ} />
             </Suspense>
           </ViewerBoundary>
         ) : product.image ? (
@@ -206,6 +210,9 @@ function ProductCard({ product, onTap }: { product: StoreProduct; onTap: () => v
           <span className={`sp-badge sp-badge--${product.type}`}>
             {product.type === 'physical' ? 'Physical' : 'Digital'}
           </span>
+          {product.stlStatus && (
+            <span className="sp-badge sp-badge--digital">Digital</span>
+          )}
           <span className="sp-card__price">{product.price}</span>
         </div>
         <h3 className="sp-card__name">{product.name}</h3>
@@ -227,21 +234,18 @@ export default function StorePage() {
   const [filter, setFilter] = useState<Filter>('all')
   const [selected, setSelected] = useState<StoreProduct | null>(null)
 
-  const filtered = storeProducts.filter(
-    (p) => filter === 'all' || p.type === filter
-  )
+  const filtered = storeProducts.filter((p) => {
+    if (filter === 'all') return true
+    if (filter === 'physical') return p.type === 'physical'
+    if (filter === 'digital') return p.stlStatus != null
+    return true
+  })
   const availableCount = storeProducts.filter((p) => p.status === 'available').length
 
   return (
     <div className="sp">
 
       <header className="sp-header">
-        <a href="/" className="sp-back">
-          <svg viewBox="0 0 8 14" fill="none" aria-hidden="true">
-            <path d="M7 1L1 7l6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Portfolio
-        </a>
         <img src="/Photoroom_20250521_195827.jpeg" alt="XYZ" className="sp-logo" />
       </header>
 
@@ -256,7 +260,7 @@ export default function StorePage() {
           <div className="sp-stats">
             <span><strong>{availableCount}</strong> available now</span>
             <span className="sp-stats__sep" aria-hidden="true">·</span>
-            <span>Free STL files dropping soon</span>
+            <span>Free STL files — just ask</span>
             <span className="sp-stats__sep" aria-hidden="true">·</span>
             <span>Custom orders welcome</span>
           </div>
@@ -305,7 +309,7 @@ export default function StorePage() {
 
       <footer className="sp-footer">
         <span>XYZ · Leva LLC · Avelino Martinez</span>
-        <a href="/">portfolio-4n2.pages.dev</a>
+        <span>levallc.com</span>
       </footer>
 
       {selected && <ProductDrawer product={selected} onClose={() => setSelected(null)} />}

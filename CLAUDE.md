@@ -249,3 +249,38 @@ The form uses a `mailto:` fallback (no backend). On submit it calls `window.open
 - Fixed hexes disappearing on scroll: wave origin locked at mount via `getBoundingClientRect()` (not re-read per frame); falloff radius set to 4.5× viewport so rings are visible throughout the full scrollable page
 - Made coin (`tp-coin-outer`) tappable: wrapped in `<a href="/#about">` with scale hover/press transitions
 - `tp` background changed to `transparent`; black page background moved to `html, body` so canvas shows through
+
+### Session 7 (XYZ store buildout + portfolio polish)
+
+**XYZ Store (`/store`):**
+- Replaced paper towel dispenser `.3mf` model with Y-up corrected export from Onshape — removed `rotationX` workaround
+- Fixed mini card 3D viewer: added `camera.lookAt(0,0,0)` (was missing, model was off-center); halved spin speed from 0.008 to 0.004 rad/frame
+- Added calibration mode: append `?calibrate` to store URL to dial in any model's orientation — freeze/rotate buttons + live readout of rotation values; hidden from normal visitors
+- Added `rotationY` support to viewer and store data interface
+- Added 4 new products with 3D viewers: Soap Dispenser (2-part), Light Switch Pot (5-part), Candle Holder, Book Shelf
+- Added Display Stand product
+- Removed unpopulated products (NFC Token, Light Switch Cover, Planter Pot S/L, 3 coming-soon STLs) — store now shows only products with live 3D models
+- Added Physical + Digital dual badging: all products show both badges; drawer shows "Request Order" + "Download STL — Coming Soon" side by side; STL button auto-unlocks when `downloadUrl` is set
+- Fixed Digital Downloads filter tab — now shows products with `stlStatus` set instead of looking for `type: 'digital'`
+- Removed "← Portfolio" back link from store header — store is now standalone
+- Updated footer: `portfolio-4n2.pages.dev` → `levallc.com`
+- Updated hero stat line: "Free STL files dropping soon" → "Free STL files — just ask"
+- Converted `animate` and `handleResize` inner function declarations to arrow consts (fixed pre-existing lint errors)
+
+**Portfolio (main site):**
+- Hero headline iterated: "I build software from the shop floor" → "I build what the physical world is missing" → "I connect the physical world to digital systems"
+- Hero subtext rewritten: leads with "Manufacturing software is written by people who've never touched a part" instead of job title
+- SideHustles: updated XYZ 3D printing entry to reference levallc.com/store and mention 35+ model files; removed QR Tool Tracking SaaS from planned
+- Added `useEffect` hash scroll handler to `App.tsx` — fixes cross-page anchor navigation from `/token` (section IDs were correct but React mount timing caused browser to miss the scroll target)
+- Token page coin now links to `/` (portfolio top) instead of `/#about`
+- Token page footer: `portfolio-4n2.pages.dev` → `levallc.com` (plain text, not a link)
+- Achievement card upgraded: 12 skills covering full stack (TypeScript, Python, React, FastAPI, PostgreSQL, AS9100D, Quality Systems, CAD, 3D Scanning, LiDAR, 3D Printing, AI Prototyping); added subtitle "Manufacturing expert. Software builder. One person."; XP bumped to +9999
+
+**Store data model additions:**
+- `stlStatus?: 'available' | 'coming-soon'` field on `StoreProduct` — controls STL download button state
+- `rotationY?: number` added to `model3d` config
+
+**Next session:**
+- Build AI chat widget (Claude-powered, Cloudflare Worker backend, floating UI on portfolio)
+- Add product photos to store when available from phone
+- Set `stlStatus: 'available'` + `downloadUrl` on products when STL files are ready

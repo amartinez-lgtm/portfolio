@@ -9,15 +9,15 @@ export default function Hero() {
         </div>
 
         <h1 className="hero__headline">
-          I build software<br />
-          from the shop floor.
+          I connect the physical<br />
+          world to digital systems.
         </h1>
 
         <p className="hero__sub">
-          Quality Manager at an AS9100-certified aerospace machine shop.
-          A decade of shop-floor operations — quality systems, supplier audits,
-          process engineering — built a clear picture of what manufacturing software
-          gets wrong. Now I build what's missing.
+          Manufacturing software is written by people who've never touched a part.
+          I've spent ten years on the floor — quality systems, supplier audits,
+          aerospace certifications — and I know exactly where the gaps are.
+          Now I build to fill them.
         </p>
 
         <div className="hero__actions">

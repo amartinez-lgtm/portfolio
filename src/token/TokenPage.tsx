@@ -37,7 +37,8 @@ const NAV_ITEMS = [
 
 /* EDIT: Skills shown in the achievement card */
 const ACHIEVEMENT_SKILLS = [
-  '3D Scanning', 'CAD', '3D Printing', 'AI Prototyping', 'Quality Systems',
+  'TypeScript', 'Python', 'React', 'FastAPI', 'PostgreSQL',
+  'AS9100D', 'Quality Systems', 'CAD', '3D Scanning', 'LiDAR', '3D Printing', 'AI Prototyping',
 ]
 
 export default function TokenPage() {
@@ -158,7 +159,7 @@ export default function TokenPage() {
         </div>
 
         {/* Floating token coin — tappable, links to About section */}
-        <a ref={coinRef} href="/#about" className="tp-coin-link" aria-label="Learn about Avelino Martinez">
+        <a ref={coinRef} href="/" className="tp-coin-link" aria-label="Go to Avelino Martinez's portfolio">
           <div className="tp-coin-outer">
             {/* Hue-cycle wrapper rotates all colors through full spectrum */}
             <div className="tp-coin-hue">
@@ -186,9 +187,10 @@ export default function TokenPage() {
           <div className="tp-achievement-top">
             <span className="tp-trophy" aria-hidden="true">🏆</span>
             <div>
-              <p className="tp-micro">Achievement</p>
+              <p className="tp-micro">Achievement Unlocked</p>
               {/* EDIT: Achievement name */}
               <p className="tp-achievement-name">Met the Maker</p>
+              <p className="tp-achievement-sub">Manufacturing expert. Software builder. One person.</p>
             </div>
             <span className="tp-rarity">Legendary</span>
           </div>
@@ -200,7 +202,7 @@ export default function TokenPage() {
           <div className="tp-xp">
             {/* EDIT: XP value */}
             <span className="tp-xp-label">XP</span>
-            <span className="tp-xp-value">+1000</span>
+            <span className="tp-xp-value">+9999</span>
           </div>
         </div>
       </section>
@@ -264,7 +266,7 @@ export default function TokenPage() {
       <footer className="tp-footer">
         {/* EDIT: Footer name and link */}
         <span>Avelino Martinez · Leva LLC</span>
-        <a href="/">portfolio-4n2.pages.dev</a>
+        <span>levallc.com</span>
       </footer>
 
     </div>

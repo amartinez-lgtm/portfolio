@@ -12,52 +12,13 @@ export interface StoreProduct {
   tags: string[]
   image?: string
   images?: string[]
-  model3d?: { parts: ModelPart[]; color?: string; rotationX?: number; rotationZ?: number }
+  model3d?: { parts: ModelPart[]; color?: string; rotationX?: number; rotationY?: number; rotationZ?: number }
   status: 'available' | 'coming-soon'
   downloadUrl?: string
+  stlStatus?: 'available' | 'coming-soon'
 }
 
 export const storeProducts: StoreProduct[] = [
-  {
-    id: 'nfc-token',
-    name: 'NFC Portfolio Token',
-    type: 'physical',
-    description:
-      'The same 3D-printed smart object used as a business card. Embed an NFC chip, program it to any URL. Fully customizable.',
-    price: 'Made to Order',
-    tags: ['Tech', 'Networking'],
-    status: 'available',
-  },
-  {
-    id: 'light-switch-cover',
-    name: 'Light Switch Cover',
-    type: 'physical',
-    description:
-      'Clean replacement covers for standard Decora-style light switches. Custom color and finish on request.',
-    price: 'Made to Order',
-    tags: ['Home', 'Hardware'],
-    status: 'available',
-  },
-  {
-    id: 'planter-pot-small',
-    name: 'Planter Pot — Small',
-    type: 'physical',
-    description:
-      'Compact desktop planter sized for succulents and 4" pots. Drainage hole included.',
-    price: 'Made to Order',
-    tags: ['Home', 'Garden'],
-    status: 'available',
-  },
-  {
-    id: 'planter-pot-large',
-    name: 'Planter Pot — Large',
-    type: 'physical',
-    description:
-      'Full-size planter with a geometric structured form. Fits 6–8" root ball. Drain plug included.',
-    price: 'Made to Order',
-    tags: ['Home', 'Garden'],
-    status: 'available',
-  },
   {
     id: 'paper-towel-dispenser',
     name: 'Paper Towel Dispenser',
@@ -73,9 +34,9 @@ export const storeProducts: StoreProduct[] = [
         { label: 'Assembly', url: '/products/ptd-assembly.3mf' },
       ],
       color: '#909090',
-      rotationX: -Math.PI / 2,
     },
     status: 'available',
+    stlStatus: 'coming-soon',
   },
   {
     id: 'soap-dispenser',
@@ -85,36 +46,86 @@ export const storeProducts: StoreProduct[] = [
       'Countertop pump dispenser in a cylindrical form. Pairs with the paper towel dispenser. Standard pump thread.',
     price: 'Made to Order',
     tags: ['Home', 'Kitchen', 'Bathroom'],
+    model3d: {
+      parts: [
+        { label: 'Body', url: '/products/soap-part-1.3mf' },
+        { label: 'Collar', url: '/products/soap-part-2.3mf' },
+      ],
+      color: '#909090',
+    },
     status: 'available',
+    stlStatus: 'coming-soon',
   },
   {
-    id: 'light-switch-cover-stl',
-    name: 'Light Switch Cover STL',
-    type: 'digital',
+    id: 'light-switch-pot',
+    name: 'Light Switch Pot',
+    type: 'physical',
     description:
-      'Print-ready STL for the light switch cover. Works on any FDM printer. 0.2mm layer height recommended.',
-    price: 'Free',
-    tags: ['STL', 'Home'],
-    status: 'coming-soon',
+      'Wall-mounted planter that installs around a standard light switch. Turns dead wall space into a live plant display. No tools required.',
+    price: 'Made to Order',
+    tags: ['Home', 'Garden', 'Hardware'],
+    model3d: {
+      parts: [
+        { label: 'Part 1', url: '/products/lsc-part-1.3mf' },
+        { label: 'Part 2', url: '/products/lsc-part-2.3mf' },
+        { label: 'Part 3', url: '/products/lsc-part-3.3mf' },
+        { label: 'Part 4', url: '/products/lsc-part-4.3mf' },
+        { label: 'Part 5', url: '/products/lsc-part-5.3mf' },
+      ],
+      color: '#7a9e7e',
+    },
+    status: 'available',
+    stlStatus: 'coming-soon',
   },
   {
-    id: 'planter-pot-stl',
-    name: 'Planter Pot STL',
-    type: 'digital',
+    id: 'candle-holder',
+    name: 'Candle Holder',
+    type: 'physical',
     description:
-      'Print-ready STL for the small desktop planter. Includes drain hole variant.',
-    price: 'Free',
-    tags: ['STL', 'Garden'],
-    status: 'coming-soon',
+      'Minimal geometric candle holder for standard taper and pillar candles. Weighted base, clean lines.',
+    price: 'Made to Order',
+    tags: ['Home', 'Decor'],
+    model3d: {
+      parts: [
+        { label: 'Assembly', url: '/products/candle-assembly.3mf' },
+      ],
+      color: '#c8a87a',
+    },
+    status: 'available',
+    stlStatus: 'coming-soon',
   },
   {
-    id: 'soap-dispenser-stl',
-    name: 'Soap Dispenser STL',
-    type: 'digital',
+    id: 'bookshelf',
+    name: 'Book Shelf',
+    type: 'physical',
     description:
-      'Print-ready STL for the soap dispenser body and pump collar. Standard M24 pump thread.',
-    price: 'Free',
-    tags: ['STL', 'Home'],
-    status: 'coming-soon',
+      'Wall-mounted shelf for books, plants, or objects. Minimal floating form with no visible brackets.',
+    price: 'Made to Order',
+    tags: ['Home', 'Furniture'],
+    model3d: {
+      parts: [
+        { label: 'Assembly', url: '/products/shelf-assembly.3mf' },
+      ],
+      color: '#a0856a',
+    },
+    status: 'available',
+    stlStatus: 'coming-soon',
+  },
+  {
+    id: 'display-stand',
+    name: 'Display Stand',
+    type: 'physical',
+    description:
+      'Elevated riser stand that lifts objects off the surface. Clean minimal form, works for plants, decor, or any display piece.',
+    price: 'Made to Order',
+    tags: ['Home', 'Decor'],
+    model3d: {
+      parts: [
+        { label: 'Assembly', url: '/products/stand-assembly.3mf' },
+      ],
+      color: '#909090',
+    },
+    status: 'available',
+    stlStatus: 'coming-soon',
   },
 ]

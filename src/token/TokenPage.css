@@ -310,6 +310,12 @@ html, body {
   letter-spacing: -0.01em;
 }
 
+.tp-achievement-sub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 2px;
+}
+
 .tp-rarity {
   margin-left: auto;
   font-size: 0.72rem;

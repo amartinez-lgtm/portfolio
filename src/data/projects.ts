@@ -93,19 +93,19 @@ export const projects: Project[] = [
 export const sideHustles: SideHustle[] = [
   {
     id: '3d-printing',
-    name: '3D Printing — Physical Products',
-    tagline: 'Designing and selling household products',
+    name: 'XYZ — 3D Printed Products',
+    tagline: 'Made-to-order household objects, designed in-house',
     description:
-      'Running a Bambu X1C to design and print household products — candle holders, dispensers, organizers. From CAD to finished product.',
+      'Designing and printing household products on a Bambu X1C — candle holders, dispensers, planters, stands. Every object goes from CAD to finished product in-house. Available at levallc.com/store.',
     tags: ['Bambu X1C', 'FDM', 'CAD', 'Product Design'],
     status: 'active',
   },
   {
     id: '3d-files',
     name: 'Digital 3D Model Files',
-    tagline: 'Downloadable files sold via Shopify',
+    tagline: '35+ downloadable files with automated delivery',
     description:
-      'Selling downloadable 3D print files through a Shopify storefront with automated delivery — no manual fulfillment, files land in the buyer\'s inbox the moment payment clears.',
+      'Selling downloadable 3D print files through a custom storefront with automated delivery — no manual fulfillment, files land in the buyer\'s inbox the moment payment clears.',
     tags: ['Shopify', 'Digital Products', 'FastAPI', 'Automation'],
     status: 'active',
   },
@@ -135,15 +135,6 @@ export const sideHustles: SideHustle[] = [
       'Designing and building an indoor hydroponic system. Because if you can control a CNC machine, you can control nutrient flow.',
     tags: ['Hardware', 'Automation', 'IoT'],
     status: 'in-progress',
-  },
-  {
-    id: 'qr-tracking',
-    name: 'QR Tool Tracking SaaS',
-    tagline: 'Planned — shop floor tool management',
-    description:
-      'QR-code-based tool tracking SaaS for machine shops. Scan to check out, scan to return — real-time visibility into where every tool is and when it was last calibrated.',
-    tags: ['SaaS', 'Manufacturing', 'QR', 'Planned'],
-    status: 'planned',
   },
 ]
 

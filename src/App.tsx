@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import AuroraBackground from './components/AuroraBackground'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
@@ -7,8 +8,16 @@ import CareerStories from './components/CareerStories'
 import About from './components/About'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
+import ChatWidget from './components/ChatWidget'
 
 export default function App() {
+  useEffect(() => {
+    const hash = window.location.hash
+    if (!hash) return
+    const el = document.querySelector(hash)
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  }, [])
+
   return (
     <>
       <AuroraBackground showGrid={false} />
@@ -22,6 +31,7 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
+      <ChatWidget />
     </>
   )
 }
