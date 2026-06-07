@@ -158,7 +158,7 @@ export default function TokenPage() {
         </div>
 
         {/* Floating token coin — tappable, links to About section */}
-        <a ref={coinRef} href="/#about" className="tp-coin-link" aria-label="Learn about Avelino Martinez">
+        <a ref={coinRef} href="/" className="tp-coin-link" aria-label="Go to Avelino Martinez's portfolio">
           <div className="tp-coin-outer">
             {/* Hue-cycle wrapper rotates all colors through full spectrum */}
             <div className="tp-coin-hue">
