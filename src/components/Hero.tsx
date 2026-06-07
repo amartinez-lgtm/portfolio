@@ -15,9 +15,10 @@ export default function Hero() {
         </h1>
 
         <p className="hero__sub">
-          Quality Manager at an AS9100-certified machine shop.
-          A decade on the shop floor showed me exactly where the gaps are —
-          in software, in tooling, in process. Now I build to fill them.
+          Manufacturing software is written by people who've never touched a part.
+          I've spent ten years on the floor — quality systems, supplier audits,
+          aerospace certifications — and I know exactly where the gaps are.
+          Now I build to fill them.
         </p>
 
         <div className="hero__actions">
