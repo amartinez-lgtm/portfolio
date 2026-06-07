@@ -202,15 +202,13 @@ export default function ChatWidget() {
       >
         {/* Equatorial band */}
         <span className="orb-band" />
-        {/* Eye */}
+        {/* Eye — gaze container shifts pupil+iris together */}
         <span className="orb-eye">
-          <span className="orb-iris" />
-          <span className="orb-pupil" />
+          <span className="orb-eye-gaze">
+            <span className="orb-iris" />
+            <span className="orb-pupil" />
+          </span>
         </span>
-        {/* Primary orbiting ring */}
-        <span className="orb-ring" />
-        {/* Gyroscope ring — tilted axis */}
-        <span className="orb-ring2" />
         {/* Label — always visible on touch; hover-only on desktop */}
         {!isOpen && <span className="chat-orb__label">Talk to AI Avelino</span>}
       </button>
