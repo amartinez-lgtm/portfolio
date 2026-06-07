@@ -1,5 +1,7 @@
 /* ═══════════════════════════════════════
-   GUILTY SPARK ORB  (80 × 80 px)
+   GUILTY SPARK ORB  (72 × 72 px)
+   Sphere body + eye are drawn on canvas
+   each frame by drawOrb() in ChatWidget.tsx.
 ═══════════════════════════════════════ */
 
 .chat-orb {
@@ -12,40 +14,13 @@
   z-index: 1000;
   padding: 0;
   overflow: visible;
-
-  /* Specular position driven by JS velocity — highlight moves opposite to travel
-   * so the orb looks like a genuine sphere rotating through 3D space. */
-  --lx: 27%;
-  --ly: 20%;
-
-  /*
-   * 3-D sphere lighting — 6 gradient layers (top = front):
-   *   1. Sharp specular highlight  (JS-driven position)
-   *   2. Secondary sheen           (follows specular)
-   *   3. Diffuse lit hemisphere    (main blue lit area)
-   *   4. Rim / back-light          (opposite side to specular)
-   *   5. Shadow deepening          (opposite side darkening)
-   *   6. Dark ambient base
-   */
-  background:
-    radial-gradient(circle at var(--lx) var(--ly), rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.5) 6%, transparent 22%),
-    radial-gradient(circle at calc(var(--lx) + 9%) calc(var(--ly) + 9%), rgba(147,219,253,0.42) 0%, transparent 36%),
-    radial-gradient(circle at 40% 40%, rgba(56,189,248,0.68) 0%, rgba(14,116,144,0.52) 44%, transparent 70%),
-    radial-gradient(circle at calc(103% - var(--lx)) calc(103% - var(--ly)), rgba(56,189,248,0.3) 0%, transparent 36%),
-    radial-gradient(circle at 62% 62%, rgba(0,0,0,0.52)      0%, transparent 52%),
-    radial-gradient(circle at 50% 50%, #0a1e34 0%, #04101e 60%, #010810 100%);
+  background: transparent;
 
   box-shadow:
-    /* Floating drop shadow */
     0 18px 44px rgba(0, 0, 0, 0.65),
     0 7px 18px  rgba(0, 0, 0, 0.4),
-    /* Outer glow */
     0 0 22px rgba(56, 189, 248, 0.75),
-    0 0 46px rgba(56, 189, 248, 0.33),
-    /* Inner edge highlights — gives the sphere thickness/glass rim */
-    inset 3px 4px 10px rgba(255, 255, 255, 0.14),
-    inset -3px -3px 10px rgba(0,   0,   0,   0.7),
-    inset 0 0 0 1px rgba(56, 189, 248, 0.2);
+    0 0 46px rgba(56, 189, 248, 0.33);
 
   animation: orb-breathe 2.6s ease-in-out infinite;
   transition: box-shadow 0.2s;
@@ -56,13 +31,19 @@
     0 18px 44px rgba(0, 0, 0, 0.65),
     0 7px 18px  rgba(0, 0, 0, 0.4),
     0 0 32px rgba(56, 189, 248, 0.95),
-    0 0 66px rgba(56, 189, 248, 0.52),
-    inset 3px 4px 10px rgba(255, 255, 255, 0.14),
-    inset -3px -3px 10px rgba(0, 0, 0, 0.7),
-    inset 0 0 0 1px rgba(56, 189, 248, 0.35);
+    0 0 66px rgba(56, 189, 248, 0.52);
 }
 
-/* Energy ping rings — expand + fade, replace orbiting balls */
+/* Canvas fills the button — border-radius clips it to a circle */
+.orb-canvas {
+  display: block;
+  border-radius: 50%;
+  width: 72px;
+  height: 72px;
+  pointer-events: none;
+}
+
+/* Energy ping rings */
 .chat-orb::before,
 .chat-orb::after {
   content: '';
@@ -76,7 +57,7 @@
 .chat-orb::after { animation-delay: 1.6s; }
 
 @keyframes energy-ping {
-  0%   { transform: scale(1);   opacity: 0.55; }
+  0%   { transform: scale(1);    opacity: 0.55; }
   100% { transform: scale(1.85); opacity: 0; }
 }
 
@@ -91,10 +72,7 @@
   box-shadow:
     0 12px 30px rgba(0, 0, 0, 0.55),
     0 0 14px rgba(56, 189, 248, 0.52),
-    0 0 28px rgba(56, 189, 248, 0.2),
-    inset 3px 4px 10px rgba(255, 255, 255, 0.12),
-    inset -3px -3px 10px rgba(0, 0, 0, 0.7),
-    inset 0 0 0 1px rgba(56, 189, 248, 0.18);
+    0 0 28px rgba(56, 189, 248, 0.2);
 }
 
 @keyframes orb-breathe {
@@ -103,139 +81,15 @@
       0 18px 44px rgba(0, 0, 0, 0.65),
       0 7px 18px rgba(0, 0, 0, 0.4),
       0 0 22px rgba(56, 189, 248, 0.75),
-      0 0 46px rgba(56, 189, 248, 0.33),
-      inset 3px 4px 10px rgba(255, 255, 255, 0.14),
-      inset -3px -3px 10px rgba(0, 0, 0, 0.7),
-      inset 0 0 0 1px rgba(56, 189, 248, 0.2);
+      0 0 46px rgba(56, 189, 248, 0.33);
   }
   50% {
     box-shadow:
       0 18px 44px rgba(0, 0, 0, 0.65),
       0 7px 18px rgba(0, 0, 0, 0.4),
       0 0 34px rgba(56, 189, 248, 1),
-      0 0 68px rgba(56, 189, 248, 0.5),
-      inset 3px 4px 10px rgba(255, 255, 255, 0.14),
-      inset -3px -3px 10px rgba(0, 0, 0, 0.7),
-      inset 0 0 0 1px rgba(56, 189, 248, 0.28);
+      0 0 68px rgba(56, 189, 248, 0.5);
   }
-}
-
-/* ── Equatorial panel band ── */
-.orb-band {
-  position: absolute;
-  top: 50%;
-  left: 6%;
-  right: 6%;
-  height: 1.5px;
-  transform: translateY(-50%);
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(56, 189, 248, 0.15) 15%,
-    rgba(56, 189, 248, 0.35) 50%,
-    rgba(56, 189, 248, 0.15) 85%,
-    transparent 100%
-  );
-  pointer-events: none;
-}
-
-/* ── Eye socket — recessed/concave into sphere ── */
-.orb-eye {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -56%);
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 60%, #0d2d48 0%, #051422 70%, #020a15 100%);
-  border: 1px solid rgba(56, 189, 248, 0.55);
-  box-shadow:
-    inset 0 3px 6px rgba(0, 0, 0, 0.85),
-    inset 0 -1px 4px rgba(56, 189, 248, 0.22),
-    0 1px 4px rgba(0, 0, 0, 0.6);
-  overflow: hidden; /* clip gaze to socket boundary */
-  pointer-events: none;
-}
-
-/*
- * Gaze container — translates as a unit, carrying iris + pupil.
- * Keyframes mimic saccadic eye movement: fast darts, long holds.
- * 1% of a 10s animation = 0.1s → realistic saccade speed.
- */
-.orb-eye-gaze {
-  position: absolute;
-  inset: 0;
-  animation: eye-gaze 11s linear infinite;
-}
-
-@keyframes eye-gaze {
-  /* ── Looking straight at viewer ── */
-  0%   { transform: translate(0, 0); }
-  11%  { transform: translate(0, 0); }
-  /* dart up-right */
-  12%  { transform: translate(2.8px, -2.5px); }
-  23%  { transform: translate(2.8px, -2.5px); }
-  /* dart hard left */
-  24%  { transform: translate(-3px, 0.5px); }
-  35%  { transform: translate(-3px, 0.5px); }
-  /* return center */
-  36%  { transform: translate(0, 0); }
-  /* long forward stare */
-  53%  { transform: translate(0, 0); }
-  /* dart down */
-  54%  { transform: translate(1px, 3px); }
-  63%  { transform: translate(1px, 3px); }
-  /* dart up-left */
-  64%  { transform: translate(-2.5px, -2.5px); }
-  72%  { transform: translate(-2.5px, -2.5px); }
-  /* dart right */
-  73%  { transform: translate(3px, 0.5px); }
-  81%  { transform: translate(3px, 0.5px); }
-  /* return center */
-  82%  { transform: translate(0, 0); }
-  100% { transform: translate(0, 0); }
-}
-
-/* ── Mechanical iris — spins independently inside gaze container ── */
-.orb-iris {
-  position: absolute;
-  top: calc(50% - 9.5px);
-  left: calc(50% - 9.5px);
-  width: 19px;
-  height: 19px;
-  border-radius: 50%;
-  border: 2px dashed rgba(56, 189, 248, 0.6);
-  box-shadow: inset 0 0 4px rgba(56, 189, 248, 0.15);
-  animation: iris-spin 5s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes iris-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-/* ── Bright pupil ── */
-.orb-pupil {
-  position: absolute;
-  top: calc(50% - 4.5px);
-  left: calc(50% - 4.5px);
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #fff 0%, rgba(147, 219, 253, 0.95) 45%, rgba(56, 189, 248, 0.7) 100%);
-  box-shadow:
-    0 0 5px rgba(255, 255, 255, 0.95),
-    0 0 12px rgba(56, 189, 248, 1),
-    0 0 24px rgba(56, 189, 248, 0.65);
-  animation: pupil-pulse 2.6s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes pupil-pulse {
-  0%, 100% { transform: scale(1);    opacity: 0.9; }
-  50%       { transform: scale(1.25); opacity: 1; }
 }
 
 /* ── Floating label ── */
@@ -247,7 +101,7 @@
   white-space: nowrap;
   background: rgba(8, 20, 40, 0.92);
   border: 1px solid rgba(56, 189, 248, 0.32);
-  border-radius: 20px;   /* pill */
+  border-radius: 20px;
   color: #38bdf8;
   font-family: var(--font-sans);
   font-size: 13px;
@@ -258,7 +112,7 @@
   transition: opacity 0.25s, transform 0.25s;
 }
 
-/* Always visible on touch devices (mobile) */
+/* Always visible on touch devices */
 @media (hover: none) {
   .chat-orb__label {
     opacity: 1 !important;
@@ -266,10 +120,7 @@
   }
 }
 
-/* Hide label when parked */
-.chat-orb--parked .chat-orb__label {
-  display: none;
-}
+.chat-orb--parked .chat-orb__label { display: none; }
 
 
 /* ═══════════════════════════════════════
@@ -327,6 +178,12 @@
   background: radial-gradient(circle, #fff 0%, rgba(125,211,252,0.9) 60%);
   box-shadow: 0 0 6px rgba(255,255,255,0.9);
   animation: pupil-pulse 2.6s ease-in-out infinite;
+}
+
+/* Used by chat panel avatar eye */
+@keyframes pupil-pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.9; }
+  50%       { transform: scale(1.25); opacity: 1; }
 }
 
 .chat-panel__title   { flex: 1; min-width: 0; }

@@ -18,14 +18,172 @@ const SUGGESTIONS = [
   'I want to collaborate on something',
 ]
 
-const ORB_R = 36 // 72px diameter
+const ORB_R  = 36  // 72px diameter
+const ORB_SZ = 72  // canvas logical size
 
 function pickWaypoint() {
-  const mx = 90
-  const my = 100
+  const mx = 90, my = 100
   return {
     x: mx + Math.random() * (window.innerWidth  - mx * 2),
     y: my + Math.random() * (window.innerHeight - my * 2),
+  }
+}
+
+function pickLookTarget() {
+  const MAX = 0.38  // ~22° max deviation from center
+  return {
+    theta: (Math.random() - 0.5) * 2 * MAX,
+    phi:   (Math.random() - 0.5) * MAX * 0.75,
+  }
+}
+
+// Draw the orb onto a canvas using 3D projection for the eye socket.
+// lx/ly: specular highlight position in logical % (0–100).
+// theta: horizontal look angle (rad), phi: vertical look angle (rad).
+function drawOrb(
+  ctx: CanvasRenderingContext2D,
+  lx: number, ly: number,
+  theta: number, phi: number,
+) {
+  const S = ORB_SZ
+  const cx = S / 2, cy = S / 2
+  const R = S / 2 - 0.5
+
+  ctx.clearRect(0, 0, S, S)
+
+  // ── Sphere body (clipped to circle) ──
+  ctx.save()
+  ctx.beginPath()
+  ctx.arc(cx, cy, R, 0, Math.PI * 2)
+  ctx.clip()
+
+  // Dark ambient base
+  const base = ctx.createRadialGradient(cx, cy, 0, cx, cy, R)
+  base.addColorStop(0,   '#0a1e34')
+  base.addColorStop(0.6, '#04101e')
+  base.addColorStop(1,   '#010810')
+  ctx.fillStyle = base; ctx.fillRect(0, 0, S, S)
+
+  // Diffuse blue hemisphere
+  const diff = ctx.createRadialGradient(cx * 0.8, cy * 0.8, 0, cx, cy, R)
+  diff.addColorStop(0,    'rgba(56,189,248,0.65)')
+  diff.addColorStop(0.44, 'rgba(14,116,144,0.50)')
+  diff.addColorStop(0.70, 'transparent')
+  ctx.fillStyle = diff; ctx.fillRect(0, 0, S, S)
+
+  // Specular highlight (position driven by movement velocity)
+  const sx = (lx / 100) * S, sy = (ly / 100) * S
+  const spec = ctx.createRadialGradient(sx, sy, 0, sx, sy, R * 0.22)
+  spec.addColorStop(0,    'rgba(255,255,255,0.96)')
+  spec.addColorStop(0.28, 'rgba(255,255,255,0.45)')
+  spec.addColorStop(1,    'transparent')
+  ctx.fillStyle = spec; ctx.fillRect(0, 0, S, S)
+
+  // Secondary sheen (follows specular)
+  const shn = ctx.createRadialGradient(sx + 5, sy + 6, 0, sx + 5, sy + 6, R * 0.38)
+  shn.addColorStop(0,  'rgba(147,219,253,0.38)')
+  shn.addColorStop(1,  'transparent')
+  ctx.fillStyle = shn; ctx.fillRect(0, 0, S, S)
+
+  // Rim light (opposite side)
+  const rx = S * 1.03 - sx, ry = S * 1.03 - sy
+  const rim = ctx.createRadialGradient(rx, ry, 0, rx, ry, R * 0.38)
+  rim.addColorStop(0,  'rgba(56,189,248,0.28)')
+  rim.addColorStop(1,  'transparent')
+  ctx.fillStyle = rim; ctx.fillRect(0, 0, S, S)
+
+  // Shadow deepening (opposite hemisphere)
+  const shd = ctx.createRadialGradient(cx * 1.24, cy * 1.24, 0, cx * 1.24, cy * 1.24, R * 0.52)
+  shd.addColorStop(0,  'rgba(0,0,0,0.50)')
+  shd.addColorStop(1,  'transparent')
+  ctx.fillStyle = shd; ctx.fillRect(0, 0, S, S)
+
+  // Equatorial seam
+  ctx.strokeStyle = 'rgba(56,189,248,0.2)'
+  ctx.lineWidth = 1.5
+  ctx.beginPath()
+  ctx.moveTo(4, cy); ctx.lineTo(S - 4, cy)
+  ctx.stroke()
+
+  ctx.restore()  // end sphere clip
+
+  // ── Eye socket — 3D→2D projection ──
+  // The eye sits at the front of the sphere. As the orb "looks" in direction
+  // (theta, phi), the socket slides across the surface and foreshortens.
+  // Front pole = (0, 0, 1) in camera space.
+  //   3D:  ex = sin(θ),  ey = -sin(φ),  ez = cos(θ)·cos(φ)
+  //   2D:  screen_x = cx + ex*R*0.52,  screen_y = cy + ey*R*0.52
+  //   Width scales by cos(θ)·cos(φ), height by cos(φ).
+  const cosT = Math.cos(theta), sinT = Math.sin(theta)
+  const cosP = Math.cos(phi),   sinP = Math.sin(phi)
+  const ez3 = cosT * cosP  // depth — 1 = facing camera, 0 = at edge
+
+  if (ez3 > 0.08) {
+    const esx = cx + sinT * R * 0.52
+    const esy = cy - sinP * R * 0.52 - R * 0.05  // slight upward bias
+
+    const sockR = 13
+    const sockW = sockR * Math.abs(cosT) * cosP  // horizontal foreshortening
+    const sockH = sockR * cosP                   // vertical foreshortening
+
+    if (sockW > 0.5 && sockH > 0.5) {
+      ctx.save()
+      ctx.translate(esx, esy)
+
+      // Socket fill (concave pit)
+      ctx.beginPath()
+      ctx.ellipse(0, 0, sockW, sockH, 0, 0, Math.PI * 2)
+      const pit = ctx.createRadialGradient(0, sockH * 0.2, 0, 0, 0, Math.max(sockW, sockH))
+      pit.addColorStop(0,   '#0d2d48')
+      pit.addColorStop(0.7, '#051422')
+      pit.addColorStop(1,   '#020a15')
+      ctx.fillStyle = pit
+      ctx.fill()
+
+      // Socket rim
+      ctx.strokeStyle = 'rgba(56,189,248,0.55)'
+      ctx.lineWidth = 1
+      ctx.stroke()
+
+      // Inner shadow (inset depth illusion)
+      ctx.beginPath()
+      ctx.ellipse(0, 0, sockW, sockH, 0, 0, Math.PI * 2)
+      const insh = ctx.createRadialGradient(0, -sockH * 0.25, 0, 0, 0, Math.max(sockW, sockH))
+      insh.addColorStop(0,   'transparent')
+      insh.addColorStop(0.5, 'rgba(0,0,0,0.30)')
+      insh.addColorStop(1,   'rgba(0,0,0,0.85)')
+      ctx.fillStyle = insh
+      ctx.fill()
+
+      // Iris ring (dashed, foreshortened)
+      const irisW = Math.max(sockW * 0.74, 0.1)
+      const irisH = Math.max(sockH * 0.74, 0.1)
+      ctx.beginPath()
+      ctx.ellipse(0, 0, irisW, irisH, 0, 0, Math.PI * 2)
+      ctx.setLineDash([1.5, 2])
+      ctx.strokeStyle = 'rgba(56,189,248,0.70)'
+      ctx.lineWidth = 1.5
+      ctx.stroke()
+      ctx.setLineDash([])
+
+      // Pupil — always a circle (the central emitter, not foreshortened)
+      const pR = Math.min(sockW, sockH) * 0.36
+      if (pR > 0.4) {
+        const pupG = ctx.createRadialGradient(0, 0, 0, 0, 0, pR)
+        pupG.addColorStop(0,    '#ffffff')
+        pupG.addColorStop(0.45, 'rgba(147,219,253,0.95)')
+        pupG.addColorStop(1,    'rgba(56,189,248,0.70)')
+        ctx.beginPath()
+        ctx.arc(0, 0, pR, 0, Math.PI * 2)
+        ctx.fillStyle = pupG
+        ctx.shadowColor = '#38bdf8'
+        ctx.shadowBlur = 8
+        ctx.fill()
+        ctx.shadowBlur = 0
+      }
+
+      ctx.restore()
+    }
   }
 }
 
@@ -36,19 +194,23 @@ export default function ChatWidget() {
   const [loading, setLoading] = useState(false)
   const [streamingText, setStreamingText] = useState('')
 
-  const orbRef      = useRef<HTMLButtonElement>(null)
-  const posRef      = useRef({ x: 0, y: 0 })
-  const velRef      = useRef({ vx: 0, vy: 0 })
-  const waypointRef = useRef({ x: 0, y: 0 })
-  const phaseRef    = useRef<'moving' | 'hovering'>('moving')
-  const pauseRef    = useRef(0)
-  const rafRef      = useRef<number | null>(null)
-  const lxRef       = useRef(27)   // specular highlight x% (default top-left)
-  const lyRef       = useRef(20)   // specular highlight y%
+  const orbRef        = useRef<HTMLButtonElement>(null)
+  const canvasRef     = useRef<HTMLCanvasElement>(null)
+  const posRef        = useRef({ x: 0, y: 0 })
+  const velRef        = useRef({ vx: 0, vy: 0 })
+  const waypointRef   = useRef({ x: 0, y: 0 })
+  const phaseRef      = useRef<'moving' | 'hovering'>('moving')
+  const pauseRef      = useRef(0)
+  const rafRef        = useRef<number | null>(null)
+  const lxRef         = useRef(27)  // specular x %
+  const lyRef         = useRef(20)  // specular y %
+  const lookRef       = useRef({ theta: 0, phi: 0 })
+  const lookTargetRef = useRef(pickLookTarget())
+  const lookPauseRef  = useRef(60)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef       = useRef<HTMLInputElement>(null)
 
-  // Init position + first waypoint
+  // Init: position, canvas DPR scaling, first waypoint
   useEffect(() => {
     const x = window.innerWidth  * 0.72
     const y = window.innerHeight * 0.55
@@ -58,9 +220,23 @@ export default function ChatWidget() {
       orbRef.current.style.left = `${x - ORB_R}px`
       orbRef.current.style.top  = `${y - ORB_R}px`
     }
+    // Scale canvas for HiDPI
+    const canvas = canvasRef.current
+    if (canvas) {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      canvas.width  = ORB_SZ * dpr
+      canvas.height = ORB_SZ * dpr
+      canvas.style.width  = `${ORB_SZ}px`
+      canvas.style.height = `${ORB_SZ}px`
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.scale(dpr, dpr)
+        drawOrb(ctx, lxRef.current, lyRef.current, 0, 0)
+      }
+    }
   }, [])
 
-  // Sentient waypoint movement
+  // Sentient movement + specular + saccade + canvas render
   useEffect(() => {
     if (isOpen) {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
@@ -71,26 +247,22 @@ export default function ChatWidget() {
       const pos = posRef.current
       const vel = velRef.current
 
+      // ── Position physics ──
       if (phaseRef.current === 'hovering') {
-        // Micro-drift while thinking
-        vel.vx *= 0.88
-        vel.vy *= 0.88
+        vel.vx *= 0.88; vel.vy *= 0.88
         vel.vx += (Math.random() - 0.5) * 0.05
         vel.vy += (Math.random() - 0.5) * 0.05
-        pauseRef.current--
-        if (pauseRef.current <= 0) {
+        if (--pauseRef.current <= 0) {
           phaseRef.current = 'moving'
           waypointRef.current = pickWaypoint()
         }
       } else {
-        const wp  = waypointRef.current
-        const dx  = wp.x - pos.x
-        const dy  = wp.y - pos.y
+        const wp = waypointRef.current
+        const dx = wp.x - pos.x, dy = wp.y - pos.y
         const dist = Math.hypot(dx, dy)
-
         if (dist < 36) {
           phaseRef.current = 'hovering'
-          pauseRef.current = 60 + Math.floor(Math.random() * 100) // 1–2.7 s at 60fps
+          pauseRef.current = 60 + Math.floor(Math.random() * 100)
         } else {
           const topSpeed = Math.min(2.2, dist / 42)
           vel.vx += ((dx / dist) * topSpeed - vel.vx) * 0.06
@@ -98,30 +270,49 @@ export default function ChatWidget() {
         }
       }
 
-      pos.x += vel.vx
-      pos.y += vel.vy
+      pos.x += vel.vx; pos.y += vel.vy
 
-      // Soft boundary
       const PAD = 70
-      if (pos.x < PAD)                       { pos.x = PAD;                           vel.vx =  Math.abs(vel.vx) }
-      if (pos.x > window.innerWidth  - PAD)  { pos.x = window.innerWidth  - PAD;      vel.vx = -Math.abs(vel.vx) }
-      if (pos.y < PAD + 20)                  { pos.y = PAD + 20;                      vel.vy =  Math.abs(vel.vy) }
-      if (pos.y > window.innerHeight - PAD)  { pos.y = window.innerHeight - PAD;      vel.vy = -Math.abs(vel.vy) }
+      if (pos.x < PAD)                      { pos.x = PAD;                      vel.vx =  Math.abs(vel.vx) }
+      if (pos.x > window.innerWidth  - PAD) { pos.x = window.innerWidth  - PAD; vel.vx = -Math.abs(vel.vx) }
+      if (pos.y < PAD + 20)                 { pos.y = PAD + 20;                 vel.vy =  Math.abs(vel.vy) }
+      if (pos.y > window.innerHeight - PAD) { pos.y = window.innerHeight - PAD; vel.vy = -Math.abs(vel.vy) }
 
-      // Shift specular highlight opposite to travel direction — makes it look like
-      // a real sphere rotating through space rather than a flat disc tilting.
+      if (orbRef.current) {
+        orbRef.current.style.left = `${pos.x - ORB_R}px`
+        orbRef.current.style.top  = `${pos.y - ORB_R}px`
+      }
+
+      // ── Specular highlight (opposite to travel = sphere rotating) ──
       const spd = Math.hypot(vel.vx, vel.vy)
       const nx = spd > 0.15 ? vel.vx / spd : 0
       const ny = spd > 0.15 ? vel.vy / spd : 0
       lxRef.current += (27 - nx * 17 - lxRef.current) * 0.07
       lyRef.current += (20 - ny * 13 - lyRef.current) * 0.07
 
-      if (orbRef.current) {
-        orbRef.current.style.left = `${pos.x - ORB_R}px`
-        orbRef.current.style.top  = `${pos.y - ORB_R}px`
-        orbRef.current.style.setProperty('--lx', `${lxRef.current.toFixed(1)}%`)
-        orbRef.current.style.setProperty('--ly', `${lyRef.current.toFixed(1)}%`)
+      // ── Saccadic gaze ──
+      const look   = lookRef.current
+      const target = lookTargetRef.current
+      if (lookPauseRef.current > 0) {
+        lookPauseRef.current--
+      } else {
+        // Fast saccade dart
+        look.theta += (target.theta - look.theta) * 0.16
+        look.phi   += (target.phi   - look.phi)   * 0.16
+        // Settled? hold, then pick next target
+        if (Math.abs(target.theta - look.theta) < 0.012 && Math.abs(target.phi - look.phi) < 0.012) {
+          lookPauseRef.current = 90 + Math.floor(Math.random() * 110)  // 1.5–3.3 s hold
+          lookTargetRef.current = pickLookTarget()
+        }
       }
+
+      // ── Render canvas ──
+      const canvas = canvasRef.current
+      if (canvas) {
+        const ctx = canvas.getContext('2d')
+        if (ctx) drawOrb(ctx, lxRef.current, lyRef.current, look.theta, look.phi)
+      }
+
       rafRef.current = requestAnimationFrame(tick)
     }
 
@@ -212,16 +403,7 @@ export default function ChatWidget() {
         aria-label={isOpen ? 'Close AI chat' : 'Chat with AI Avelino'}
         style={{ left: 0, top: 0 }}
       >
-        {/* Equatorial band */}
-        <span className="orb-band" />
-        {/* Eye — gaze container shifts pupil+iris together */}
-        <span className="orb-eye">
-          <span className="orb-eye-gaze">
-            <span className="orb-iris" />
-            <span className="orb-pupil" />
-          </span>
-        </span>
-        {/* Label — always visible on touch; hover-only on desktop */}
+        <canvas ref={canvasRef} className="orb-canvas" aria-hidden="true" />
         {!isOpen && <span className="chat-orb__label">Talk to AI Avelino</span>}
       </button>
 
