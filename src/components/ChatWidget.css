@@ -13,20 +13,25 @@
   padding: 0;
   overflow: visible;
 
+  /* Specular position driven by JS velocity — highlight moves opposite to travel
+   * so the orb looks like a genuine sphere rotating through 3D space. */
+  --lx: 27%;
+  --ly: 20%;
+
   /*
    * 3-D sphere lighting — 6 gradient layers (top = front):
-   *   1. Sharp specular highlight  (top-left, very bright)
-   *   2. Secondary sheen           (soft transition)
+   *   1. Sharp specular highlight  (JS-driven position)
+   *   2. Secondary sheen           (follows specular)
    *   3. Diffuse lit hemisphere    (main blue lit area)
-   *   4. Rim / back-light          (bottom-right edge glow)
+   *   4. Rim / back-light          (opposite side to specular)
    *   5. Shadow deepening          (opposite side darkening)
    *   6. Dark ambient base
    */
   background:
-    radial-gradient(circle at 27% 20%, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.5) 6%, transparent 22%),
-    radial-gradient(circle at 36% 29%, rgba(147,219,253,0.42) 0%, transparent 36%),
+    radial-gradient(circle at var(--lx) var(--ly), rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.5) 6%, transparent 22%),
+    radial-gradient(circle at calc(var(--lx) + 9%) calc(var(--ly) + 9%), rgba(147,219,253,0.42) 0%, transparent 36%),
     radial-gradient(circle at 40% 40%, rgba(56,189,248,0.68) 0%, rgba(14,116,144,0.52) 44%, transparent 70%),
-    radial-gradient(circle at 76% 80%, rgba(56,189,248,0.3)  0%, transparent 36%),
+    radial-gradient(circle at calc(103% - var(--lx)) calc(103% - var(--ly)), rgba(56,189,248,0.3) 0%, transparent 36%),
     radial-gradient(circle at 62% 62%, rgba(0,0,0,0.52)      0%, transparent 52%),
     radial-gradient(circle at 50% 50%, #0a1e34 0%, #04101e 60%, #010810 100%);
 
@@ -42,7 +47,7 @@
     inset -3px -3px 10px rgba(0,   0,   0,   0.7),
     inset 0 0 0 1px rgba(56, 189, 248, 0.2);
 
-  animation: orb-breathe 2.6s ease-in-out infinite, orb-attitude 11s linear infinite;
+  animation: orb-breathe 2.6s ease-in-out infinite;
   transition: box-shadow 0.2s;
 }
 
@@ -73,36 +78,6 @@
 @keyframes energy-ping {
   0%   { transform: scale(1);   opacity: 0.55; }
   100% { transform: scale(1.85); opacity: 0; }
-}
-
-/* Orb physically turns to match eye gaze — eyes lead, head follows ~2% later.
-   Both animations are 11s linear so they stay locked in sync forever. */
-@keyframes orb-attitude {
-  /* ── Forward / center ── */
-  0%   { transform: perspective(340px) rotateX(0deg)   rotateY(0deg); }
-  10%  { transform: perspective(340px) rotateX(0deg)   rotateY(0deg); }
-  /* Eye darts up-right at 12% → orb follows at 14% */
-  14%  { transform: perspective(340px) rotateX(-13deg) rotateY(20deg); }
-  22%  { transform: perspective(340px) rotateX(-13deg) rotateY(20deg); }
-  /* Eye darts left at 24% → orb follows at 26% */
-  26%  { transform: perspective(340px) rotateX(2deg)   rotateY(-22deg); }
-  35%  { transform: perspective(340px) rotateX(2deg)   rotateY(-22deg); }
-  /* Return center */
-  38%  { transform: perspective(340px) rotateX(0deg)   rotateY(0deg); }
-  /* Long forward stare */
-  52%  { transform: perspective(340px) rotateX(0deg)   rotateY(0deg); }
-  /* Eye darts down at 54% → orb follows at 56% */
-  56%  { transform: perspective(340px) rotateX(17deg)  rotateY(6deg); }
-  63%  { transform: perspective(340px) rotateX(17deg)  rotateY(6deg); }
-  /* Eye darts up-left at 64% → orb follows at 66% */
-  66%  { transform: perspective(340px) rotateX(-12deg) rotateY(-18deg); }
-  73%  { transform: perspective(340px) rotateX(-12deg) rotateY(-18deg); }
-  /* Eye darts right at 73% → orb follows at 75% */
-  75%  { transform: perspective(340px) rotateX(4deg)   rotateY(22deg); }
-  82%  { transform: perspective(340px) rotateX(4deg)   rotateY(22deg); }
-  /* Return center */
-  86%  { transform: perspective(340px) rotateX(0deg)   rotateY(0deg); }
-  100% { transform: perspective(340px) rotateX(0deg)   rotateY(0deg); }
 }
 
 /* Show label on hover (desktop) */

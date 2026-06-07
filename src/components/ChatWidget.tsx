@@ -43,6 +43,8 @@ export default function ChatWidget() {
   const phaseRef    = useRef<'moving' | 'hovering'>('moving')
   const pauseRef    = useRef(0)
   const rafRef      = useRef<number | null>(null)
+  const lxRef       = useRef(27)   // specular highlight x% (default top-left)
+  const lyRef       = useRef(20)   // specular highlight y%
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef       = useRef<HTMLInputElement>(null)
 
@@ -106,9 +108,19 @@ export default function ChatWidget() {
       if (pos.y < PAD + 20)                  { pos.y = PAD + 20;                      vel.vy =  Math.abs(vel.vy) }
       if (pos.y > window.innerHeight - PAD)  { pos.y = window.innerHeight - PAD;      vel.vy = -Math.abs(vel.vy) }
 
+      // Shift specular highlight opposite to travel direction — makes it look like
+      // a real sphere rotating through space rather than a flat disc tilting.
+      const spd = Math.hypot(vel.vx, vel.vy)
+      const nx = spd > 0.15 ? vel.vx / spd : 0
+      const ny = spd > 0.15 ? vel.vy / spd : 0
+      lxRef.current += (27 - nx * 17 - lxRef.current) * 0.07
+      lyRef.current += (20 - ny * 13 - lyRef.current) * 0.07
+
       if (orbRef.current) {
         orbRef.current.style.left = `${pos.x - ORB_R}px`
         orbRef.current.style.top  = `${pos.y - ORB_R}px`
+        orbRef.current.style.setProperty('--lx', `${lxRef.current.toFixed(1)}%`)
+        orbRef.current.style.setProperty('--ly', `${lyRef.current.toFixed(1)}%`)
       }
       rafRef.current = requestAnimationFrame(tick)
     }
