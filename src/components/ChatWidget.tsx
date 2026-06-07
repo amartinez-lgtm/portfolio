@@ -18,7 +18,16 @@ const SUGGESTIONS = [
   'I want to collaborate on something',
 ]
 
-const ORB_R = 32
+const ORB_R = 40 // 80px diameter
+
+function pickWaypoint() {
+  const mx = 90
+  const my = 100
+  return {
+    x: mx + Math.random() * (window.innerWidth  - mx * 2),
+    y: my + Math.random() * (window.innerHeight - my * 2),
+  }
+}
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
@@ -27,62 +36,80 @@ export default function ChatWidget() {
   const [loading, setLoading] = useState(false)
   const [streamingText, setStreamingText] = useState('')
 
-  const orbRef = useRef<HTMLButtonElement>(null)
-  const posRef = useRef({ x: 0, y: 0 })
-  const velRef = useRef({ vx: -0.38, vy: -0.28 })
-  const rafRef = useRef<number | null>(null)
+  const orbRef      = useRef<HTMLButtonElement>(null)
+  const posRef      = useRef({ x: 0, y: 0 })
+  const velRef      = useRef({ vx: 0, vy: 0 })
+  const waypointRef = useRef({ x: 0, y: 0 })
+  const phaseRef    = useRef<'moving' | 'hovering'>('moving')
+  const pauseRef    = useRef(0)
+  const rafRef      = useRef<number | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef       = useRef<HTMLInputElement>(null)
 
+  // Init position + first waypoint
   useEffect(() => {
-    const x = window.innerWidth - 90
-    const y = window.innerHeight * 0.62
+    const x = window.innerWidth  * 0.72
+    const y = window.innerHeight * 0.55
     posRef.current = { x, y }
+    waypointRef.current = pickWaypoint()
     if (orbRef.current) {
       orbRef.current.style.left = `${x - ORB_R}px`
-      orbRef.current.style.top = `${y - ORB_R}px`
+      orbRef.current.style.top  = `${y - ORB_R}px`
     }
   }, [])
 
+  // Sentient waypoint movement
   useEffect(() => {
     if (isOpen) {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
       return
     }
 
-    const MAX_SPEED = 0.65
-    const MIN_SPEED = 0.15
-
     const tick = () => {
       const pos = posRef.current
       const vel = velRef.current
 
+      if (phaseRef.current === 'hovering') {
+        // Micro-drift while thinking
+        vel.vx *= 0.88
+        vel.vy *= 0.88
+        vel.vx += (Math.random() - 0.5) * 0.05
+        vel.vy += (Math.random() - 0.5) * 0.05
+        pauseRef.current--
+        if (pauseRef.current <= 0) {
+          phaseRef.current = 'moving'
+          waypointRef.current = pickWaypoint()
+        }
+      } else {
+        const wp  = waypointRef.current
+        const dx  = wp.x - pos.x
+        const dy  = wp.y - pos.y
+        const dist = Math.hypot(dx, dy)
+
+        if (dist < 36) {
+          phaseRef.current = 'hovering'
+          pauseRef.current = 150 + Math.floor(Math.random() * 200) // 2.5 – 5.8 s at 60fps
+        } else {
+          const topSpeed = Math.min(1.6, dist / 55)
+          vel.vx += ((dx / dist) * topSpeed - vel.vx) * 0.045
+          vel.vy += ((dy / dist) * topSpeed - vel.vy) * 0.045
+        }
+      }
+
       pos.x += vel.vx
       pos.y += vel.vy
 
-      const PAD = ORB_R + 16
-      if (pos.x < PAD) { pos.x = PAD; vel.vx = Math.abs(vel.vx) }
-      if (pos.x > window.innerWidth - PAD) { pos.x = window.innerWidth - PAD; vel.vx = -Math.abs(vel.vx) }
-      if (pos.y < PAD + 20) { pos.y = PAD + 20; vel.vy = Math.abs(vel.vy) }
-      if (pos.y > window.innerHeight - PAD) { pos.y = window.innerHeight - PAD; vel.vy = -Math.abs(vel.vy) }
-
-      if (Math.random() < 0.007) {
-        vel.vx += (Math.random() - 0.5) * 0.26
-        vel.vy += (Math.random() - 0.5) * 0.26
-        const spd = Math.hypot(vel.vx, vel.vy)
-        if (spd > MAX_SPEED) { vel.vx = (vel.vx / spd) * MAX_SPEED; vel.vy = (vel.vy / spd) * MAX_SPEED }
-        if (spd < MIN_SPEED) { vel.vx = (vel.vx / spd) * MIN_SPEED; vel.vy = (vel.vy / spd) * MIN_SPEED }
-      }
-
-      // Gentle attitude tilt matching direction of travel
-      const tilt = Math.max(-14, Math.min(14, vel.vx * 18))
+      // Soft boundary
+      const PAD = 70
+      if (pos.x < PAD)                       { pos.x = PAD;                           vel.vx =  Math.abs(vel.vx) }
+      if (pos.x > window.innerWidth  - PAD)  { pos.x = window.innerWidth  - PAD;      vel.vx = -Math.abs(vel.vx) }
+      if (pos.y < PAD + 20)                  { pos.y = PAD + 20;                      vel.vy =  Math.abs(vel.vy) }
+      if (pos.y > window.innerHeight - PAD)  { pos.y = window.innerHeight - PAD;      vel.vy = -Math.abs(vel.vy) }
 
       if (orbRef.current) {
         orbRef.current.style.left = `${pos.x - ORB_R}px`
-        orbRef.current.style.top = `${pos.y - ORB_R}px`
-        orbRef.current.style.transform = `rotate(${tilt}deg)`
+        orbRef.current.style.top  = `${pos.y - ORB_R}px`
       }
-
       rafRef.current = requestAnimationFrame(tick)
     }
 
@@ -90,25 +117,21 @@ export default function ChatWidget() {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
   }, [isOpen])
 
-  useEffect(() => {
-    if (isOpen) inputRef.current?.focus()
-  }, [isOpen])
-
+  useEffect(() => { if (isOpen) inputRef.current?.focus() }, [isOpen])
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, streamingText])
 
   const handleOrbClick = () => {
     if (!isOpen) {
-      const tx = window.innerWidth - 36 - ORB_R
-      const ty = window.innerHeight - 36 - ORB_R
+      const tx = window.innerWidth  - 40 - ORB_R
+      const ty = window.innerHeight - 40 - ORB_R
       posRef.current = { x: tx + ORB_R, y: ty + ORB_R }
       if (orbRef.current) {
-        orbRef.current.style.transition = 'left 0.4s cubic-bezier(0.34,1.4,0.64,1), top 0.4s cubic-bezier(0.34,1.4,0.64,1), transform 0.35s'
+        orbRef.current.style.transition = 'left 0.45s cubic-bezier(0.34,1.4,0.64,1), top 0.45s cubic-bezier(0.34,1.4,0.64,1)'
         orbRef.current.style.left = `${tx}px`
-        orbRef.current.style.top = `${ty}px`
-        orbRef.current.style.transform = 'rotate(0deg)'
-        setTimeout(() => { if (orbRef.current) orbRef.current.style.transition = '' }, 450)
+        orbRef.current.style.top  = `${ty}px`
+        setTimeout(() => { if (orbRef.current) orbRef.current.style.transition = '' }, 500)
       }
     }
     setIsOpen(v => !v)
@@ -116,27 +139,22 @@ export default function ChatWidget() {
 
   const sendText = async (text: string) => {
     if (!text.trim() || loading) return
-
     const userMsg: Message = { role: 'user', content: text.trim() }
     const newMessages = [...messages, userMsg]
     setMessages(newMessages)
     setInput('')
     setLoading(true)
     setStreamingText('')
-
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ messages: newMessages }),
       })
-
-      if (!res.ok || !res.body) throw new Error('Request failed')
-
+      if (!res.ok || !res.body) throw new Error()
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
       let accumulated = ''
-
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
@@ -146,21 +164,20 @@ export default function ChatWidget() {
           const data = line.slice(6).trim()
           if (!data || data === '[DONE]') continue
           try {
-            const event = JSON.parse(data) as { type: string; delta?: { type: string; text: string } }
-            if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
-              accumulated += event.delta.text
+            const ev = JSON.parse(data) as { type: string; delta?: { type: string; text: string } }
+            if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') {
+              accumulated += ev.delta.text
               setStreamingText(accumulated)
             }
           } catch { /* ignore */ }
         }
       }
-
       setMessages(prev => [...prev, { role: 'assistant', content: accumulated }])
     } catch {
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', content: "Sorry, I'm having trouble connecting. Email me directly — levallcworks@gmail.com." },
-      ])
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: "Sorry, I'm having trouble connecting. Email me directly — levallcworks@gmail.com.",
+      }])
     } finally {
       setStreamingText('')
       setLoading(false)
@@ -168,16 +185,14 @@ export default function ChatWidget() {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      void sendText(input)
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void sendText(input) }
   }
 
   const showSuggestions = messages.length === 1 && !loading
 
   return (
     <>
+      {/* ── Floating orb ── */}
       <button
         ref={orbRef}
         className={`chat-orb${isOpen ? ' chat-orb--parked' : ''}`}
@@ -185,10 +200,20 @@ export default function ChatWidget() {
         aria-label={isOpen ? 'Close AI chat' : 'Chat with AI Avelino'}
         style={{ left: 0, top: 0 }}
       >
-        <SatelliteSVG />
+        {/* Sphere surface detail */}
+        <span className="orb-band" />
+        {/* Eye */}
+        <span className="orb-eye">
+          <span className="orb-iris" />
+          <span className="orb-pupil" />
+        </span>
+        {/* Orbiting ring */}
+        <span className="orb-ring" />
+        {/* Label — always visible on touch; hover-only on desktop */}
         {!isOpen && <span className="chat-orb__label">Talk to AI Avelino</span>}
       </button>
 
+      {/* ── Chat panel ── */}
       {isOpen && (
         <div className="chat-panel">
           <div className="chat-panel__header">
@@ -216,25 +241,18 @@ export default function ChatWidget() {
                 <div className="chat-panel__bubble">{msg.content}</div>
               </div>
             ))}
-
             {showSuggestions && (
               <div className="chat-panel__suggestions">
                 {SUGGESTIONS.map(s => (
-                  <button key={s} className="chat-panel__chip" onClick={() => void sendText(s)}>
-                    {s}
-                  </button>
+                  <button key={s} className="chat-panel__chip" onClick={() => void sendText(s)}>{s}</button>
                 ))}
               </div>
             )}
-
             {streamingText && (
               <div className="chat-panel__msg chat-panel__msg--assistant">
-                <div className="chat-panel__bubble">
-                  {streamingText}<span className="chat-panel__cursor" />
-                </div>
+                <div className="chat-panel__bubble">{streamingText}<span className="chat-panel__cursor" /></div>
               </div>
             )}
-
             {loading && !streamingText && (
               <div className="chat-panel__msg chat-panel__msg--assistant">
                 <div className="chat-panel__bubble chat-panel__bubble--typing">
@@ -242,7 +260,6 @@ export default function ChatWidget() {
                 </div>
               </div>
             )}
-
             <div ref={messagesEndRef} />
           </div>
 
@@ -269,104 +286,6 @@ export default function ChatWidget() {
         </div>
       )}
     </>
-  )
-}
-
-function SatelliteSVG() {
-  return (
-    <svg
-      viewBox="-52 -62 104 122"
-      width="64"
-      height="64"
-      style={{ overflow: 'visible', display: 'block', margin: 'auto' }}
-      aria-hidden="true"
-    >
-      <defs>
-        <filter id="sat-glow" x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation="2.5" result="b" />
-          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-        </filter>
-        <filter id="sat-glow-lg" x="-100%" y="-100%" width="300%" height="300%">
-          <feGaussianBlur stdDeviation="5" result="b" />
-          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-        </filter>
-        <linearGradient id="body-g" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#050e1c" />
-          <stop offset="30%" stopColor="#0f2035" />
-          <stop offset="70%" stopColor="#0f2035" />
-          <stop offset="100%" stopColor="#050e1c" />
-        </linearGradient>
-        <linearGradient id="panel-g" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#0b2038" />
-          <stop offset="100%" stopColor="#071628" />
-        </linearGradient>
-      </defs>
-
-      {/* ── Solar panel arms ── */}
-      <rect x="-30" y="-4" width="16" height="8" rx="1.5"
-        fill="#091828" stroke="rgba(56,189,248,0.4)" strokeWidth="0.7" />
-      <rect x="14" y="-4" width="16" height="8" rx="1.5"
-        fill="#091828" stroke="rgba(56,189,248,0.4)" strokeWidth="0.7" />
-
-      {/* ── Solar panels ── */}
-      {/* Left */}
-      <rect x="-50" y="-14" width="18" height="28" rx="2"
-        fill="url(#panel-g)" stroke="rgba(56,189,248,0.45)" strokeWidth="0.7" />
-      <line x1="-50" y1="-7" x2="-32" y2="-7" stroke="rgba(56,189,248,0.22)" strokeWidth="0.5" />
-      <line x1="-50" y1="0"  x2="-32" y2="0"  stroke="rgba(56,189,248,0.22)" strokeWidth="0.5" />
-      <line x1="-50" y1="7"  x2="-32" y2="7"  stroke="rgba(56,189,248,0.22)" strokeWidth="0.5" />
-      <line x1="-44" y1="-14" x2="-44" y2="14" stroke="rgba(56,189,248,0.18)" strokeWidth="0.5" />
-      <line x1="-38" y1="-14" x2="-38" y2="14" stroke="rgba(56,189,248,0.18)" strokeWidth="0.5" />
-
-      {/* Right */}
-      <rect x="32" y="-14" width="18" height="28" rx="2"
-        fill="url(#panel-g)" stroke="rgba(56,189,248,0.45)" strokeWidth="0.7" />
-      <line x1="32" y1="-7" x2="50" y2="-7" stroke="rgba(56,189,248,0.22)" strokeWidth="0.5" />
-      <line x1="32" y1="0"  x2="50" y2="0"  stroke="rgba(56,189,248,0.22)" strokeWidth="0.5" />
-      <line x1="32" y1="7"  x2="50" y2="7"  stroke="rgba(56,189,248,0.22)" strokeWidth="0.5" />
-      <line x1="38" y1="-14" x2="38" y2="14" stroke="rgba(56,189,248,0.18)" strokeWidth="0.5" />
-      <line x1="44" y1="-14" x2="44" y2="14" stroke="rgba(56,189,248,0.18)" strokeWidth="0.5" />
-
-      {/* ── Main body ── */}
-      <rect x="-16" y="-26" width="32" height="52" rx="4"
-        fill="url(#body-g)" stroke="rgba(56,189,248,0.5)" strokeWidth="0.9" />
-
-      {/* Body panel seams */}
-      <line x1="-16" y1="-10" x2="16" y2="-10" stroke="rgba(56,189,248,0.2)" strokeWidth="0.5" />
-      <line x1="-16" y1="10"  x2="16" y2="10"  stroke="rgba(56,189,248,0.2)" strokeWidth="0.5" />
-
-      {/* Edge highlight */}
-      <line x1="-15.5" y1="-24" x2="-15.5" y2="24" stroke="rgba(255,255,255,0.07)" strokeWidth="1.2" />
-
-      {/* Corner rivets */}
-      <circle cx="-12" cy="-22" r="1.6" fill="rgba(56,189,248,0.45)" />
-      <circle cx="12"  cy="-22" r="1.6" fill="rgba(56,189,248,0.45)" />
-      <circle cx="-12" cy="22"  r="1.6" fill="rgba(56,189,248,0.45)" />
-      <circle cx="12"  cy="22"  r="1.6" fill="rgba(56,189,248,0.45)" />
-
-      {/* ── Sensor / eye ── */}
-      <circle cx="0" cy="-5" r="11" fill="#060f1e" stroke="rgba(56,189,248,0.55)" strokeWidth="0.8" filter="url(#sat-glow)" />
-      <circle cx="0" cy="-5" r="7"  fill="#0c3c5c" />
-      <circle cx="0" cy="-5" r="4"  fill="#38bdf8" filter="url(#sat-glow)" className="sat-eye" />
-      <circle cx="0" cy="-5" r="1.8" fill="#e0f2fe" />
-      <circle cx="-1.8" cy="-7" r="1.1" fill="rgba(255,255,255,0.6)" />
-
-      {/* ── Status LEDs ── */}
-      <circle cx="9"  cy="17" r="2.2" fill="#22d3ee" filter="url(#sat-glow)" className="sat-led-a" />
-      <circle cx="-9" cy="-17" r="2.2" fill="#f59e0b" filter="url(#sat-glow)" className="sat-led-b" />
-
-      {/* ── Antenna ── */}
-      <line x1="0" y1="-26" x2="0" y2="-46" stroke="rgba(56,189,248,0.65)" strokeWidth="1.3" />
-      <line x1="-8" y1="-36" x2="8" y2="-36" stroke="rgba(56,189,248,0.4)" strokeWidth="0.9" />
-      <circle cx="0" cy="-48" r="3" fill="#38bdf8" filter="url(#sat-glow-lg)" className="sat-antenna" />
-
-      {/* ── Thruster nozzle ── */}
-      <rect x="-9" y="26" width="18" height="5" rx="2" fill="#060f1e" stroke="rgba(56,189,248,0.35)" strokeWidth="0.7" />
-      <rect x="-6" y="31" width="12" height="3" rx="1" fill="#040b18" stroke="rgba(56,189,248,0.25)" strokeWidth="0.5" />
-      <line x1="-4" y1="34" x2="-4" y2="39" stroke="rgba(56,189,248,0.5)"  strokeWidth="1.1" className="sat-thruster" />
-      <line x1="0"  y1="34" x2="0"  y2="42" stroke="rgba(56,189,248,0.75)" strokeWidth="1.4" className="sat-thruster" />
-      <line x1="4"  y1="34" x2="4"  y2="39" stroke="rgba(56,189,248,0.5)"  strokeWidth="1.1" className="sat-thruster" />
-    </svg>
   )
 }
 
