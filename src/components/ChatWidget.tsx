@@ -18,7 +18,7 @@ const SUGGESTIONS = [
   'I want to collaborate on something',
 ]
 
-const ORB_R = 40 // 80px diameter
+const ORB_R = 36 // 72px diameter
 
 function pickWaypoint() {
   const mx = 90
@@ -88,11 +88,11 @@ export default function ChatWidget() {
 
         if (dist < 36) {
           phaseRef.current = 'hovering'
-          pauseRef.current = 150 + Math.floor(Math.random() * 200) // 2.5 – 5.8 s at 60fps
+          pauseRef.current = 60 + Math.floor(Math.random() * 100) // 1–2.7 s at 60fps
         } else {
-          const topSpeed = Math.min(1.6, dist / 55)
-          vel.vx += ((dx / dist) * topSpeed - vel.vx) * 0.045
-          vel.vy += ((dy / dist) * topSpeed - vel.vy) * 0.045
+          const topSpeed = Math.min(2.2, dist / 42)
+          vel.vx += ((dx / dist) * topSpeed - vel.vx) * 0.06
+          vel.vy += ((dy / dist) * topSpeed - vel.vy) * 0.06
         }
       }
 
@@ -200,15 +200,17 @@ export default function ChatWidget() {
         aria-label={isOpen ? 'Close AI chat' : 'Chat with AI Avelino'}
         style={{ left: 0, top: 0 }}
       >
-        {/* Sphere surface detail */}
+        {/* Equatorial band */}
         <span className="orb-band" />
         {/* Eye */}
         <span className="orb-eye">
           <span className="orb-iris" />
           <span className="orb-pupil" />
         </span>
-        {/* Orbiting ring */}
+        {/* Primary orbiting ring */}
         <span className="orb-ring" />
+        {/* Gyroscope ring — tilted axis */}
+        <span className="orb-ring2" />
         {/* Label — always visible on touch; hover-only on desktop */}
         {!isOpen && <span className="chat-orb__label">Talk to AI Avelino</span>}
       </button>
