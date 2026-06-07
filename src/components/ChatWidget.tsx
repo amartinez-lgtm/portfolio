@@ -8,7 +8,7 @@ interface Message {
 
 const WELCOME: Message = {
   role: 'assistant',
-  content: "Hi! I'm here to answer questions about Avelino — his background, projects, skills, or anything else you're curious about.",
+  content: "Hey — I'm Avelino. Ask me anything: what I've built, how I think about problems, what it's like running a machine shop and writing software at the same time. I'll give you a straight answer.",
 }
 
 export default function ChatWidget() {
@@ -106,7 +106,7 @@ export default function ChatWidget() {
           <div className="chat-widget__header">
             <div className="chat-widget__header-title">
               <span className="chat-widget__dot" />
-              Ask about Avelino
+              Chat with Avelino
             </div>
             <button
               className="chat-widget__close"
