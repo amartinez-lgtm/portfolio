@@ -42,7 +42,7 @@
     inset -3px -3px 10px rgba(0,   0,   0,   0.7),
     inset 0 0 0 1px rgba(56, 189, 248, 0.2);
 
-  animation: orb-breathe 2.6s ease-in-out infinite;
+  animation: orb-breathe 2.6s ease-in-out infinite, orb-attitude 11s linear infinite;
   transition: box-shadow 0.2s;
 }
 
@@ -73,6 +73,36 @@
 @keyframes energy-ping {
   0%   { transform: scale(1);   opacity: 0.55; }
   100% { transform: scale(1.85); opacity: 0; }
+}
+
+/* Orb physically turns to match eye gaze — eyes lead, head follows ~2% later.
+   Both animations are 11s linear so they stay locked in sync forever. */
+@keyframes orb-attitude {
+  /* ── Forward / center ── */
+  0%   { transform: perspective(340px) rotateX(0deg)   rotateY(0deg); }
+  10%  { transform: perspective(340px) rotateX(0deg)   rotateY(0deg); }
+  /* Eye darts up-right at 12% → orb follows at 14% */
+  14%  { transform: perspective(340px) rotateX(-13deg) rotateY(20deg); }
+  22%  { transform: perspective(340px) rotateX(-13deg) rotateY(20deg); }
+  /* Eye darts left at 24% → orb follows at 26% */
+  26%  { transform: perspective(340px) rotateX(2deg)   rotateY(-22deg); }
+  35%  { transform: perspective(340px) rotateX(2deg)   rotateY(-22deg); }
+  /* Return center */
+  38%  { transform: perspective(340px) rotateX(0deg)   rotateY(0deg); }
+  /* Long forward stare */
+  52%  { transform: perspective(340px) rotateX(0deg)   rotateY(0deg); }
+  /* Eye darts down at 54% → orb follows at 56% */
+  56%  { transform: perspective(340px) rotateX(17deg)  rotateY(6deg); }
+  63%  { transform: perspective(340px) rotateX(17deg)  rotateY(6deg); }
+  /* Eye darts up-left at 64% → orb follows at 66% */
+  66%  { transform: perspective(340px) rotateX(-12deg) rotateY(-18deg); }
+  73%  { transform: perspective(340px) rotateX(-12deg) rotateY(-18deg); }
+  /* Eye darts right at 73% → orb follows at 75% */
+  75%  { transform: perspective(340px) rotateX(4deg)   rotateY(22deg); }
+  82%  { transform: perspective(340px) rotateX(4deg)   rotateY(22deg); }
+  /* Return center */
+  86%  { transform: perspective(340px) rotateX(0deg)   rotateY(0deg); }
+  100% { transform: perspective(340px) rotateX(0deg)   rotateY(0deg); }
 }
 
 /* Show label on hover (desktop) */
