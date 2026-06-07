@@ -67,6 +67,25 @@
   flex-shrink: 0;
 }
 
+.chat-widget__email-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #38bdf8;
+  text-decoration: none;
+  opacity: 0.75;
+  margin-left: auto;
+  margin-right: 10px;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.chat-widget__email-link:hover {
+  opacity: 1;
+  text-decoration: none;
+}
+
 .chat-widget__close {
   background: none;
   border: none;
@@ -78,6 +97,7 @@
   justify-content: center;
   border-radius: 4px;
   transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
 }
 
 .chat-widget__close:hover {
@@ -131,6 +151,33 @@
   border: 1px solid rgba(255, 255, 255, 0.07);
   color: #f1f5f9;
   border-radius: 12px 12px 12px 4px;
+}
+
+/* ── Suggestion chips ── */
+
+.chat-widget__suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.chat-widget__chip {
+  background: none;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 8px;
+  color: #38bdf8;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 8px 12px;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.chat-widget__chip:hover {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.5);
 }
 
 /* streaming cursor */

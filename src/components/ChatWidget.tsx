@@ -11,6 +11,13 @@ const WELCOME: Message = {
   content: "Hey — I'm Avelino. Ask me anything: what I've built, how I think about problems, what it's like running a machine shop and writing software at the same time. I'll give you a straight answer.",
 }
 
+const SUGGESTIONS = [
+  'Are you available for hire?',
+  'What services does Leva offer?',
+  'Tell me about your projects',
+  'I want to collaborate on something',
+]
+
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([WELCOME])
@@ -20,6 +27,8 @@ export default function ChatWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const showSuggestions = messages.length === 1 && !loading
+
   useEffect(() => {
     if (isOpen) inputRef.current?.focus()
   }, [isOpen])
@@ -28,11 +37,10 @@ export default function ChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, streamingText])
 
-  const send = async () => {
-    const text = input.trim()
-    if (!text || loading) return
+  const sendText = async (text: string) => {
+    if (!text.trim() || loading) return
 
-    const userMsg: Message = { role: 'user', content: text }
+    const userMsg: Message = { role: 'user', content: text.trim() }
     const newMessages = [...messages, userMsg]
     setMessages(newMessages)
     setInput('')
@@ -83,7 +91,7 @@ export default function ChatWidget() {
         {
           role: 'assistant',
           content:
-            "Sorry, I'm having trouble connecting right now. Try emailing levallcworks@gmail.com instead.",
+            "Sorry, I'm having trouble connecting right now. Email me directly at levallcworks@gmail.com — I'll get back to you.",
         },
       ])
     } finally {
@@ -95,7 +103,7 @@ export default function ChatWidget() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      void send()
+      void sendText(input)
     }
   }
 
@@ -108,6 +116,14 @@ export default function ChatWidget() {
               <span className="chat-widget__dot" />
               Chat with Avelino
             </div>
+            <a
+              className="chat-widget__email-link"
+              href="mailto:levallcworks@gmail.com"
+              title="Email Avelino directly"
+            >
+              <MailIcon />
+              levallcworks@gmail.com
+            </a>
             <button
               className="chat-widget__close"
               onClick={() => setIsOpen(false)}
@@ -123,6 +139,20 @@ export default function ChatWidget() {
                 <div className="chat-widget__bubble">{msg.content}</div>
               </div>
             ))}
+
+            {showSuggestions && (
+              <div className="chat-widget__suggestions">
+                {SUGGESTIONS.map(s => (
+                  <button
+                    key={s}
+                    className="chat-widget__chip"
+                    onClick={() => void sendText(s)}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {streamingText && (
               <div className="chat-widget__msg chat-widget__msg--assistant">
@@ -159,7 +189,7 @@ export default function ChatWidget() {
             />
             <button
               className="chat-widget__send"
-              onClick={() => void send()}
+              onClick={() => void sendText(input)}
               disabled={loading || !input.trim()}
               aria-label="Send message"
             >
@@ -172,7 +202,7 @@ export default function ChatWidget() {
       <button
         className={`chat-widget__fab${isOpen ? ' chat-widget__fab--active' : ''}`}
         onClick={() => setIsOpen(v => !v)}
-        aria-label={isOpen ? 'Close chat' : 'Ask AI about Avelino'}
+        aria-label={isOpen ? 'Close chat' : 'Chat with Avelino'}
       >
         {isOpen ? <XIcon size={18} /> : <ChatIcon />}
       </button>
@@ -228,6 +258,24 @@ function SendIcon() {
     >
       <line x1="22" y1="2" x2="11" y2="13" />
       <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </svg>
+  )
+}
+
+function MailIcon() {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
     </svg>
   )
 }
