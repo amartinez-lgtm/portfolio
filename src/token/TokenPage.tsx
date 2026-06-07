@@ -264,7 +264,7 @@ export default function TokenPage() {
       <footer className="tp-footer">
         {/* EDIT: Footer name and link */}
         <span>Avelino Martinez · Leva LLC</span>
-        <a href="/">portfolio-4n2.pages.dev</a>
+        <span>levallc.com</span>
       </footer>
 
     </div>

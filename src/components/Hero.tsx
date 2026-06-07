@@ -9,9 +9,8 @@ export default function Hero() {
         </div>
 
         <h1 className="hero__headline">
-          I build what the<br />
-          physical world<br />
-          is missing.
+          I connect the physical<br />
+          world to digital systems.
         </h1>
 
         <p className="hero__sub">
