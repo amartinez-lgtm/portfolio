@@ -8,7 +8,7 @@ interface Message {
 
 const WELCOME: Message = {
   role: 'assistant',
-  content: "Hey — I'm Avelino. Ask me anything: what I've built, how I think about problems, what it's like running a machine shop and writing software at the same time. I'll give you a straight answer.",
+  content: "Hey — I'm Avelino. I work in aerospace manufacturing and build software to fix the gaps the industry won't touch. Ask me anything — what I've built, how I think, or whether we should work together.",
 }
 
 const SUGGESTIONS = [
@@ -30,7 +30,7 @@ function pickWaypoint() {
 }
 
 function pickLookTarget() {
-  const MAX = 0.38  // ~22° max deviation from center
+  const MAX = 0.65  // ~37° max deviation — exaggerated, readable looks
   return {
     theta: (Math.random() - 0.5) * 2 * MAX,
     phi:   (Math.random() - 0.5) * MAX * 0.75,
@@ -297,8 +297,8 @@ export default function ChatWidget() {
         lookPauseRef.current--
       } else {
         // Fast saccade dart
-        look.theta += (target.theta - look.theta) * 0.16
-        look.phi   += (target.phi   - look.phi)   * 0.16
+        look.theta += (target.theta - look.theta) * 0.22
+        look.phi   += (target.phi   - look.phi)   * 0.22
         // Settled? hold, then pick next target
         if (Math.abs(target.theta - look.theta) < 0.012 && Math.abs(target.phi - look.phi) < 0.012) {
           lookPauseRef.current = 90 + Math.floor(Math.random() * 110)  // 1.5–3.3 s hold
