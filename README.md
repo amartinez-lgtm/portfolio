@@ -1,16 +1,20 @@
-# Avelino Martinez — Portfolio Site
+# Avelino Martinez — Portfolio + XYZ Store
 
-Personal portfolio site for Avelino Martinez. Built with React + Vite + TypeScript, deployed on Cloudflare Pages.
+Personal portfolio and 3D print store for Avelino Martinez. Built with React + Vite + TypeScript, deployed on Cloudflare Pages.
 
-**Live URL:** https://portfolio-4n2.pages.dev
+**Live URLs:**
+- Portfolio: https://levallc.com
+- XYZ Store: https://levallc.com/store
+- NFC Token page: https://levallc.com/token
 
 ---
 
 ## Stack
 
 - **Framework:** React 18 + TypeScript
-- **Build tool:** Vite 5
+- **Build tool:** Vite 5 (multi-page: main + store + token)
 - **Styling:** Plain CSS with CSS custom properties (no Tailwind, no CSS-in-JS)
+- **3D viewer:** Three.js + ThreeMFLoader (lazy-loaded, loads `.3mf` files)
 - **Deployment:** Cloudflare Pages (auto-deploys on push to `main`)
 - **Repo:** https://github.com/amartinez-lgtm/portfolio
 
@@ -27,56 +31,81 @@ npm run preview   # preview the production build locally
 
 ```
 src/
-├── main.tsx                  # App entry point
+├── main.tsx                  # Portfolio entry point
 ├── App.tsx                   # Root component — assembles all sections
-├── index.css                 # Global design system (CSS vars, dark mode, layout)
+├── index.css                 # Global design tokens (CSS vars, dark mode)
 ├── data/
-│   └── projects.ts           # All content: projects, side hustles, career stories
-└── components/
-    ├── Nav.tsx/.css           # Fixed nav, scroll blur effect, mobile burger menu
-    ├── Hero.tsx/.css          # Full-height hero with stat counters
-    ├── Work.tsx/.css          # 6 project cards in a 3-col grid
-    ├── SideHustles.tsx/.css   # Ventures grouped by status (active/in-progress/planned)
-    ├── CareerStories.tsx/.css # Numbered narrative stories
-    ├── About.tsx/.css         # Bio + sticky skills panel
-    ├── Contact.tsx/.css       # Email / LinkedIn / GitHub link cards
-    └── Footer.tsx/.css        # Simple footer
+│   ├── projects.ts           # All portfolio content: projects, ventures, stories
+│   └── store.ts              # XYZ store product data
+├── components/               # Portfolio components (each has co-located .css)
+│   ├── Nav.tsx               # Fixed nav, scroll blur, mobile hamburger
+│   ├── Hero.tsx              # Full-height hero
+│   ├── About.tsx             # Bio + sticky skills panel + AI framework callout
+│   ├── Work.tsx              # Accordion project list
+│   ├── SideHustles.tsx       # Ventures grouped by status
+│   ├── CareerStories.tsx     # Numbered narrative stories
+│   ├── Contact.tsx           # Mailto form + link cards
+│   ├── Footer.tsx            # Footer with ◈ Token link
+│   └── AuroraBackground.tsx  # Fixed starfield with orbital dots + gravity
+├── store/                    # XYZ store (standalone page)
+│   ├── main.tsx              # Store entry point
+│   ├── StorePage.tsx         # Product grid, drawer, 3D viewer integration
+│   ├── StorePage.css
+│   └── Model3DViewer.tsx     # Three.js .3mf viewer (mini card + full drawer)
+└── token/                    # NFC token page (standalone page)
+    ├── main.tsx
+    ├── TokenPage.tsx         # Hex grid, coin, achievement card, nav cards
+    └── TokenPage.css
+
+public/
+├── products/                 # All store product assets (.3mf models + photos)
+├── avatar_jpg.jpeg           # Profile photo
+├── XYZ.png                   # Store brand asset
+├── _redirects                # Cloudflare routing rules
+└── _headers                  # Security + cache headers
 ```
 
 ## Content
 
-All content lives in **`src/data/projects.ts`** — no CMS, no API. To update copy, edit that file and push.
+**Portfolio content** lives in `src/data/projects.ts` — no CMS. Edit and push to update.
+- `Project[]` — 6 professional projects with descriptions, LOC, tags, AI notes
+- `SideHustle[]` — Leva LLC ventures (active/in-progress)
+- `CareerStory[]` — 3 narrative career stories
 
-Three data types:
-- `Project[]` — professional dev work (6 projects)
-- `SideHustle[]` — Leva LLC ventures (7 items, status: active/in-progress/planned)
-- `CareerStory[]` — narrative career stories (3 stories)
+**Store content** lives in `src/data/store.ts`.
+- `StoreProduct[]` — 6 physical products, each with 3D model config
+- To add a product: upload `.3mf` to `public/products/`, add entry to `storeProducts[]`
+- To enable STL download: set `stlStatus: 'available'` and `downloadUrl` on the product
+
+**Token page content** — edit directly in `src/token/TokenPage.tsx`:
+- `NAV_ITEMS` array — nav card links and subtitles
+- `ACHIEVEMENT_SKILLS` array — skill chips in achievement card
+- Sections marked with `/* EDIT: */` comments
+
+## 3D Model Orientation
+
+Models are exported from Onshape. Three.js uses Y-up coordinates.
+- Export with Y-axis pointing up in the CAD workspace
+- If orientation needs fixing, append `?calibrate` to the store URL while viewing a product — exposes rotation buttons and live value readout
+- Bake final values into `model3d.rotationX/Y/Z` in `store.ts`
 
 ## Deployment
 
-Cloudflare Pages is connected to this repo. Every push to `main` triggers an automatic build and deploy (~60 seconds).
+Cloudflare Pages watches `main`. Every push deploys in ~60 seconds.
 
 Build settings:
 - **Build command:** `npm run build`
 - **Output directory:** `dist`
-- **Node version:** 20 (set via `NODE_VERSION=20` env var)
+- **Node version:** 20 (`NODE_VERSION=20` env var)
 
-The `public/_redirects` file handles SPA routing (all routes → index.html).  
-The `public/_headers` file sets security headers and long-term asset caching.
+`public/_redirects` handles:
+- `/token` → `token/index.html`
+- `/store` → `store/index.html`
+- SPA catch-all: `/* /index.html 200`
 
-## Design System
+## TODO / Next Session
 
-CSS custom properties defined in `src/index.css`:
-- Full dark mode via `prefers-color-scheme: dark`
-- Mobile responsive (breakpoints at 640px and 900px/1024px)
-- Font stack: Inter (sans), JetBrains Mono (mono)
-- Accent color: `#0ea5e9` (light) / `#38bdf8` (dark)
-
-## TODO / Pending
-
-- [ ] Replace placeholder email (`avelino@levalabs.com`) with real email
-- [ ] Replace placeholder LinkedIn URL with real profile slug
-- [ ] Custom domain setup in Cloudflare Pages
-- [ ] Add real profile photo to About section
-- [ ] Consider adding a `/uses` or `/now` page
-- [ ] SmartWardrobe AI and QR Tool Tracking pages when those launch
+- [ ] AI chat widget — Claude-powered, Cloudflare Worker backend, floating UI on portfolio (needs Anthropic API key in Cloudflare env vars)
+- [ ] Product photos — upload from phone to `public/products/`, wire into store data
+- [ ] STL download files — set `stlStatus: 'available'` + `downloadUrl` per product when files are ready
+- [ ] Gmail auto-reply filter for product order inquiries
