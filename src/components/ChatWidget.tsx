@@ -8,7 +8,7 @@ interface Message {
 
 const WELCOME: Message = {
   role: 'assistant',
-  content: "Hey — I'm Avelino. I work in aerospace manufacturing and build software to fix the gaps the industry won't touch. Ask me anything — what I've built, how I think, or whether we should work together.",
+  content: "Hey — I'm Avelino. I spent a decade on the manufacturing floor and now I build the software that doesn't exist yet. What do you want to know?",
 }
 
 const SUGGESTIONS = [
