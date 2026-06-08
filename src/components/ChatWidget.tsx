@@ -435,7 +435,6 @@ export default function ChatWidget() {
         style={{ left: 0, top: 0 }}
       >
         <canvas ref={canvasRef} className="orb-canvas" aria-hidden="true" />
-        {!isOpen && <span className="chat-orb__label">Talk to AI Avelino</span>}
       </button>
 
       {/* ── Chat panel ── */}
