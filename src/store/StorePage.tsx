@@ -246,6 +246,12 @@ export default function StorePage() {
     <div className="sp">
 
       <header className="sp-header">
+        <a href="https://portfolio-4n2.pages.dev" className="sp-back">
+          <svg viewBox="0 0 8 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="7 1 1 7 7 13" />
+          </svg>
+          Portfolio
+        </a>
         <img src="/Photoroom_20250521_195827.jpeg" alt="XYZ" className="sp-logo" />
       </header>
 
