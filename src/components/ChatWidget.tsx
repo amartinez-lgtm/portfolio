@@ -65,11 +65,15 @@ function drawOrb(
   ctx.arc(cx, cy, R, 0, Math.PI * 2)
   ctx.clip()
 
-  // Base + diffuse combined
+  // Solid opaque base — prevents page content bleeding through
+  ctx.fillStyle = '#04101e'
+  ctx.fillRect(0, 0, S, S)
+
+  // Blue diffuse overlay
   const base = ctx.createRadialGradient(cx * 0.8, cy * 0.8, 0, cx, cy, R)
-  base.addColorStop(0,    'rgba(56,189,248,0.60)')
-  base.addColorStop(0.45, '#04101e')
-  base.addColorStop(1,    '#010810')
+  base.addColorStop(0,    'rgba(56,189,248,0.62)')
+  base.addColorStop(0.50, 'rgba(14,116,144,0.38)')
+  base.addColorStop(1,    'transparent')
   ctx.fillStyle = base; ctx.fillRect(0, 0, S, S)
 
   // Specular highlight + sheen combined
