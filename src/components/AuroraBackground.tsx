@@ -25,7 +25,7 @@
  * @prop showGrain  Render SVG fractal-noise grain. Default true.
  */
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './AuroraBackground.css'
 
 interface AuroraBackgroundProps {
@@ -97,6 +97,8 @@ export default function AuroraBackground({
 }: AuroraBackgroundProps) {
   const svgRef  = useRef<SVGSVGElement>(null)
   const dotRefs = useRef<(SVGCircleElement | null)[]>(new Array(ORBITS.length).fill(null))
+  // Delay heavy grain filter until after first paint
+  const [grainReady, setGrainReady] = useState(false)
 
   useEffect(() => {
     const svg = svgRef.current
@@ -201,6 +203,11 @@ export default function AuroraBackground({
     }
   }, [])
 
+  useEffect(() => {
+    const t = setTimeout(() => setGrainReady(true), 1200)
+    return () => clearTimeout(t)
+  }, [])
+
   return (
     <div className={`aurora aurora--${intensity}`} aria-hidden="true">
 
@@ -213,8 +220,8 @@ export default function AuroraBackground({
         fill="none"
       >
         <defs>
-          <filter id="ao-glow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+          <filter id="ao-glow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
             <feMerge>
               <feMergeNode in="blur"/>
               <feMergeNode in="SourceGraphic"/>
@@ -290,7 +297,7 @@ export default function AuroraBackground({
 
       {showGrid && <div className="aurora__grid"/>}
 
-      {showGrain && (
+      {showGrain && grainReady && (
         <svg
           className="aurora__grain"
           xmlns="http://www.w3.org/2000/svg"
@@ -302,7 +309,7 @@ export default function AuroraBackground({
               <feTurbulence
                 type="fractalNoise"
                 baseFrequency="0.65"
-                numOctaves="3"
+                numOctaves="2"
                 stitchTiles="stitch"
               />
               <feColorMatrix type="saturate" values="0"/>
