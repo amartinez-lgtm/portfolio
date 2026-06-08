@@ -49,6 +49,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Stacking context for page content — lets the orb slide behind it
+   when at z-index 50 (far), while nav (z-index 100) stays on top. */
+main {
+  position: relative;
+  z-index: 60;
+}
+
 a {
   color: var(--accent);
   text-decoration: none;

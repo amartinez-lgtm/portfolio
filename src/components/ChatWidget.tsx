@@ -284,24 +284,23 @@ export default function ChatWidget() {
       if (pos.y > window.innerHeight - PAD) { pos.y = window.innerHeight - PAD; vel.vy = -Math.abs(vel.vy) }
 
       // ── Z-depth oscillation — two offset sines, never repeating ──
-      // Gives the orb an organic in/out breathing through Z-space.
+      // Bias -0.4 keeps the orb small/far most of the time; close passes are brief.
       zPhaseRef.current += 0.004
       const t = zPhaseRef.current
-      const zTarget = Math.sin(t * 0.7) * 0.55 + Math.sin(t * 0.31 + 1.4) * 0.42
+      const zTarget = Math.sin(t * 0.7) * 0.55 + Math.sin(t * 0.31 + 1.4) * 0.42 - 0.4
       zRef.current += (zTarget - zRef.current) * 0.018
       const z = Math.max(-1, Math.min(1, zRef.current))
 
-      // Scale 0.72x (far) → 1.18x (close), opacity 0.85 → 1.0, no blur
-      const scale   = 0.72 + (z + 1) / 2 * 0.46
-      const opacity = 0.85 + (z + 1) / 2 * 0.15
-      // z-index: above nav (1002) when close, normal (1000), behind nav (50) when far
-      const zIdx = z > 0.25 ? 1002 : z > -0.35 ? 1000 : 50
+      // Scale only — no opacity change. Depth reads from size + z-index only.
+      const scale = 0.72 + (z + 1) / 2 * 0.46
+      // z-index: above nav (1002) when close, normal (1000), behind page text (50) when far
+      const zIdx = z > 0.1 ? 1002 : z > -0.45 ? 1000 : 50
 
       if (orbRef.current) {
         orbRef.current.style.left      = `${pos.x - ORB_R}px`
         orbRef.current.style.top       = `${pos.y - ORB_R}px`
         orbRef.current.style.transform = `scale(${scale.toFixed(3)})`
-        orbRef.current.style.opacity   = opacity.toFixed(3)
+        orbRef.current.style.opacity   = '1'
         orbRef.current.style.zIndex    = String(zIdx)
       }
 
