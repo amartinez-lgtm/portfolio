@@ -284,3 +284,46 @@ The form uses a `mailto:` fallback (no backend). On submit it calls `window.open
 - Build AI chat widget (Claude-powered, Cloudflare Worker backend, floating UI on portfolio)
 - Add product photos to store when available from phone
 - Set `stlStatus: 'available'` + `downloadUrl` on products when STL files are ready
+
+### Session 8 (AI chat widget — Guilty Spark orb)
+
+**Backend (`functions/api/chat.ts`):**
+- Cloudflare Pages Function at `/api/chat` — proxies streaming Anthropic Messages API
+- Model: `claude-haiku-4-5-20251001`, `max_tokens: 1024`, SSE streaming passthrough
+- System prompt: first-person "digital twin" of Avelino, full background, projects, Leva LLC ventures
+- Contact-driving instructions: recognize hiring/collaboration signals, proactively surface `levallcworks@gmail.com`
+- `ANTHROPIC_API_KEY` stored as Cloudflare Pages Secret (set in dashboard, never in code)
+
+**Chat widget (`src/components/ChatWidget.tsx` + `ChatWidget.css`):**
+- Floating animated orb inspired by Halo's 343 Guilty Spark — drifts around screen with sentient-feeling movement
+- Orb is 72px canvas element drawn every frame in a `requestAnimationFrame` loop
+- Movement: waypoint-based physics (pick destination → accelerate → hover → pick next), soft boundary bounce
+- **3D sphere rendering on canvas**: 6-layer radial gradient stack (specular, sheen, diffuse, rim, shadow, base)
+- **JS-driven specular shift**: highlight position computed from velocity direction each frame — moves opposite to travel so the orb looks like a real sphere rotating through space (not a flat disc tilting)
+- **3D eye projection**: eye socket position computed from spherical coordinates `(theta, phi)` → projected to 2D screen as foreshortened ellipse (`width *= cos(theta)`, `height *= cos(phi)`). Socket narrows as it rotates toward the edge. Iris ring drawn as ellipse, pupil stays circular.
+- **Saccadic gaze**: JS-driven look target system — fast lerp dart (factor 0.22) to random target within ±37°, hold 1.5–3.3s, then next target. Much more convincing than CSS keyframes because the socket actually moves across the sphere surface.
+- HiDPI: canvas scaled by `devicePixelRatio` at init, all drawing in logical 72px coordinates
+- Energy ping rings: `::before`/`::after` with `animation: energy-ping 3.2s ease-out infinite` (offset 1.6s)
+- `orb-breathe` animates `box-shadow` only (glow pulses), no transform conflict with canvas
+- On click: orb springs to bottom-right corner with `cubic-bezier(0.34,1.4,0.64,1)` transition, chat panel opens
+- Suggestion chips shown on first message, disappear after first send
+- SSE streaming parsed in frontend: `ReadableStream` → `getReader()` → line-by-line SSE parse → accumulate `text_delta` events
+- Streaming cursor (`chat-panel__cursor`) blinks while response is in-flight
+
+**Mobile fixes:**
+- Bottom sheet layout: `left:0; right:0; bottom:0; width:100%; border-radius: 20px 20px 0 0`
+- `height: min(480px, 75dvh)` — caps at 480px when keyboard closed, shrinks with dvh when keyboard open
+- `dvh` (dynamic viewport height) tracks the visual viewport — automatically accounts for iOS soft keyboard
+- `font-size: 16px` on mobile input — prevents iOS Safari auto-zoom on focus (triggered by any input < 16px)
+
+**Welcome message (final):**
+"hey 👋 I'm Avelino — I build software, do 3D scanning & LiDAR mapping, run a 3D printing line, and prototype AI tools through Leva LLC. basically if it should exist and doesn't, I'll build it. what's up? 🛠️"
+
+**ChatWidget added to:**
+- `src/App.tsx` (main portfolio, after `<Footer />`)
+- `src/token/TokenPage.tsx` (NFC token page)
+
+**Next session:**
+- Add more products to the store: family busts (grandma, auntie), games/art pieces — not necessarily for sale, just to tell the story and show the work
+- Add product photos from phone to existing store products
+- Set `stlStatus: 'available'` + `downloadUrl` on products when STL files are ready
