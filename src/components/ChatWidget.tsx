@@ -255,7 +255,11 @@ export default function ChatWidget() {
       return
     }
 
+    let frameCount = 0
     const tick = () => {
+      frameCount++
+      // Throttle canvas redraws to ~30fps (skip every other frame for physics too)
+      if (frameCount % 2 !== 0) { rafRef.current = requestAnimationFrame(tick); return }
       const pos = posRef.current
       const vel = velRef.current
 
@@ -347,8 +351,14 @@ export default function ChatWidget() {
       rafRef.current = requestAnimationFrame(tick)
     }
 
-    rafRef.current = requestAnimationFrame(tick)
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
+    // Delay start so aurora and page paint settle first
+    const startTimer = setTimeout(() => {
+      rafRef.current = requestAnimationFrame(tick)
+    }, 700)
+    return () => {
+      clearTimeout(startTimer)
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
   }, [isOpen])
 
   useEffect(() => { if (isOpen) inputRef.current?.focus() }, [isOpen])

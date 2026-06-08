@@ -159,7 +159,10 @@ export default function AuroraBackground({
       raf = requestAnimationFrame(frame)
     }
 
-    raf = requestAnimationFrame(frame)
+    // Delay start so the initial page paint finishes first
+    const startTimer = setTimeout(() => {
+      raf = requestAnimationFrame(frame)
+    }, 300)
 
     // Convert screen coords → SVG viewBox coords
     const toSVG = (clientX: number, clientY: number) => {
@@ -190,6 +193,7 @@ export default function AuroraBackground({
     document.addEventListener('pointerleave', onLeave)
 
     return () => {
+      clearTimeout(startTimer)
       cancelAnimationFrame(raf)
       clearTimeout(fadeTimer)
       document.removeEventListener('pointermove', onMove)
@@ -217,7 +221,7 @@ export default function AuroraBackground({
             </feMerge>
           </filter>
           <filter id="ao-mw-blur" x="-20%" y="-80%" width="140%" height="260%">
-            <feGaussianBlur stdDeviation="70"/>
+            <feGaussianBlur stdDeviation="28"/>
           </filter>
         </defs>
 
