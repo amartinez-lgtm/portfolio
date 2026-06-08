@@ -305,4 +305,9 @@
     border-radius: 20px 20px 0 0;
     z-index: 1001;
   }
+
+  /* iOS auto-zooms any input < 16px when focused — prevent that. */
+  .chat-panel__input {
+    font-size: 16px;
+  }
 }
