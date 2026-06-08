@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import './Nav.css'
 
-const links = [
+const links: { label: string; href: string; accent?: boolean }[] = [
   { label: 'About', href: '#about' },
   { label: 'Work', href: '#work' },
   { label: 'Ventures', href: '#ventures' },
   { label: 'Stories', href: '#stories' },
   { label: 'Contact', href: '#contact' },
+  { label: 'Store', href: '/store', accent: true },
 ]
 
 export default function Nav() {
@@ -31,7 +32,7 @@ export default function Nav() {
             <li key={l.href}>
               <a
                 href={l.href}
-                className="nav__link"
+                className={`nav__link${l.accent ? ' nav__link--accent' : ''}`}
                 onClick={() => setMenuOpen(false)}
               >
                 {l.label}

@@ -62,6 +62,15 @@
   text-decoration: none;
 }
 
+.nav__link--accent {
+  color: var(--accent);
+}
+
+.nav__link--accent:hover {
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
 .nav__burger {
   display: none;
   flex-direction: column;
