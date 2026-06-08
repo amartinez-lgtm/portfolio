@@ -29,6 +29,12 @@ function pickWaypoint() {
   }
 }
 
+// Every 5th pick goes behind words; otherwise stays in front.
+function pickZTarget(cnt: number): number {
+  if (cnt % 5 === 4) return -0.25 - Math.random() * 0.35  // behind (-0.25 to -0.60)
+  return 0.35 + Math.random() * 0.55                       // in front (0.35 to 0.90)
+}
+
 function pickLookTarget() {
   const MAX = 0.65  // ~37° max deviation — exaggerated, readable looks
   return {
@@ -205,13 +211,14 @@ export default function ChatWidget() {
   const phaseRef      = useRef<'moving' | 'hovering'>('moving')
   const pauseRef      = useRef(0)
   const rafRef        = useRef<number | null>(null)
-  const lxRef         = useRef(27)  // specular x %
-  const lyRef         = useRef(20)  // specular y %
-  const zRef          = useRef(0)   // depth: -1 (far/small) → +1 (close/large)
-  const zPhaseRef     = useRef(Math.random() * Math.PI * 2) // random start offset
+  const lxRef         = useRef(27)   // specular x %
+  const lyRef         = useRef(20)   // specular y %
+  const zRef          = useRef(0.6)  // current depth: -1 (far/small) → +1 (close/large)
+  const zTgtRef       = useRef(0.6)  // Z waypoint target
+  const zCntRef       = useRef(0)    // counts picks; every 5th goes behind words
   const lookRef       = useRef({ theta: 0, phi: 0 })
   const lookTargetRef = useRef(pickLookTarget())
-  const lookPauseRef  = useRef(60)
+  const lookPauseRef  = useRef(10)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef       = useRef<HTMLInputElement>(null)
 
@@ -283,12 +290,15 @@ export default function ChatWidget() {
       if (pos.y < PAD + 20)                 { pos.y = PAD + 20;                 vel.vy =  Math.abs(vel.vy) }
       if (pos.y > window.innerHeight - PAD) { pos.y = window.innerHeight - PAD; vel.vy = -Math.abs(vel.vy) }
 
-      // ── Z-depth oscillation — two offset sines, never repeating ──
-      // Bias -0.4 keeps the orb small/far most of the time; close passes are brief.
-      zPhaseRef.current += 0.007
-      const t = zPhaseRef.current
-      const zTarget = Math.sin(t * 0.7) * 0.55 + Math.sin(t * 0.31 + 1.4) * 0.42 + 0.15
-      zRef.current += (zTarget - zRef.current) * 0.022
+      // ── Z-depth waypoint system ──
+      // Smoothly moves toward a Z target. Every 5th target is behind words;
+      // the other 4 are in front — so he's ahead of the text most of the time.
+      const dz = zTgtRef.current - zRef.current
+      zRef.current += dz * 0.032
+      if (Math.abs(dz) < 0.04) {
+        zCntRef.current++
+        zTgtRef.current = pickZTarget(zCntRef.current)
+      }
       const z = Math.max(-1, Math.min(1, zRef.current))
 
       // Scale: 0.50x (far/behind words) → 0.88x (close/in front). No opacity change.
@@ -318,11 +328,11 @@ export default function ChatWidget() {
         lookPauseRef.current--
       } else {
         // Fast saccade dart
-        look.theta += (target.theta - look.theta) * 0.28
-        look.phi   += (target.phi   - look.phi)   * 0.28
+        look.theta += (target.theta - look.theta) * 0.42
+        look.phi   += (target.phi   - look.phi)   * 0.42
         // Settled? hold, then pick next target
         if (Math.abs(target.theta - look.theta) < 0.012 && Math.abs(target.phi - look.phi) < 0.012) {
-          lookPauseRef.current = 50 + Math.floor(Math.random() * 70)  // 0.8–2.0 s hold
+          lookPauseRef.current = 12 + Math.floor(Math.random() * 28)  // 0.2–0.7 s hold
           lookTargetRef.current = pickLookTarget()
         }
       }
