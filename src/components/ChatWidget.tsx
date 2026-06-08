@@ -65,46 +65,27 @@ function drawOrb(
   ctx.arc(cx, cy, R, 0, Math.PI * 2)
   ctx.clip()
 
-  // Dark ambient base
-  const base = ctx.createRadialGradient(cx, cy, 0, cx, cy, R)
-  base.addColorStop(0,   '#0a1e34')
-  base.addColorStop(0.6, '#04101e')
-  base.addColorStop(1,   '#010810')
+  // Base + diffuse combined
+  const base = ctx.createRadialGradient(cx * 0.8, cy * 0.8, 0, cx, cy, R)
+  base.addColorStop(0,    'rgba(56,189,248,0.60)')
+  base.addColorStop(0.45, '#04101e')
+  base.addColorStop(1,    '#010810')
   ctx.fillStyle = base; ctx.fillRect(0, 0, S, S)
 
-  // Diffuse blue hemisphere
-  const diff = ctx.createRadialGradient(cx * 0.8, cy * 0.8, 0, cx, cy, R)
-  diff.addColorStop(0,    'rgba(56,189,248,0.65)')
-  diff.addColorStop(0.44, 'rgba(14,116,144,0.50)')
-  diff.addColorStop(0.70, 'transparent')
-  ctx.fillStyle = diff; ctx.fillRect(0, 0, S, S)
-
-  // Specular highlight — intensity boosts when orb is close (z > 0)
-  const specBright = 0.78 + (z + 1) / 2 * 0.18  // 0.78 far → 0.96 close
+  // Specular highlight + sheen combined
+  const specBright = 0.78 + (z + 1) / 2 * 0.18
   const sx = (lx / 100) * S, sy = (ly / 100) * S
-  const spec = ctx.createRadialGradient(sx, sy, 0, sx, sy, R * 0.22)
+  const spec = ctx.createRadialGradient(sx, sy, 0, sx, sy, R * 0.32)
   spec.addColorStop(0,    `rgba(255,255,255,${specBright.toFixed(2)})`)
-  spec.addColorStop(0.28, `rgba(255,255,255,${(specBright * 0.47).toFixed(2)})`)
+  spec.addColorStop(0.22, 'rgba(147,219,253,0.40)')
   spec.addColorStop(1,    'transparent')
   ctx.fillStyle = spec; ctx.fillRect(0, 0, S, S)
 
-  // Secondary sheen (follows specular)
-  const shn = ctx.createRadialGradient(sx + 5, sy + 6, 0, sx + 5, sy + 6, R * 0.38)
-  shn.addColorStop(0,  'rgba(147,219,253,0.38)')
-  shn.addColorStop(1,  'transparent')
-  ctx.fillStyle = shn; ctx.fillRect(0, 0, S, S)
-
-  // Rim light (opposite side)
-  const rx = S * 1.03 - sx, ry = S * 1.03 - sy
-  const rim = ctx.createRadialGradient(rx, ry, 0, rx, ry, R * 0.38)
-  rim.addColorStop(0,  'rgba(56,189,248,0.28)')
-  rim.addColorStop(1,  'transparent')
-  ctx.fillStyle = rim; ctx.fillRect(0, 0, S, S)
-
-  // Shadow deepening (opposite hemisphere)
-  const shd = ctx.createRadialGradient(cx * 1.24, cy * 1.24, 0, cx * 1.24, cy * 1.24, R * 0.52)
-  shd.addColorStop(0,  'rgba(0,0,0,0.50)')
-  shd.addColorStop(1,  'transparent')
+  // Shadow + rim combined (one gradient from shadow corner)
+  const shd = ctx.createRadialGradient(cx * 1.3, cy * 1.3, 0, cx * 1.3, cy * 1.3, R * 0.75)
+  shd.addColorStop(0,   'rgba(0,0,0,0.55)')
+  shd.addColorStop(0.6, 'rgba(56,189,248,0.12)')
+  shd.addColorStop(1,   'transparent')
   ctx.fillStyle = shd; ctx.fillRect(0, 0, S, S)
 
   // Equatorial seam
@@ -185,10 +166,7 @@ function drawOrb(
         ctx.beginPath()
         ctx.arc(0, 0, pR, 0, Math.PI * 2)
         ctx.fillStyle = pupG
-        ctx.shadowColor = '#38bdf8'
-        ctx.shadowBlur = 8
         ctx.fill()
-        ctx.shadowBlur = 0
       }
 
       ctx.restore()
@@ -351,14 +329,8 @@ export default function ChatWidget() {
       rafRef.current = requestAnimationFrame(tick)
     }
 
-    // Delay start so aurora and page paint settle first
-    const startTimer = setTimeout(() => {
-      rafRef.current = requestAnimationFrame(tick)
-    }, 700)
-    return () => {
-      clearTimeout(startTimer)
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-    }
+    rafRef.current = requestAnimationFrame(tick)
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
   }, [isOpen])
 
   useEffect(() => { if (isOpen) inputRef.current?.focus() }, [isOpen])

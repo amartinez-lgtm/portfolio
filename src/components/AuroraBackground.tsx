@@ -161,10 +161,7 @@ export default function AuroraBackground({
       raf = requestAnimationFrame(frame)
     }
 
-    // Delay start so the initial page paint finishes first
-    const startTimer = setTimeout(() => {
-      raf = requestAnimationFrame(frame)
-    }, 300)
+    raf = requestAnimationFrame(frame)
 
     // Convert screen coords → SVG viewBox coords
     const toSVG = (clientX: number, clientY: number) => {
@@ -195,7 +192,6 @@ export default function AuroraBackground({
     document.addEventListener('pointerleave', onLeave)
 
     return () => {
-      clearTimeout(startTimer)
       cancelAnimationFrame(raf)
       clearTimeout(fadeTimer)
       document.removeEventListener('pointermove', onMove)
@@ -289,7 +285,6 @@ export default function AuroraBackground({
               cy={init.y}
               r={def.r}
               className={`aurora__dot aurora__dot--${def.color}`}
-              filter="url(#ao-glow)"
             />
           )
         })}
