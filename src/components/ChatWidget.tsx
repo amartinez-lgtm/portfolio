@@ -267,11 +267,11 @@ export default function ChatWidget() {
         const dist = Math.hypot(dx, dy)
         if (dist < 36) {
           phaseRef.current = 'hovering'
-          pauseRef.current = 60 + Math.floor(Math.random() * 100)
+          pauseRef.current = 35 + Math.floor(Math.random() * 65)
         } else {
-          const topSpeed = Math.min(2.2, dist / 42)
-          vel.vx += ((dx / dist) * topSpeed - vel.vx) * 0.06
-          vel.vy += ((dy / dist) * topSpeed - vel.vy) * 0.06
+          const topSpeed = Math.min(3.2, dist / 36)
+          vel.vx += ((dx / dist) * topSpeed - vel.vx) * 0.09
+          vel.vy += ((dy / dist) * topSpeed - vel.vy) * 0.09
         }
       }
 
@@ -285,14 +285,14 @@ export default function ChatWidget() {
 
       // ── Z-depth oscillation — two offset sines, never repeating ──
       // Bias -0.4 keeps the orb small/far most of the time; close passes are brief.
-      zPhaseRef.current += 0.004
+      zPhaseRef.current += 0.007
       const t = zPhaseRef.current
       const zTarget = Math.sin(t * 0.7) * 0.55 + Math.sin(t * 0.31 + 1.4) * 0.42 - 0.4
-      zRef.current += (zTarget - zRef.current) * 0.018
+      zRef.current += (zTarget - zRef.current) * 0.022
       const z = Math.max(-1, Math.min(1, zRef.current))
 
-      // Scale only — no opacity change. Depth reads from size + z-index only.
-      const scale = 0.72 + (z + 1) / 2 * 0.46
+      // Scale: 0.30x (far/tiny) → 0.88x (close/medium). No opacity change.
+      const scale = 0.30 + (z + 1) / 2 * 0.58
       // z-index: above nav (1002) when close, normal (1000), behind page text (50) when far
       const zIdx = z > 0.1 ? 1002 : z > -0.45 ? 1000 : 50
 
