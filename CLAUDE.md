@@ -327,3 +327,31 @@ The form uses a `mailto:` fallback (no backend). On submit it calls `window.open
 - Add more products to the store: family busts (grandma, auntie), games/art pieces — not necessarily for sale, just to tell the story and show the work
 - Add product photos from phone to existing store products
 - Set `stlStatus: 'available'` + `downloadUrl` on products when STL files are ready
+
+### Session 9 (Orb polish, store fixes, perf)
+
+**Orb improvements:**
+- Z-depth waypoint system: every 5th waypoint goes behind page text (z -0.25 to -0.60), other 4 stay in front (z 0.35 to 0.90) — replaces old sine oscillation that kept orb too far/small
+- Scale range tightened: 0.50x (far/behind words) → 0.88x (close/in front)
+- Eye saccades sped up: hold reduced from 0.8–2.0s to 0.2–0.7s; lerp factor 0.28 → 0.42; initial pause 60 → 10 frames
+- Hover label removed — orb is now a silent easter egg, no "Talk to AI Avelino" tooltip
+- Canvas gradient layers reduced 6 → 3 (base+diffuse merged, spec+sheen merged, shadow+rim merged) for mobile perf
+- `ctx.shadowBlur` removed from pupil draw (eliminates extra compositing pass each frame)
+
+**Store fixes:**
+- Restored `← Portfolio` back link in store header (was removed in Session 7); now uses relative `/` URL so it works on any domain
+- "Made to Order" price text no longer clips on narrow mobile cards — `.sp-card__meta` changed to `flex-wrap: wrap` with `white-space: nowrap` on price
+- Store link added to main nav (accent-colored to distinguish from section anchors)
+- Store link added to Contact section link cards (alongside Email, LinkedIn, GitHub)
+
+**Performance:**
+- SVG glow filter removed from 6 animated aurora dots — eliminates per-dot filter region repaint every frame (biggest perf win)
+- Aurora Milky Way blur: stdDeviation 70 → 28 (cheaper to composite on mobile)
+- Aurora dot glow: stdDeviation 5 → 3 with tighter filter region
+- `feTurbulence` grain SVG delayed 1.2s after mount — removes full-viewport noise computation from critical render path; numOctaves 3 → 2
+- Artificial startup delays tried and reverted (they caused delayed-then-laggy feel); real fix was reducing per-frame cost
+
+**Next session:**
+- Add product photos from phone to existing store products
+- Add more products: family busts (grandma, auntie), games/art pieces
+- Set `stlStatus: 'available'` + `downloadUrl` on products when STL files are ready
