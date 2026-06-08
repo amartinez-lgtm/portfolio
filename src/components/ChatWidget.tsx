@@ -40,10 +40,12 @@ function pickLookTarget() {
 // Draw the orb onto a canvas using 3D projection for the eye socket.
 // lx/ly: specular highlight position in logical % (0–100).
 // theta: horizontal look angle (rad), phi: vertical look angle (rad).
+// z: depth position -1 (far) to +1 (close) — boosts specular/glow when close.
 function drawOrb(
   ctx: CanvasRenderingContext2D,
   lx: number, ly: number,
   theta: number, phi: number,
+  z = 0,
 ) {
   const S = ORB_SZ
   const cx = S / 2, cy = S / 2
@@ -71,11 +73,12 @@ function drawOrb(
   diff.addColorStop(0.70, 'transparent')
   ctx.fillStyle = diff; ctx.fillRect(0, 0, S, S)
 
-  // Specular highlight (position driven by movement velocity)
+  // Specular highlight — intensity boosts when orb is close (z > 0)
+  const specBright = 0.78 + (z + 1) / 2 * 0.18  // 0.78 far → 0.96 close
   const sx = (lx / 100) * S, sy = (ly / 100) * S
   const spec = ctx.createRadialGradient(sx, sy, 0, sx, sy, R * 0.22)
-  spec.addColorStop(0,    'rgba(255,255,255,0.96)')
-  spec.addColorStop(0.28, 'rgba(255,255,255,0.45)')
+  spec.addColorStop(0,    `rgba(255,255,255,${specBright.toFixed(2)})`)
+  spec.addColorStop(0.28, `rgba(255,255,255,${(specBright * 0.47).toFixed(2)})`)
   spec.addColorStop(1,    'transparent')
   ctx.fillStyle = spec; ctx.fillRect(0, 0, S, S)
 
@@ -204,6 +207,8 @@ export default function ChatWidget() {
   const rafRef        = useRef<number | null>(null)
   const lxRef         = useRef(27)  // specular x %
   const lyRef         = useRef(20)  // specular y %
+  const zRef          = useRef(0)   // depth: -1 (far/small) → +1 (close/large)
+  const zPhaseRef     = useRef(Math.random() * Math.PI * 2) // random start offset
   const lookRef       = useRef({ theta: 0, phi: 0 })
   const lookTargetRef = useRef(pickLookTarget())
   const lookPauseRef  = useRef(60)
@@ -231,7 +236,7 @@ export default function ChatWidget() {
       const ctx = canvas.getContext('2d')
       if (ctx) {
         ctx.scale(dpr, dpr)
-        drawOrb(ctx, lxRef.current, lyRef.current, 0, 0)
+        drawOrb(ctx, lxRef.current, lyRef.current, 0, 0, 0)
       }
     }
   }, [])
@@ -278,9 +283,28 @@ export default function ChatWidget() {
       if (pos.y < PAD + 20)                 { pos.y = PAD + 20;                 vel.vy =  Math.abs(vel.vy) }
       if (pos.y > window.innerHeight - PAD) { pos.y = window.innerHeight - PAD; vel.vy = -Math.abs(vel.vy) }
 
+      // ── Z-depth oscillation — two offset sines, never repeating ──
+      // Gives the orb an organic in/out breathing through Z-space.
+      zPhaseRef.current += 0.004
+      const t = zPhaseRef.current
+      const zTarget = Math.sin(t * 0.7) * 0.55 + Math.sin(t * 0.31 + 1.4) * 0.42
+      zRef.current += (zTarget - zRef.current) * 0.018
+      const z = Math.max(-1, Math.min(1, zRef.current))
+
+      // Scale 0.55x (far) → 1.4x (close), opacity 0.6 → 1.0, blur 2px → 0px
+      const scale   = 0.55 + (z + 1) / 2 * 0.85
+      const opacity = 0.60 + (z + 1) / 2 * 0.40
+      const blur    = z < 0 ? (-z * 2.2).toFixed(1) : '0'
+      // z-index: above nav (1002) when close, normal (1000), behind nav (50) when far
+      const zIdx = z > 0.25 ? 1002 : z > -0.35 ? 1000 : 50
+
       if (orbRef.current) {
-        orbRef.current.style.left = `${pos.x - ORB_R}px`
-        orbRef.current.style.top  = `${pos.y - ORB_R}px`
+        orbRef.current.style.left      = `${pos.x - ORB_R}px`
+        orbRef.current.style.top       = `${pos.y - ORB_R}px`
+        orbRef.current.style.transform = `scale(${scale.toFixed(3)})`
+        orbRef.current.style.opacity   = opacity.toFixed(3)
+        orbRef.current.style.filter    = blur === '0' ? '' : `blur(${blur}px)`
+        orbRef.current.style.zIndex    = String(zIdx)
       }
 
       // ── Specular highlight (opposite to travel = sphere rotating) ──
@@ -310,7 +334,7 @@ export default function ChatWidget() {
       const canvas = canvasRef.current
       if (canvas) {
         const ctx = canvas.getContext('2d')
-        if (ctx) drawOrb(ctx, lxRef.current, lyRef.current, look.theta, look.phi)
+        if (ctx) drawOrb(ctx, lxRef.current, lyRef.current, look.theta, look.phi, z)
       }
 
       rafRef.current = requestAnimationFrame(tick)
