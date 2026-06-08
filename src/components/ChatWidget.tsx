@@ -287,12 +287,12 @@ export default function ChatWidget() {
       // Bias -0.4 keeps the orb small/far most of the time; close passes are brief.
       zPhaseRef.current += 0.007
       const t = zPhaseRef.current
-      const zTarget = Math.sin(t * 0.7) * 0.55 + Math.sin(t * 0.31 + 1.4) * 0.42 - 0.4
+      const zTarget = Math.sin(t * 0.7) * 0.55 + Math.sin(t * 0.31 + 1.4) * 0.42 + 0.15
       zRef.current += (zTarget - zRef.current) * 0.022
       const z = Math.max(-1, Math.min(1, zRef.current))
 
-      // Scale: 0.30x (far/tiny) → 0.88x (close/medium). No opacity change.
-      const scale = 0.30 + (z + 1) / 2 * 0.58
+      // Scale: 0.50x (far/behind words) → 0.88x (close/in front). No opacity change.
+      const scale = 0.50 + (z + 1) / 2 * 0.38
       // z-index: above nav (1002) when close, normal (1000), behind page text (50) when far
       const zIdx = z > 0.1 ? 1002 : z > -0.45 ? 1000 : 50
 
@@ -318,11 +318,11 @@ export default function ChatWidget() {
         lookPauseRef.current--
       } else {
         // Fast saccade dart
-        look.theta += (target.theta - look.theta) * 0.22
-        look.phi   += (target.phi   - look.phi)   * 0.22
+        look.theta += (target.theta - look.theta) * 0.28
+        look.phi   += (target.phi   - look.phi)   * 0.28
         // Settled? hold, then pick next target
         if (Math.abs(target.theta - look.theta) < 0.012 && Math.abs(target.phi - look.phi) < 0.012) {
-          lookPauseRef.current = 90 + Math.floor(Math.random() * 110)  // 1.5–3.3 s hold
+          lookPauseRef.current = 50 + Math.floor(Math.random() * 70)  // 0.8–2.0 s hold
           lookTargetRef.current = pickLookTarget()
         }
       }
