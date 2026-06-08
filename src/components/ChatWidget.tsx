@@ -291,10 +291,9 @@ export default function ChatWidget() {
       zRef.current += (zTarget - zRef.current) * 0.018
       const z = Math.max(-1, Math.min(1, zRef.current))
 
-      // Scale 0.55x (far) → 1.4x (close), opacity 0.6 → 1.0, blur 2px → 0px
-      const scale   = 0.55 + (z + 1) / 2 * 0.85
-      const opacity = 0.60 + (z + 1) / 2 * 0.40
-      const blur    = z < 0 ? (-z * 2.2).toFixed(1) : '0'
+      // Scale 0.72x (far) → 1.18x (close), opacity 0.85 → 1.0, no blur
+      const scale   = 0.72 + (z + 1) / 2 * 0.46
+      const opacity = 0.85 + (z + 1) / 2 * 0.15
       // z-index: above nav (1002) when close, normal (1000), behind nav (50) when far
       const zIdx = z > 0.25 ? 1002 : z > -0.35 ? 1000 : 50
 
@@ -303,7 +302,6 @@ export default function ChatWidget() {
         orbRef.current.style.top       = `${pos.y - ORB_R}px`
         orbRef.current.style.transform = `scale(${scale.toFixed(3)})`
         orbRef.current.style.opacity   = opacity.toFixed(3)
-        orbRef.current.style.filter    = blur === '0' ? '' : `blur(${blur}px)`
         orbRef.current.style.zIndex    = String(zIdx)
       }
 
