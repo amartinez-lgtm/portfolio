@@ -21,6 +21,14 @@ const SUGGESTIONS = [
 const ORB_R  = 36  // 72px diameter
 const ORB_SZ = 72  // canvas logical size
 
+// ── Theme (canvas) ──────────────────────────────
+// RECOLOR THE ORB: the canvas can't read CSS vars, so the sphere/eye colors
+// live here. Change ACCENT_RGB to retheme; keep it in sync with --orb-accent-rgb
+// in ChatWidget.css. The two companions are optional supporting tints.
+const ACCENT_RGB        = '56,189,248'   // main accent (sky blue) — matches CSS
+const ACCENT_BRIGHT_RGB = '147,219,253'  // lighter highlight / pupil ring
+const ACCENT_DEEP_RGB   = '14,116,144'   // deep teal diffuse shadow
+
 function pickWaypoint() {
   const mx = 90, my = 100
   return {
@@ -71,8 +79,8 @@ function drawOrb(
 
   // Blue diffuse overlay
   const base = ctx.createRadialGradient(cx * 0.8, cy * 0.8, 0, cx, cy, R)
-  base.addColorStop(0,    'rgba(56,189,248,0.62)')
-  base.addColorStop(0.50, 'rgba(14,116,144,0.38)')
+  base.addColorStop(0,    `rgba(${ACCENT_RGB},0.62)`)
+  base.addColorStop(0.50, `rgba(${ACCENT_DEEP_RGB},0.38)`)
   base.addColorStop(1,    'transparent')
   ctx.fillStyle = base; ctx.fillRect(0, 0, S, S)
 
@@ -81,19 +89,19 @@ function drawOrb(
   const sx = (lx / 100) * S, sy = (ly / 100) * S
   const spec = ctx.createRadialGradient(sx, sy, 0, sx, sy, R * 0.32)
   spec.addColorStop(0,    `rgba(255,255,255,${specBright.toFixed(2)})`)
-  spec.addColorStop(0.22, 'rgba(147,219,253,0.40)')
+  spec.addColorStop(0.22, `rgba(${ACCENT_BRIGHT_RGB},0.40)`)
   spec.addColorStop(1,    'transparent')
   ctx.fillStyle = spec; ctx.fillRect(0, 0, S, S)
 
   // Shadow + rim combined (one gradient from shadow corner)
   const shd = ctx.createRadialGradient(cx * 1.3, cy * 1.3, 0, cx * 1.3, cy * 1.3, R * 0.75)
   shd.addColorStop(0,   'rgba(0,0,0,0.55)')
-  shd.addColorStop(0.6, 'rgba(56,189,248,0.12)')
+  shd.addColorStop(0.6, `rgba(${ACCENT_RGB},0.12)`)
   shd.addColorStop(1,   'transparent')
   ctx.fillStyle = shd; ctx.fillRect(0, 0, S, S)
 
   // Equatorial seam
-  ctx.strokeStyle = 'rgba(56,189,248,0.2)'
+  ctx.strokeStyle = `rgba(${ACCENT_RGB},0.2)`
   ctx.lineWidth = 1.5
   ctx.beginPath()
   ctx.moveTo(4, cy); ctx.lineTo(S - 4, cy)
@@ -135,7 +143,7 @@ function drawOrb(
       ctx.fill()
 
       // Socket rim
-      ctx.strokeStyle = 'rgba(56,189,248,0.55)'
+      ctx.strokeStyle = `rgba(${ACCENT_RGB},0.55)`
       ctx.lineWidth = 1
       ctx.stroke()
 
@@ -155,7 +163,7 @@ function drawOrb(
       ctx.beginPath()
       ctx.ellipse(0, 0, irisW, irisH, 0, 0, Math.PI * 2)
       ctx.setLineDash([1.5, 2])
-      ctx.strokeStyle = 'rgba(56,189,248,0.70)'
+      ctx.strokeStyle = `rgba(${ACCENT_RGB},0.70)`
       ctx.lineWidth = 1.5
       ctx.stroke()
       ctx.setLineDash([])
@@ -165,8 +173,8 @@ function drawOrb(
       if (pR > 0.4) {
         const pupG = ctx.createRadialGradient(0, 0, 0, 0, 0, pR)
         pupG.addColorStop(0,    '#ffffff')
-        pupG.addColorStop(0.45, 'rgba(147,219,253,0.95)')
-        pupG.addColorStop(1,    'rgba(56,189,248,0.70)')
+        pupG.addColorStop(0.45, `rgba(${ACCENT_BRIGHT_RGB},0.95)`)
+        pupG.addColorStop(1,    `rgba(${ACCENT_RGB},0.70)`)
         ctx.beginPath()
         ctx.arc(0, 0, pR, 0, Math.PI * 2)
         ctx.fillStyle = pupG

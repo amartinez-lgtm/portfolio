@@ -33,15 +33,28 @@ exactly which knobs to turn to repurpose it.
 
 ## Setup (Cloudflare Pages — same as the source project)
 
-### 1. Drop in the files
-```
-src/components/ChatWidget.tsx
-src/components/ChatWidget.css
-functions/api/chat.ts
-```
+### Step 0 — Prerequisites in the target project
+- A React 18+ app on **Vite** (or any bundler that allows `import './x.css'`).
+- The project is (or will be) deployed on **Cloudflare Pages**.
+- You have an **Anthropic API key** (`sk-ant-...`) from console.anthropic.com.
 
-### 2. Mount the widget
-Render it once, near the root of your app (after your main content is fine):
+### Step 1 — Copy the three files in
+From this `orb-widget/` folder into the target project, preserving these paths
+(create the folders if they don't exist):
+
+| Copy from here | To here in the target project |
+|---|---|
+| `ChatWidget.tsx` | `src/components/ChatWidget.tsx` |
+| `ChatWidget.css` | `src/components/ChatWidget.css` |
+| `chat.ts` | `functions/api/chat.ts` |
+
+The `functions/` directory must sit at the **repo root** (next to `src/`), not
+inside `src/` — that's the Cloudflare Pages Functions convention that maps
+`functions/api/chat.ts` to the live URL `/api/chat`.
+
+### Step 2 — Mount the widget
+Render it once near the root of your app (placing it after your main content is
+fine — it's `position: fixed`):
 ```tsx
 import ChatWidget from './components/ChatWidget'
 
@@ -55,23 +68,43 @@ export default function App() {
 }
 ```
 
-### 3. Set the API key (never commit it)
-In the Cloudflare Pages dashboard → your project → **Settings → Environment
-variables → Secrets**, add:
+### Step 3 — Make it yours (customization)
+At minimum, edit these before shipping (full list in "Customization points"):
+- `chat.ts` → rewrite `SYSTEM_PROMPT` (the assistant's persona). **Most important.**
+- `ChatWidget.tsx` → `WELCOME`, `SUGGESTIONS`, the `mailto:` email, the
+  `"AI Avelino"` label, and the error-fallback text.
+- To recolor: set `--orb-accent-rgb` in the CSS and `ACCENT_RGB` in the TSX to
+  the same RGB triple.
+
+### Step 4 — Set the API key (never commit it)
+**Production:** Cloudflare Pages dashboard → your project → **Settings →
+Environment variables → Secrets** → add:
 ```
 ANTHROPIC_API_KEY = sk-ant-...
 ```
-The Function reads it via `env.ANTHROPIC_API_KEY`. It is never in the code.
+The Function reads it via `env.ANTHROPIC_API_KEY`; it never touches client code.
 
-For **local dev** against `wrangler pages dev`, put it in a `.dev.vars` file at
-the project root (git-ignored):
+**Local dev:** create a git-ignored `.dev.vars` at the repo root:
 ```
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-### 4. Deploy
-Push to the branch Cloudflare Pages watches. The orb appears; clicking it opens
-the chat; messages stream token-by-token.
+### Step 5 — Run it locally to verify
+The orb's frontend works under a normal `npm run dev`, **but** `/api/chat` only
+exists when Functions are running. Two options:
+- Quick UI check: `npm run dev` — the orb floats and the panel opens; sending a
+  message will fail to connect (no Function), which is expected.
+- Full check (recommended): build, then serve with Functions:
+  ```bash
+  npm run build
+  npx wrangler pages dev dist
+  ```
+  Open the local URL, click the orb, send a message — it should stream a reply.
+
+### Step 6 — Deploy
+Commit and push to the branch Cloudflare Pages watches for that project. On
+deploy the orb appears site-wide; clicking it opens the chat and replies stream
+in token-by-token.
 
 ---
 
@@ -106,16 +139,26 @@ Two spots reference `levallcworks@gmail.com`:
 
 Also the header label text **"AI Avelino"** in the chat panel JSX.
 
-### E. Accent color (the sky-blue) — both files
-The brand color is hardcoded as `#38bdf8` / `rgba(56,189,248,...)` (and tints
-like `#0c4a6e`, `#7dd3fc`, `#22d3ee`). It appears in:
-- **`ChatWidget.css`** — glows, borders, bubbles, send button, etc.
-- **`ChatWidget.tsx`** `drawOrb()` — the canvas gradient color stops that paint
-  the sphere body, eye socket, and iris.
+### E. Accent color (the sky-blue) — two one-line knobs
+The accent is themed via a single variable in each file. Canvas drawing can't
+read CSS variables, so there are two synced knobs:
 
-To recolor: find-replace `56,189,248` and `38bdf8` first (that's 90% of it),
-then adjust the few supporting tints to taste. If you want it themeable, lift
-these into a CSS custom property + a single JS constant.
+- **`ChatWidget.css`** (top, `:root`):
+  ```css
+  --orb-accent-rgb: 56, 189, 248;   /* change this */
+  ```
+  Drives every glow, border, bubble, chip, cursor, and the send button.
+- **`ChatWidget.tsx`** (top, theme block):
+  ```ts
+  const ACCENT_RGB = '56,189,248'   // change this to match
+  ```
+  Drives the canvas-drawn sphere body, eye socket, iris, and pupil.
+
+Set both to the same RGB triple and the whole widget retheme. Two optional
+companion tints exist in each file (`--orb-accent-bright` / `ACCENT_BRIGHT_RGB`
+and `ACCENT_DEEP_RGB`) if you want to fine-tune the highlight and deep-shadow
+shades — leave them and only the main accent shifts. (The few neutral grays like
+`#0f172a` / `#1e293b` are the dark-theme surface colors, not the accent.)
 
 ### F. Font — `ChatWidget.css`
 The CSS references `var(--font-sans)`. If the new project doesn't define that
