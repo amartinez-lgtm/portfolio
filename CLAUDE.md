@@ -355,3 +355,35 @@ The form uses a `mailto:` fallback (no backend). On submit it calls `window.open
 - Add product photos from phone to existing store products
 - Add more products: family busts (grandma, auntie), games/art pieces
 - Set `stlStatus: 'available'` + `downloadUrl` on products when STL files are ready
+
+### Session 10 (The Gallery — art/sculpture page)
+
+**Why:** The family busts (grandma, auntie) and a nude figure study didn't belong in the
+store — a nude next to "Paper Towel Dispenser — Made to Order" read wrong. Fix was to change
+the *frame*, not censor the piece: in a store it's merchandise, in a gallery it's sculpture.
+
+**The Gallery (`/gallery`) — new 4th Vite entry:**
+- Entry: `gallery/index.html` → `src/gallery/main.tsx` → `src/gallery/GalleryPage.tsx`
+- Styles: `src/gallery/GalleryPage.css` (all classes prefixed `gl-`)
+- Data: `src/data/gallery.ts` — `GalleryPiece[]` (title, story, medium, year, tags, model3d, status). **No price, no ordering** — art shown as work, not merchandise.
+- **Dark museum aesthetic** (vs. the store's warm/light theme) — sculpture reads as art, ties back to the main dark portfolio, and the reused 3D viewer's `#111` background blends in. Serif display font (`--gl-serif`) for titles.
+- Cards: mini auto-spin viewer (or photo/placeholder) → tap opens a lightbox with the full draggable viewer + full story + "Commission a piece".
+- Single "Start a commission" CTA at the bottom (mailto). No per-item buy buttons.
+- `vite.config.ts`: added `gallery` to `rollupOptions.input`.
+- `public/_redirects`: added `/gallery /gallery/index.html 200` before the SPA catch-all.
+- Nav: added accent-colored `Gallery` link (alongside `Store`).
+
+**3D viewer CSS refactor:**
+- Extracted the `.mv-*` viewer styles out of `StorePage.css` into a co-located `src/store/Model3DViewer.css`, imported by `Model3DViewer.tsx`. Now both the store and the gallery get viewer styles automatically (matches the "CSS co-located with components" convention). Store verified unchanged.
+
+**Seeded pieces (all `status: 'coming-soon'` until files land):**
+- `abuela` — grandmother portrait bust → expects `public/gallery/abuela.3mf`
+- `tia` — aunt portrait bust → expects `public/gallery/tia.3mf`
+- `figure-study` — the nude, framed as classical figurative sculpture → expects `public/gallery/figure-study.3mf`
+
+**To make a piece live:** drop its `.3mf` into `public/gallery/` (filenames above), then flip that piece's `status` to `'available'` in `src/data/gallery.ts`. Placeholder story copy is written but meant to be replaced with Avelino's real words.
+
+**Next session:**
+- Upload the bust/figure `.3mf` files to `public/gallery/`, flip `status` to `'available'`, replace placeholder story copy with real narratives
+- Add games/art pieces to the gallery
+- Add product photos from phone to existing store products

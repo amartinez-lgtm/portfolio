@@ -14,9 +14,10 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       input: {
-        main:  resolve(__dirname, 'index.html'),
-        token: resolve(__dirname, 'token/index.html'),
-        store: resolve(__dirname, 'store/index.html'),
+        main:    resolve(__dirname, 'index.html'),
+        token:   resolve(__dirname, 'token/index.html'),
+        store:   resolve(__dirname, 'store/index.html'),
+        gallery: resolve(__dirname, 'gallery/index.html'),
       },
       output: {
         manualChunks: {

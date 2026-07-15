@@ -6,6 +6,7 @@ import {
 } from 'three'
 import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import './Model3DViewer.css'
 
 interface ModelPart { label: string; url: string }
 interface Props { parts: ModelPart[]; color?: string; mini?: boolean; rotationX?: number; rotationY?: number; rotationZ?: number }

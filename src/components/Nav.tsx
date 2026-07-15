@@ -7,6 +7,7 @@ const links: { label: string; href: string; accent?: boolean }[] = [
   { label: 'Ventures', href: '#ventures' },
   { label: 'Stories', href: '#stories' },
   { label: 'Contact', href: '#contact' },
+  { label: 'Gallery', href: '/gallery', accent: true },
   { label: 'Store', href: '/store', accent: true },
 ]
 
