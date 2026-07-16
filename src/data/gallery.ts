@@ -30,6 +30,20 @@ export interface GalleryPiece {
 // then flip status to 'available'.
 export const galleryPieces: GalleryPiece[] = [
   {
+    id: 'julia',
+    title: 'Julia',
+    // TODO: replace with Avelino's real words for this piece
+    story:
+      'A figure modeled and printed in-house — a study in form and proportion. The first live piece in the gallery.',
+    medium: '3D-printed PLA',
+    tags: ['Figure', 'Sculpture'],
+    model3d: {
+      parts: [{ label: 'Figure', url: '/gallery/julia.stl' }],
+      color: '#c9c4bc',
+    },
+    status: 'available',
+  },
+  {
     id: 'abuela',
     title: 'Abuela',
     story:
