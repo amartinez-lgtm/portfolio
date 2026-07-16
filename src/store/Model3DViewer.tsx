@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import {
   Scene, Color, PerspectiveCamera, WebGLRenderer,
   AmbientLight, DirectionalLight, Vector3, Group,
-  Box3, MeshStandardMaterial, type Mesh,
+  Box3, MeshStandardMaterial, Mesh, type BufferGeometry,
 } from 'three'
 import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader.js'
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import './Model3DViewer.css'
 
@@ -101,7 +102,10 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
         metalness: 0.08,
       })
 
-      const loader = new ThreeMFLoader()
+      // 3MF carries its own scene graph; STL is raw geometry we wrap in a Mesh.
+      // Pick the loader per part by extension so .3mf and .stl uploads both work.
+      const mfLoader = new ThreeMFLoader()
+      const stlLoader = new STLLoader()
       // spinner: outer group rotates on world Y; assembly: inner group holds orientation fix.
       // Two groups prevent Euler-angle interference when both x and y rotations would otherwise
       // combine on the same object and cause the model to orbit instead of spin in place.
@@ -113,7 +117,15 @@ export default function Model3DViewer({ parts, color = '#404040', mini = false, 
 
       Promise.all(
         parts.map(p => new Promise<void>(resolve => {
-          loader.load(p.url, obj => { assembly.add(obj); resolve() }, undefined, () => resolve())
+          if (/\.stl(\?|#|$)/i.test(p.url)) {
+            stlLoader.load(p.url, (geo: BufferGeometry) => {
+              if (!geo.attributes.normal) geo.computeVertexNormals()
+              assembly.add(new Mesh(geo, mat))
+              resolve()
+            }, undefined, () => resolve())
+          } else {
+            mfLoader.load(p.url, obj => { assembly.add(obj); resolve() }, undefined, () => resolve())
+          }
         }))
       ).then(() => {
         if (assembly.children.length === 0) { setError(true); setLoading(false); return }
