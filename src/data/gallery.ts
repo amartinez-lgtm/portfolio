@@ -30,15 +30,14 @@ export interface GalleryPiece {
 // then flip status to 'available'.
 export const galleryPieces: GalleryPiece[] = [
   {
-    id: 'julia',
-    title: 'Julia',
-    // TODO: replace with Avelino's real words for this piece
+    id: 'figure-study',
+    title: 'Figure Study',
     story:
-      'A figure modeled and printed in-house — a study in form and proportion. The first live piece in the gallery.',
+      'A study of the human form — a move away from function toward pure sculpture, and a test of what the printer can hold. Figurative work in the classical sense: form as the whole point.',
     medium: '3D-printed PLA',
-    tags: ['Figure', 'Sculpture'],
+    tags: ['Figure', 'Sculpture', 'Study'],
     model3d: {
-      parts: [{ label: 'Figure', url: '/gallery/julia.stl' }],
+      parts: [{ label: 'Figure', url: '/gallery/figure-study.stl' }],
       color: '#c9c4bc',
     },
     status: 'available',
@@ -65,19 +64,6 @@ export const galleryPieces: GalleryPiece[] = [
     tags: ['Portrait', 'Family', 'Sculpture'],
     model3d: {
       parts: [{ label: 'Bust', url: '/gallery/tia.3mf' }],
-      color: '#c9c4bc',
-    },
-    status: 'coming-soon',
-  },
-  {
-    id: 'figure-study',
-    title: 'Figure Study',
-    story:
-      'A study of the human form — a move away from function toward pure sculpture, and a test of what the printer can hold. Figurative work in the classical sense: the body as subject, form as the whole point.',
-    medium: '3D-printed PLA',
-    tags: ['Figure', 'Sculpture', 'Study'],
-    model3d: {
-      parts: [{ label: 'Figure', url: '/gallery/figure-study.3mf' }],
       color: '#c9c4bc',
     },
     status: 'coming-soon',

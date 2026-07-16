@@ -314,6 +314,7 @@ export default function StorePage() {
       </main>
 
       <footer className="sp-footer">
+        <a href="/gallery" className="sp-gallery-link">◈ The Gallery — sculptural &amp; personal work</a>
         <span>XYZ · Leva LLC · Avelino Martinez</span>
         <span>levallc.com</span>
       </footer>

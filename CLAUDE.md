@@ -371,15 +371,16 @@ the *frame*, not censor the piece: in a store it's merchandise, in a gallery it'
 - Single "Start a commission" CTA at the bottom (mailto). No per-item buy buttons.
 - `vite.config.ts`: added `gallery` to `rollupOptions.input`.
 - `public/_redirects`: added `/gallery /gallery/index.html 200` before the SPA catch-all.
-- Nav: added accent-colored `Gallery` link (alongside `Store`).
+- **Discovery is deliberately low-key** — NOT in the main nav. Reached only via a quiet `◈ The Gallery` link in the **store footer** (`.sp-gallery-link`). Keeps the personal/figurative work tucked in a chill spot instead of front-and-center.
+- **Model3DViewer now loads `.stl` as well as `.3mf`** (picks the loader per part by file extension; STL geometry gets wrapped in a `Mesh` with the standard material). So gallery/store uploads can be either format.
 
 **3D viewer CSS refactor:**
 - Extracted the `.mv-*` viewer styles out of `StorePage.css` into a co-located `src/store/Model3DViewer.css`, imported by `Model3DViewer.tsx`. Now both the store and the gallery get viewer styles automatically (matches the "CSS co-located with components" convention). Store verified unchanged.
 
-**Seeded pieces (all `status: 'coming-soon'` until files land):**
-- `abuela` — grandmother portrait bust → expects `public/gallery/abuela.3mf`
-- `tia` — aunt portrait bust → expects `public/gallery/tia.3mf`
-- `figure-study` — the nude, framed as classical figurative sculpture → expects `public/gallery/figure-study.3mf`
+**Pieces:**
+- `figure-study` — **LIVE**, generic title (deliberately no personal name), renders `public/gallery/figure-study.stl`
+- `abuela` — grandmother portrait bust, `coming-soon` → expects `public/gallery/abuela.3mf`
+- `tia` — aunt portrait bust, `coming-soon` → expects `public/gallery/tia.3mf`
 
 **To make a piece live:** drop its `.3mf` into `public/gallery/` (filenames above), then flip that piece's `status` to `'available'` in `src/data/gallery.ts`. Placeholder story copy is written but meant to be replaced with Avelino's real words.
 
