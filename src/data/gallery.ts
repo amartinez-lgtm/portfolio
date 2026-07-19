@@ -130,9 +130,9 @@ export const galleryPieces: GalleryPiece[] = [
     id: 'figure-study',
     title: 'Figure Study',
     story:
-      'A study of the human form — a move away from function toward pure sculpture, and a test of what the printer can hold. Figurative work in the classical sense: form as the whole point.',
-    medium: '3D-printed PLA',
-    tags: ['Figure', 'Sculpture', 'Study'],
+      'A study of the human form — figurative work in the classical sense, and a test of what the printer can hold. This one is finished as a magnet: a small sculptural piece with a magnet set into the back, made to live on a fridge or any steel surface.',
+    medium: '3D-printed PLA · Magnet',
+    tags: ['Figure', 'Sculpture', 'Magnet'],
     model3d: {
       parts: [{ label: 'Figure', url: '/gallery/figure-study.stl' }],
       color: '#c9c4bc',
