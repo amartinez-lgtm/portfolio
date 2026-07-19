@@ -4,5 +4,26 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 
+# Hashed build assets never change — cache them hard.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# HTML entry documents must never be cached, so new deploys always show
+# up on a normal reload (exact paths only — model files under /gallery/
+# and /token/ are NOT matched and stay cacheable).
+/
+  Cache-Control: no-store
+/index.html
+  Cache-Control: no-store
+/store
+  Cache-Control: no-store
+/store/
+  Cache-Control: no-store
+/gallery
+  Cache-Control: no-store
+/gallery/
+  Cache-Control: no-store
+/token
+  Cache-Control: no-store
+/token/
+  Cache-Control: no-store
