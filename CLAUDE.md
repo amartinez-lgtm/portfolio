@@ -371,7 +371,9 @@ the *frame*, not censor the piece: in a store it's merchandise, in a gallery it'
 - Single "Start a commission" CTA at the bottom (mailto). No per-item buy buttons.
 - `vite.config.ts`: added `gallery` to `rollupOptions.input`.
 - `public/_redirects`: added `/gallery /gallery/index.html 200` before the SPA catch-all.
-- **Discovery is deliberately low-key** — NOT in the main nav. Reached only via a quiet `◈ The Gallery` link in the **store footer** (`.sp-gallery-link`). Keeps the personal/figurative work tucked in a chill spot instead of front-and-center.
+- **Discovery** — NOT in the main nav. Reached from the store via a bold dark call-out card at the bottom of `StorePage` (`.sp-gallery-cta` — serif "The Gallery" title + cyan/purple glow, teases the gallery's dark museum look against the light store). Keeps the personal work out of the portfolio's front nav but makes it clear + cool inside the store.
+- **Gallery header nav:** back button (`.gl-back`) goes to `/store` (that's where visitors come from); the right-side link goes to `/` (Portfolio).
+- **18+ age gate:** pieces with `nsfw: true` in `gallery.ts` (currently just `figure-study`) render blurred behind a frosted `.gl-age-veil` (backdrop-filter blur + "18+" badge). Clicking opens the `AgeGate` modal ("I am 18 or older" / "Go back"); confirming sets session state `adultConfirmed` and opens the lightbox. Confirmation is per-session (resets on reload), not persisted.
 - **Model3DViewer now loads `.stl` as well as `.3mf`** (picks the loader per part by file extension; STL geometry gets wrapped in a `Mesh` with the standard material). So gallery/store uploads can be either format.
 
 **3D viewer CSS refactor:**

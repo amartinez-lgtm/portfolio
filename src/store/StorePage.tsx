@@ -311,10 +311,22 @@ export default function StorePage() {
             </a>
           </div>
         </div>
+
+        <a href="/gallery" className="sp-gallery-cta">
+          <span className="sp-gallery-cta__glow" aria-hidden="true" />
+          <span className="sp-gallery-cta__inner">
+            <span className="sp-gallery-cta__eyebrow">◈ Beyond the shelf</span>
+            <span className="sp-gallery-cta__title">The Gallery</span>
+            <span className="sp-gallery-cta__sub">
+              Portrait busts, figures, and one-off sculptural work — the personal
+              side of the studio, shown as art rather than product.
+            </span>
+            <span className="sp-gallery-cta__go">Enter the Gallery&nbsp;→</span>
+          </span>
+        </a>
       </main>
 
       <footer className="sp-footer">
-        <a href="/gallery" className="sp-gallery-link">◈ The Gallery — sculptural &amp; personal work</a>
         <span>XYZ · Leva LLC · Avelino Martinez</span>
         <span>levallc.com</span>
       </footer>

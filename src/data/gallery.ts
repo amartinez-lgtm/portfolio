@@ -23,6 +23,8 @@ export interface GalleryPiece {
   images?: string[]
   /** 'coming-soon' renders a placeholder until the model/photo is uploaded. */
   status: 'available' | 'coming-soon'
+  /** Blurs the piece behind an 18+ age gate until the viewer confirms. */
+  nsfw?: boolean
 }
 
 // Art / sculpture — shown as work, not merchandise. No prices, no ordering.
@@ -138,5 +140,6 @@ export const galleryPieces: GalleryPiece[] = [
       color: '#c9c4bc',
     },
     status: 'available',
+    nsfw: true,
   },
 ]

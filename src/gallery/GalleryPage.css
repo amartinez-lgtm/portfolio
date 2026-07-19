@@ -286,6 +286,98 @@ html, body {
 }
 .gl-btn--outline:hover { border-color: var(--gl-text); text-decoration: none; }
 
+.gl-btn--ghost {
+  background: transparent;
+  border: none;
+  color: var(--gl-muted);
+}
+.gl-btn--ghost:hover { color: var(--gl-text); text-decoration: none; }
+
+/* ── 18+ AGE VEIL (blurs an nsfw piece until confirmed) ─ */
+
+.gl-age-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 20px;
+  background: rgba(11, 11, 13, 0.55);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.gl-age-veil__badge {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--gl-text);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 99px;
+  padding: 5px 14px;
+}
+
+.gl-age-veil__text {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: rgba(236, 233, 227, 0.82);
+  max-width: 240px;
+}
+
+/* ── AGE GATE MODAL ─────────────────────────────────── */
+
+.gl-agegate {
+  position: fixed;
+  z-index: 201;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, calc(100vw - 32px));
+  background: var(--gl-panel);
+  border: 1px solid var(--gl-line);
+  border-radius: 14px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  animation: gl-slide-up 0.26s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.gl-agegate__badge {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--gl-text);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 99px;
+  padding: 6px 16px;
+  margin-bottom: 4px;
+}
+
+.gl-agegate__title {
+  font-family: var(--gl-serif);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--gl-text);
+}
+
+.gl-agegate__text {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--gl-muted);
+  margin-bottom: 8px;
+}
+
+.gl-agegate .gl-btn { width: 100%; }
+
 /* ── COMMISSION CTA ─────────────────────────────────── */
 
 .gl-commission {

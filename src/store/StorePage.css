@@ -517,16 +517,83 @@ html, body {
   text-decoration: none;
 }
 
-/* Quiet, low-key entry point to the art gallery */
-.sp-gallery-link {
-  font-size: 0.8125rem;
-  color: #a1a1aa;
-  margin-bottom: 8px;
-  letter-spacing: 0.01em;
+/* Gallery call-out — a dark card at the bottom of the light store that
+   teases the gallery's museum aesthetic. Clear + cool, not buried. */
+.sp-gallery-cta {
+  display: block;
+  position: relative;
+  margin-top: 28px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0b0b0d;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  text-decoration: none;
+  transition: transform 0.18s, box-shadow 0.22s;
 }
 
-.sp-gallery-link:hover {
-  color: #111;
+.sp-gallery-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+  text-decoration: none;
+}
+
+.sp-gallery-cta__glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(680px circle at 82% 12%, rgba(56, 189, 248, 0.22), transparent 58%),
+    radial-gradient(520px circle at 12% 108%, rgba(168, 85, 247, 0.16), transparent 55%);
+  pointer-events: none;
+}
+
+.sp-gallery-cta__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 40px 36px;
+}
+
+.sp-gallery-cta__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+
+.sp-gallery-cta__title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: #f4f2ee;
+}
+
+.sp-gallery-cta__sub {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: rgba(236, 233, 227, 0.72);
+  max-width: 460px;
+}
+
+.sp-gallery-cta__go {
+  margin-top: 12px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  transition: transform 0.15s;
+}
+
+.sp-gallery-cta:hover .sp-gallery-cta__go {
+  transform: translateX(4px);
+}
+
+@media (max-width: 600px) {
+  .sp-gallery-cta__inner { padding: 30px 22px; }
 }
 
 /* ── RESPONSIVE ─────────────────────────────────────── */

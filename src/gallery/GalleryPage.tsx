@@ -111,7 +111,7 @@ function PieceLightbox({ piece, onClose }: { piece: GalleryPiece; onClose: () =>
   )
 }
 
-function PieceCard({ piece, onOpen }: { piece: GalleryPiece; onOpen: () => void }) {
+function PieceCard({ piece, blurred, onOpen }: { piece: GalleryPiece; blurred: boolean; onOpen: () => void }) {
   const live = hasModel(piece) || !!piece.image || (piece.images?.length ?? 0) > 0
   return (
     <figure className="gl-piece">
@@ -124,7 +124,13 @@ function PieceCard({ piece, onOpen }: { piece: GalleryPiece; onOpen: () => void 
         aria-label={live ? `View ${piece.title}` : undefined}
       >
         <PieceMedia piece={piece} mini />
-        {live && <div className="gl-media__hint" aria-hidden="true">View</div>}
+        {blurred && (
+          <div className="gl-age-veil">
+            <span className="gl-age-veil__badge">18+</span>
+            <span className="gl-age-veil__text">Contains artistic nudity.<br />Tap to confirm you're 18 or older.</span>
+          </div>
+        )}
+        {live && !blurred && <div className="gl-media__hint" aria-hidden="true">View</div>}
       </div>
       <figcaption className="gl-piece__caption">
         <p className="gl-piece__eyebrow">
@@ -140,19 +146,50 @@ function PieceCard({ piece, onOpen }: { piece: GalleryPiece; onOpen: () => void 
   )
 }
 
+function AgeGate({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <>
+      <div className="gl-overlay" onClick={onCancel} aria-hidden="true" />
+      <div className="gl-agegate" role="dialog" aria-modal="true" aria-label="Age confirmation">
+        <span className="gl-agegate__badge">18+</span>
+        <h2 className="gl-agegate__title">Age-restricted work</h2>
+        <p className="gl-agegate__text">
+          This piece is a figure study that contains artistic nudity.
+          Please confirm you are 18 years of age or older to view it.
+        </p>
+        <button className="gl-btn gl-btn--primary" onClick={onConfirm}>I am 18 or older</button>
+        <button className="gl-btn gl-btn--ghost" onClick={onCancel}>Go back</button>
+      </div>
+    </>
+  )
+}
+
 export default function GalleryPage() {
   const [selected, setSelected] = useState<GalleryPiece | null>(null)
+  const [adultConfirmed, setAdultConfirmed] = useState(false)
+  const [pendingConfirm, setPendingConfirm] = useState<GalleryPiece | null>(null)
+
+  function openPiece(piece: GalleryPiece) {
+    if (piece.nsfw && !adultConfirmed) setPendingConfirm(piece)
+    else setSelected(piece)
+  }
+
+  function confirmAdult() {
+    setAdultConfirmed(true)
+    setSelected(pendingConfirm)
+    setPendingConfirm(null)
+  }
 
   return (
     <div className="gl">
       <header className="gl-header">
-        <a href="/" className="gl-back">
+        <a href="/store" className="gl-back">
           <svg viewBox="0 0 8 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="7 1 1 7 7 13" />
           </svg>
-          Portfolio
+          Store
         </a>
-        <a href="/store" className="gl-header__link">Store →</a>
+        <a href="/" className="gl-header__link">Portfolio →</a>
       </header>
 
       <section className="gl-hero">
@@ -169,7 +206,12 @@ export default function GalleryPage() {
       <main className="gl-main">
         <div className="gl-grid">
           {galleryPieces.map((piece) => (
-            <PieceCard key={piece.id} piece={piece} onOpen={() => setSelected(piece)} />
+            <PieceCard
+              key={piece.id}
+              piece={piece}
+              blurred={!!piece.nsfw && !adultConfirmed}
+              onOpen={() => openPiece(piece)}
+            />
           ))}
         </div>
 
@@ -191,6 +233,7 @@ export default function GalleryPage() {
       </footer>
 
       {selected && <PieceLightbox piece={selected} onClose={() => setSelected(null)} />}
+      {pendingConfirm && <AgeGate onConfirm={confirmAdult} onCancel={() => setPendingConfirm(null)} />}
     </div>
   )
 }
