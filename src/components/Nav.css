@@ -71,6 +71,34 @@
   background: var(--accent-dim);
 }
 
+/* Divider between in-page sections and the standalone pages */
+.nav__sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  margin: 0 8px;
+  align-self: center;
+}
+
+/* Store — a small, clean CTA button that anchors the destination group */
+.nav__cta {
+  display: block;
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-dim);
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+}
+
+.nav__cta:hover {
+  color: #fff;
+  background: var(--accent);
+  text-decoration: none;
+}
+
 .nav__burger {
   display: none;
   flex-direction: column;
@@ -120,5 +148,27 @@
     padding: 12px 24px;
     border-radius: 0;
     font-size: 1rem;
+  }
+
+  /* Stack cleanly in the mobile menu: divider becomes a full-width rule,
+     Store drops its button chrome and reads as a normal accent row. */
+  .nav__sep {
+    width: auto;
+    height: 1px;
+    margin: 6px 0;
+    align-self: stretch;
+  }
+
+  .nav__cta {
+    padding: 12px 24px;
+    border-radius: 0;
+    background: none;
+    color: var(--accent);
+    font-size: 1rem;
+  }
+
+  .nav__cta:hover {
+    background: var(--bg-muted);
+    color: var(--accent);
   }
 }

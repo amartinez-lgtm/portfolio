@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react'
 import './Nav.css'
 
-const links: { label: string; href: string; accent?: boolean }[] = [
+// In-page section anchors
+const sections: { label: string; href: string }[] = [
   { label: 'About', href: '#about' },
   { label: 'Work', href: '#work' },
   { label: 'Ventures', href: '#ventures' },
   { label: 'Stories', href: '#stories' },
   { label: 'Contact', href: '#contact' },
-  { label: 'Store', href: '/store', accent: true },
+]
+
+// Separate destinations (their own pages) — grouped after a divider
+const pages: { label: string; href: string; cta?: boolean }[] = [
+  { label: 'Gallery', href: '/gallery' },
+  { label: 'Store', href: '/store', cta: true },
 ]
 
 export default function Nav() {
@@ -28,11 +34,25 @@ export default function Nav() {
         </a>
 
         <ul className={`nav__links${menuOpen ? ' nav__links--open' : ''}`}>
-          {links.map((l) => (
+          {sections.map((l) => (
             <li key={l.href}>
               <a
                 href={l.href}
-                className={`nav__link${l.accent ? ' nav__link--accent' : ''}`}
+                className="nav__link"
+                onClick={() => setMenuOpen(false)}
+              >
+                {l.label}
+              </a>
+            </li>
+          ))}
+
+          <li className="nav__sep" aria-hidden="true" />
+
+          {pages.map((l) => (
+            <li key={l.href}>
+              <a
+                href={l.href}
+                className={l.cta ? 'nav__cta' : 'nav__link nav__link--accent'}
                 onClick={() => setMenuOpen(false)}
               >
                 {l.label}
