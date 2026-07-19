@@ -377,10 +377,15 @@ the *frame*, not censor the piece: in a store it's merchandise, in a gallery it'
 **3D viewer CSS refactor:**
 - Extracted the `.mv-*` viewer styles out of `StorePage.css` into a co-located `src/store/Model3DViewer.css`, imported by `Model3DViewer.tsx`. Now both the store and the gallery get viewer styles automatically (matches the "CSS co-located with components" convention). Store verified unchanged.
 
-**Pieces:**
-- `figure-study` — **LIVE**, generic title (deliberately no personal name), renders `public/gallery/figure-study.stl`
-- `abuela` — grandmother portrait bust, `coming-soon` → expects `public/gallery/abuela.3mf`
-- `tia` — aunt portrait bust, `coming-soon` → expects `public/gallery/tia.3mf`
+**Pieces (order is deliberate — family busts lead, figure study is last/low-key):**
+- `papa` — **LIVE**, father's bust, `public/gallery/dad.stl`
+- `noah` — **LIVE**, nephew's bust, `public/gallery/noah.stl`
+- `tina` — **LIVE**, portrait bust, `public/gallery/tina.stl`
+- `abuela` — grandmother bust, `coming-soon` → expects `public/gallery/abuela.3mf`
+- `tia` — aunt bust, `coming-soon` → expects `public/gallery/tia.3mf`
+- `zuriel` — **LIVE**, custom action figure (character work), `public/gallery/zuriel.stl`
+- `figure-study` — **LIVE**, generic title (deliberately no personal name), `public/gallery/figure-study.stl`
+- All uploaded STLs rendered upright as-is; no rotation calibration was needed. Story copy is warm placeholder text (marked `TODO`) meant to be replaced with Avelino's real words.
 
 **To make a piece live:** drop its `.3mf` into `public/gallery/` (filenames above), then flip that piece's `status` to `'available'` in `src/data/gallery.ts`. Placeholder story copy is written but meant to be replaced with Avelino's real words.
 

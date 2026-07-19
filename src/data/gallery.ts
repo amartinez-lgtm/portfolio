@@ -30,14 +30,43 @@ export interface GalleryPiece {
 // then flip status to 'available'.
 export const galleryPieces: GalleryPiece[] = [
   {
-    id: 'figure-study',
-    title: 'Figure Study',
+    id: 'papa',
+    title: 'Papá',
+    // TODO: swap for Avelino's real words
     story:
-      'A study of the human form — a move away from function toward pure sculpture, and a test of what the printer can hold. Figurative work in the classical sense: form as the whole point.',
+      'A portrait bust of my father — part of a series preserving the people who made me. Modeled and printed as something the family can hold onto.',
     medium: '3D-printed PLA',
-    tags: ['Figure', 'Sculpture', 'Study'],
+    tags: ['Portrait', 'Family', 'Sculpture'],
     model3d: {
-      parts: [{ label: 'Figure', url: '/gallery/figure-study.stl' }],
+      parts: [{ label: 'Bust', url: '/gallery/dad.stl' }],
+      color: '#c9c4bc',
+    },
+    status: 'available',
+  },
+  {
+    id: 'noah',
+    title: 'Noah',
+    // TODO: swap for Avelino's real words
+    story:
+      'A bust of my nephew — the youngest face in the series. Capturing the next generation the same way I capture the ones who came before.',
+    medium: '3D-printed PLA',
+    tags: ['Portrait', 'Family', 'Sculpture'],
+    model3d: {
+      parts: [{ label: 'Bust', url: '/gallery/noah.stl' }],
+      color: '#c9c4bc',
+    },
+    status: 'available',
+  },
+  {
+    id: 'tina',
+    title: 'Tina',
+    // TODO: swap for Avelino's real words
+    story:
+      'A portrait study scanned and reworked into a printable bust — another face added to the collection of people who matter.',
+    medium: '3D-printed PLA',
+    tags: ['Portrait', 'Sculpture'],
+    model3d: {
+      parts: [{ label: 'Bust', url: '/gallery/tina.stl' }],
       color: '#c9c4bc',
     },
     status: 'available',
@@ -46,7 +75,7 @@ export const galleryPieces: GalleryPiece[] = [
     id: 'abuela',
     title: 'Abuela',
     story:
-      'A portrait bust of my grandmother, modeled and printed as a keepsake for the family. The first in an ongoing series capturing the people who raised me — the ones whose faces I want to keep long after.',
+      'A portrait bust of my grandmother, modeled and printed as a keepsake for the family. Part of an ongoing series capturing the people who raised me — the ones whose faces I want to keep long after.',
     medium: '3D-printed PLA',
     tags: ['Portrait', 'Family', 'Sculpture'],
     model3d: {
@@ -67,5 +96,32 @@ export const galleryPieces: GalleryPiece[] = [
       color: '#c9c4bc',
     },
     status: 'coming-soon',
+  },
+  {
+    id: 'zuriel',
+    title: 'Zuriel',
+    // TODO: swap for Avelino's real words
+    story:
+      'A custom action figure — a step off the pedestal and into character work. Designed and printed as a one-off, articulated toy rather than a still portrait.',
+    medium: '3D-printed PLA',
+    tags: ['Action Figure', 'Character'],
+    model3d: {
+      parts: [{ label: 'Figure', url: '/gallery/zuriel.stl' }],
+      color: '#c9c4bc',
+    },
+    status: 'available',
+  },
+  {
+    id: 'figure-study',
+    title: 'Figure Study',
+    story:
+      'A study of the human form — a move away from function toward pure sculpture, and a test of what the printer can hold. Figurative work in the classical sense: form as the whole point.',
+    medium: '3D-printed PLA',
+    tags: ['Figure', 'Sculpture', 'Study'],
+    model3d: {
+      parts: [{ label: 'Figure', url: '/gallery/figure-study.stl' }],
+      color: '#c9c4bc',
+    },
+    status: 'available',
   },
 ]
