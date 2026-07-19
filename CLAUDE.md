@@ -381,7 +381,8 @@ the *frame*, not censor the piece: in a store it's merchandise, in a gallery it'
 - `papa` — **LIVE**, father's bust, `public/gallery/dad.stl`
 - `noah` — **LIVE**, nephew's bust, `public/gallery/noah.stl`
 - `tina` — **LIVE**, portrait bust, `public/gallery/tina.stl`
-- `abuela` — grandmother bust, `coming-soon` → expects `public/gallery/abuela.3mf`
+- `nana` — **LIVE**, grandmother bust, `public/gallery/nana.stl` (replaced the old `abuela` placeholder)
+- `gf-mom` — **LIVE**, girlfriend's mother bust, title is placeholder "Portrait", `public/gallery/gf-mom.stl`
 - `tia` — aunt bust, `coming-soon` → expects `public/gallery/tia.3mf`
 - `zuriel` — **LIVE**, custom action figure (character work), `public/gallery/zuriel.stl`
 - `figure-study` — **LIVE**, generic title (deliberately no personal name), `public/gallery/figure-study.stl`

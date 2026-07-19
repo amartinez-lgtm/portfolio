@@ -72,23 +72,38 @@ export const galleryPieces: GalleryPiece[] = [
     status: 'available',
   },
   {
-    id: 'abuela',
-    title: 'Abuela',
+    id: 'nana',
+    title: 'Nana',
+    // TODO: swap for Avelino's real words
     story:
       'A portrait bust of my grandmother, modeled and printed as a keepsake for the family. Part of an ongoing series capturing the people who raised me — the ones whose faces I want to keep long after.',
     medium: '3D-printed PLA',
     tags: ['Portrait', 'Family', 'Sculpture'],
     model3d: {
-      parts: [{ label: 'Bust', url: '/gallery/abuela.3mf' }],
+      parts: [{ label: 'Bust', url: '/gallery/nana.stl' }],
       color: '#c9c4bc',
     },
-    status: 'coming-soon',
+    status: 'available',
+  },
+  {
+    id: 'gf-mom',
+    title: 'Portrait',
+    // TODO: title + story — this is Avelino's girlfriend's mother; confirm how she'd like to be named
+    story:
+      'A portrait bust sculpted as a gift — capturing someone who matters to the people I love. Modeled from a scan and printed to keep.',
+    medium: '3D-printed PLA',
+    tags: ['Portrait', 'Family', 'Sculpture'],
+    model3d: {
+      parts: [{ label: 'Bust', url: '/gallery/gf-mom.stl' }],
+      color: '#c9c4bc',
+    },
+    status: 'available',
   },
   {
     id: 'tia',
     title: 'Tía',
     story:
-      'A companion bust to Abuela — my aunt, rendered in the same series. Sculpted from life and printed at scale, part of an effort to hold onto the family in a form you can put on a shelf.',
+      'A companion bust in the same series — my aunt, sculpted from life and printed at scale, part of an effort to hold onto the family in a form you can put on a shelf.',
     medium: '3D-printed PLA',
     tags: ['Portrait', 'Family', 'Sculpture'],
     model3d: {
