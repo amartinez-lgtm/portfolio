@@ -8,6 +8,11 @@
   transition: background 0.2s, border-color 0.2s, backdrop-filter 0.2s;
 }
 
+@keyframes nav-drop {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .nav--scrolled {
   background: rgba(10, 10, 11, 0.82);
   backdrop-filter: blur(16px);
@@ -46,6 +51,7 @@
 }
 
 .nav__link {
+  position: relative;
   display: block;
   padding: 6px 12px;
   border-radius: var(--radius-sm);
@@ -60,6 +66,22 @@
   color: var(--text);
   background: var(--bg-muted);
   text-decoration: none;
+}
+
+/* Active section — the link for wherever you are on the page */
+.nav__link--active {
+  color: var(--text);
+}
+
+.nav__link--active::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
 }
 
 .nav__link--accent {
@@ -117,8 +139,14 @@
   height: 2px;
   background: var(--text-muted);
   border-radius: 2px;
-  transition: transform 0.2s, opacity 0.2s;
+  transform-origin: center;
+  transition: transform 0.25s ease, opacity 0.2s ease;
 }
+
+/* Hamburger morphs into an X when the menu is open */
+.nav__burger--open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav__burger--open span:nth-child(2) { opacity: 0; }
+.nav__burger--open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 @media (max-width: 640px) {
   .nav__burger {
@@ -142,12 +170,23 @@
 
   .nav__links--open {
     display: flex;
+    animation: nav-drop 0.2s ease;
   }
 
   .nav__link {
     padding: 12px 24px;
     border-radius: 0;
     font-size: 1rem;
+  }
+
+  /* On mobile rows, show the active section as a left accent bar */
+  .nav__link--active::after {
+    left: 0;
+    right: auto;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    height: auto;
   }
 
   /* Stack cleanly in the mobile menu: divider becomes a full-width rule,

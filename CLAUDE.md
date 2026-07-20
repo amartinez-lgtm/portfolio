@@ -92,8 +92,8 @@ interface Project {
 |---|---|
 | Custom domain | Not set up. Do in Cloudflare Pages → Custom Domains. ~$10-15/yr on Cloudflare Registrar. |
 | Analytics | Not added. Cloudflare Web Analytics is free and easy. |
-| Mobile nav close-on-scroll | Not implemented |
-| Active section highlighting in nav | Not implemented |
+| Mobile nav close-on-scroll | ✓ Done — menu closes on scroll |
+| Active section highlighting in nav | ✓ Done — IntersectionObserver scroll-spy, accent underline on the current section |
 | Shopify Products URL in token page | Placeholder `https://leva-llc.myshopify.com` — update in `src/token/TokenPage.tsx` `NAV_ITEMS` array |
 | Profile photo in About | ✓ Done — `public/avatar_jpg.jpeg` |
 | NFC token page | ✓ Done — live at `/token` |
