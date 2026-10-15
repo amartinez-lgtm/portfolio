@@ -642,12 +642,6 @@ html, body {
   margin-bottom: 14px;
 }
 
-.wh-media__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
 
 /* The 3D viewer fills the box the same way a photo does. */
 .wh-media .mv-wrap,
@@ -655,56 +649,12 @@ html, body {
   height: 100%;
 }
 
-.wh-media__bar {
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  pointer-events: none;
-}
 
-.wh-media__bar > * { pointer-events: auto; }
 
-.wh-media__dots {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 
-.wh-dot {
-  width: 8px;
-  height: 8px;
-  padding: 0;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255,255,255,0.4);
-  cursor: pointer;
-  transition: background 0.15s, transform 0.15s;
-}
 
-.wh-dot--active { background: #fff; transform: scale(1.25); }
-.wh-dot:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
-.wh-media__3d {
-  padding: 5px 11px;
-  border-radius: 99px;
-  border: 1px solid rgba(255,255,255,0.3);
-  background: rgba(0,0,0,0.55);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  color: #fff;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-}
 
-.wh-media__3d--active { background: #fff; color: #111; border-color: #fff; }
-.wh-media__3d:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
 /* ── PRICE STRIP ────────────────────────────────────── */
 
@@ -790,7 +740,165 @@ html, body {
     border: 1px solid #ddd;
     break-inside: avoid;
   }
-  .wh-media__img { object-fit: contain; }
+  .wh-track__img { object-fit: contain; }
   .wh-pricestrip { background: none; border: 1px solid #ddd; }
   .wh-jump { display: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   GALLERY — tabs, swipeable track, arrows, dots
+   ═══════════════════════════════════════════════════════ */
+
+.wh-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.wh-tab {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: 1.5px solid rgba(0,0,0,0.12);
+  background: #fff;
+  color: #71717a;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.wh-tab:hover { border-color: rgba(0,0,0,0.3); color: #111; }
+.wh-tab:focus-visible { outline: 2px solid #111; outline-offset: 2px; }
+
+.wh-tab--active {
+  background: #111;
+  border-color: #111;
+  color: #fff;
+}
+
+/* ── TRACK ──────────────────────────────────────────── */
+
+.wh-track {
+  display: flex;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.wh-track::-webkit-scrollbar { display: none; }
+.wh-track:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
+
+.wh-track__img {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  display: block;
+  user-select: none;
+}
+
+/* ── ARROWS ─────────────────────────────────────────── */
+
+.wh-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.9);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #111;
+  font-size: 1.375rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  transition: opacity 0.15s, background 0.15s;
+  z-index: 2;
+}
+
+.wh-arrow--prev { left: 8px; }
+.wh-arrow--next { right: 8px; }
+.wh-arrow:hover { background: #fff; }
+.wh-arrow:disabled { opacity: 0; pointer-events: none; }
+.wh-arrow:focus-visible { outline: 2px solid #111; outline-offset: 2px; }
+
+.wh-counter {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: rgba(0,0,0,0.6);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  z-index: 2;
+}
+
+/* ── DOTS ───────────────────────────────────────────── */
+
+.wh-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 10px 0 14px;
+}
+
+/* Small visual dot, but a 32px tap target around it. */
+.wh-dot {
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.wh-dot::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 0 50%;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.2);
+  transition: background 0.15s, transform 0.15s;
+}
+
+.wh-dot--active::after { background: #111; transform: scale(1.3); }
+.wh-dot:focus-visible { outline: 2px solid #111; outline-offset: -4px; border-radius: 8px; }
+
+/* ── COPY FALLBACK ──────────────────────────────────── */
+
+.wh-copyfail {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+@media print {
+  .wh-tabs, .wh-dots, .wh-arrow, .wh-counter, .wh-copyfail { display: none !important; }
+  .wh-track { overflow: visible; }
+  /* Print the first photo only. */
+  .wh-track__img:not(:first-child) { display: none; }
 }

@@ -25,7 +25,8 @@ npm install
 npm run dev       # http://localhost:5173
 npm run build     # output → dist/
 npm run preview   # preview the production build locally
-npm test          # pricing + validation tests (Node's built-in runner)
+npm test          # pricing + validation unit tests (Node's built-in runner)
+npm run test:e2e  # full stack: real Pages runtime + browser (needs `npm run build` first)
 ```
 
 ## Project Structure
@@ -146,3 +147,23 @@ itself and points buyers at `levallcworks@gmail.com` — it never fakes a succes
 
 `GET /api/wholesale-request` reports only whether a destination is configured.
 It never returns URLs, keys, or the notification address.
+
+### Testing the submission flow
+
+`npm run test:e2e` builds nothing itself — run `npm run build` first. It then
+boots a stand-in order receiver plus the real Cloudflare Pages runtime
+(`wrangler pages dev`) and drives three suites: the Function's validation,
+pricing, spam guards, and delivery handling; the gallery, tabs, copy link, and
+quantity maths in a real browser; and the whole submit path from form to a row
+landing in the receiver — including the case where delivery fails and the page
+must NOT report success.
+
+Copy `.dev.vars.example` to `.dev.vars` to point a local run at your own
+receiver. `.dev.vars` is gitignored.
+
+### Google Sheet receiver
+
+`docs/wholesale-apps-script.gs` is a ready-to-paste Google Apps Script that
+appends each request as a row in a spreadsheet. Setup steps are in the file
+header. It needs no Google credential on the site's side — the script runs as
+you, and Cloudflare only holds the `/exec` URL and a shared secret.

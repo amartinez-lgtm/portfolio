@@ -115,10 +115,12 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
   const [qtyInput, setQtyInput] = useState(String(offer.minQuantity))
   const [view, setView] = useState<'photo' | '3d'>(photos.length > 0 ? 'photo' : '3d')
   const [imgIdx, setImgIdx] = useState(0)
+  const trackRef = useRef<HTMLDivElement>(null)
   const [backend, setBackend] = useState<Backend>({ state: 'checking' })
   const [submission, setSubmission] = useState<Submission>({ state: 'idle' })
   const [errors, setErrors] = useState<FieldErrors>({})
   const [copied, setCopied] = useState(false)
+  const [showUrl, setShowUrl] = useState(false)
   const mountedAt = useRef(Date.now())
   const formRef = useRef<HTMLFormElement>(null)
   const statusRef = useRef<HTMLDivElement>(null)
@@ -142,17 +144,69 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
 
   const canSubmit = backend.state === 'ready' && submission.state !== 'sending'
 
+  /* ── Photo track ──────────────────────────────────── */
+
+  const goTo = useCallback((i: number) => {
+    const el = trackRef.current
+    const clamped = Math.max(0, Math.min(photos.length - 1, i))
+    setImgIdx(clamped)
+    if (el) el.scrollTo({ left: clamped * el.clientWidth, behavior: 'smooth' })
+  }, [photos.length])
+
+  /* Keep the dots in step with a finger swipe. */
+  const handleTrackScroll = useCallback(() => {
+    const el = trackRef.current
+    if (!el || el.clientWidth === 0) return
+    const i = Math.round(el.scrollLeft / el.clientWidth)
+    setImgIdx((prev) => (i !== prev && i >= 0 && i < photos.length ? i : prev))
+  }, [photos.length])
+
+  /* ── Copy link ────────────────────────────────────── */
+
   const copyLink = useCallback(async () => {
     const url = publicUrl(offer)
+    let ok = false
+
     try {
       await navigator.clipboard.writeText(url)
+      ok = true
     } catch {
-      window.prompt('Copy this link:', url)
-      return
+      // iOS Safari and any non-secure context land here — fall back to a
+      // throwaway textarea, which works without the async clipboard API.
+      try {
+        const ta = document.createElement('textarea')
+        ta.value = url
+        ta.setAttribute('readonly', '')
+        ta.style.position = 'fixed'
+        ta.style.top = '-1000px'
+        document.body.appendChild(ta)
+        ta.select()
+        ta.setSelectionRange(0, url.length)
+        ok = document.execCommand('copy')
+        document.body.removeChild(ta)
+      } catch {
+        ok = false
+      }
     }
-    setCopied(true)
-    window.setTimeout(() => setCopied(false), 2200)
+
+    if (ok) {
+      setCopied(true)
+      setShowUrl(false)
+      window.setTimeout(() => setCopied(false), 2400)
+    } else {
+      // Never claim a copy that did not happen — show the link to copy by hand.
+      setShowUrl(true)
+    }
   }, [offer])
+
+  /* ── Jump to the form and put the cursor in it ────── */
+
+  const goToForm = useCallback(() => {
+    const form = formRef.current
+    if (!form) return
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    window.setTimeout(() => form.querySelector<HTMLElement>('#wh-contact')?.focus(), 450)
+  }, [])
 
   function mailtoFallback(): string {
     const subject = `Wholesale order request — ${offer.productName}`
@@ -266,19 +320,124 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
       </section>
 
       <main className="wh-main">
+        <div className="wh-actions wh-no-print">
+          <button type="button" className="wh-btn wh-btn--outline" onClick={() => window.print()}>
+            Print / Save quote
+          </button>
+          <button type="button" className="wh-btn wh-btn--outline" onClick={copyLink}>
+            {copied ? 'Link copied ✓' : 'Copy link'}
+          </button>
+        </div>
+        {copied && (
+          <p className="wh-actions__note" role="status" aria-live="polite">
+            Public page link copied — no customer details included.
+          </p>
+        )}
+        {showUrl && (
+          <div className="wh-copyfail wh-no-print">
+            <label className="wh-help" htmlFor="wh-url">Copy this link:</label>
+            <input
+              id="wh-url"
+              className="wh-input"
+              readOnly
+              value={publicUrl(offer)}
+              onFocus={(e) => e.currentTarget.select()}
+            />
+          </div>
+        )}
+
         <div className="wh-layout">
           {/* ── Quote: everything needed to pick a quantity, above the fold ── */}
           <section className="wh-card wh-quote" aria-labelledby="wh-quote-h">
             <h2 id="wh-quote-h" className="wh-sr-only">Wholesale pricing and quantity</h2>
 
-            <div className="wh-media">
+            {/* Tabs sit OUTSIDE the media box: an overlay control gets swallowed
+                by the 3D canvas's pointer handling, which trapped people in the
+                3D view with no way back to the photos. */}
+            {photos.length > 0 && product?.model3d && (
+              <div className="wh-tabs" role="tablist" aria-label="Product views">
+                <button
+                  type="button"
+                  role="tab"
+                  id="wh-tab-photos"
+                  aria-selected={view === 'photo'}
+                  aria-controls="wh-panel-media"
+                  className={`wh-tab${view === 'photo' ? ' wh-tab--active' : ''}`}
+                  onClick={() => setView('photo')}
+                >
+                  Photos
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  id="wh-tab-3d"
+                  aria-selected={view === '3d'}
+                  aria-controls="wh-panel-media"
+                  className={`wh-tab${view === '3d' ? ' wh-tab--active' : ''}`}
+                  onClick={() => setView('3d')}
+                >
+                  ◈ 3D Model
+                </button>
+              </div>
+            )}
+
+            <div
+              className="wh-media"
+              id="wh-panel-media"
+              role="tabpanel"
+              aria-labelledby={view === 'photo' ? 'wh-tab-photos' : 'wh-tab-3d'}
+            >
               {view === 'photo' && photos.length > 0 ? (
-                <img
-                  key={photos[imgIdx]}
-                  src={photos[imgIdx]}
-                  alt={`${offer.productName} — photo ${imgIdx + 1} of ${photos.length}`}
-                  className="wh-media__img"
-                />
+                <>
+                  <div
+                    className="wh-track"
+                    ref={trackRef}
+                    onScroll={handleTrackScroll}
+                    tabIndex={0}
+                    role="group"
+                    aria-label={`${offer.productName} photos`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'ArrowRight') { e.preventDefault(); goTo(imgIdx + 1) }
+                      if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(imgIdx - 1) }
+                    }}
+                  >
+                    {photos.map((src, i) => (
+                      <img
+                        key={src}
+                        src={src}
+                        alt={`${offer.productName} — photo ${i + 1} of ${photos.length}`}
+                        className="wh-track__img"
+                        draggable={false}
+                      />
+                    ))}
+                  </div>
+
+                  {photos.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        className="wh-arrow wh-arrow--prev wh-no-print"
+                        aria-label="Previous photo"
+                        disabled={imgIdx === 0}
+                        onClick={() => goTo(imgIdx - 1)}
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        className="wh-arrow wh-arrow--next wh-no-print"
+                        aria-label="Next photo"
+                        disabled={imgIdx === photos.length - 1}
+                        onClick={() => goTo(imgIdx + 1)}
+                      >
+                        ›
+                      </button>
+                      <p className="wh-counter wh-no-print" aria-live="polite">
+                        {imgIdx + 1} / {photos.length}
+                      </p>
+                    </>
+                  )}
+                </>
               ) : product?.model3d ? (
                 <ViewerBoundary fallback={<MediaFallback />}>
                   <Suspense fallback={<MediaFallback loading />}>
@@ -294,32 +453,22 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
               ) : (
                 <MediaFallback />
               )}
-
-              <div className="wh-media__bar wh-no-print">
-                <div className="wh-media__dots" role="group" aria-label="Product photos">
-                  {photos.map((src, i) => (
-                    <button
-                      key={src}
-                      type="button"
-                      className={`wh-dot${view === 'photo' && i === imgIdx ? ' wh-dot--active' : ''}`}
-                      aria-label={`Photo ${i + 1}`}
-                      aria-pressed={view === 'photo' && i === imgIdx}
-                      onClick={() => { setView('photo'); setImgIdx(i) }}
-                    />
-                  ))}
-                </div>
-                {product?.model3d && (
-                  <button
-                    type="button"
-                    className={`wh-media__3d${view === '3d' ? ' wh-media__3d--active' : ''}`}
-                    aria-pressed={view === '3d'}
-                    onClick={() => setView('3d')}
-                  >
-                    ◈ 3D
-                  </button>
-                )}
-              </div>
             </div>
+
+            {photos.length > 1 && view === 'photo' && (
+              <div className="wh-dots wh-no-print" role="group" aria-label="Choose photo">
+                {photos.map((src, i) => (
+                  <button
+                    key={src}
+                    type="button"
+                    className={`wh-dot${i === imgIdx ? ' wh-dot--active' : ''}`}
+                    aria-label={`Photo ${i + 1}`}
+                    aria-current={i === imgIdx}
+                    onClick={() => goTo(i)}
+                  />
+                ))}
+              </div>
+            )}
 
             <div className="wh-pricestrip">
               <div>
@@ -386,9 +535,9 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
               </p>
             </div>
 
-            <a href="#wh-form-h" className="wh-btn wh-btn--primary wh-jump wh-no-print">
+            <button type="button" className="wh-btn wh-btn--primary wh-jump wh-no-print" onClick={goToForm}>
               Continue to order request&nbsp;↓
-            </a>
+            </button>
           </section>
 
           {/* ── Details ─────────────────────────────── */}
@@ -411,17 +560,6 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
               branding, or packaging are quoted separately. Pricing revision: {offer.pricingRevision}.
             </p>
 
-            <div className="wh-actions wh-no-print">
-              <button type="button" className="wh-btn wh-btn--outline" onClick={() => window.print()}>
-                Print / Save quote
-              </button>
-              <button type="button" className="wh-btn wh-btn--outline" onClick={copyLink}>
-                {copied ? 'Link copied ✓' : 'Copy link'}
-              </button>
-            </div>
-            <span className="wh-actions__note" role="status" aria-live="polite">
-              {copied ? 'Public page link copied — no customer details included.' : ''}
-            </span>
           </section>
 
           {/* ── Request form ────────────────────────── */}

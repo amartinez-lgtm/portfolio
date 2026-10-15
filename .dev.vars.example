@@ -1,0 +1,4 @@
+# Copy to .dev.vars for local `wrangler pages dev` runs.
+# .dev.vars is gitignored — never commit real values.
+WHOLESALE_WEBHOOK_URL="http://localhost:4191/exec"
+WHOLESALE_WEBHOOK_SECRET="test-secret-123"

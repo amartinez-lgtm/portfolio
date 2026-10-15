@@ -66,9 +66,23 @@ function json(body: unknown, status = 200): Response {
 
 const hits = new Map<string, number[]>()
 
+function recentHits(ip: string, now: number): number[] {
+  return (hits.get(ip) ?? []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS)
+}
+
+/** Read-only check — a rejected request must not consume anyone's budget. */
 function rateLimited(ip: string): boolean {
+  return recentHits(ip, Date.now()).length >= RATE_LIMIT_MAX
+}
+
+/**
+ * Counted only once a request is valid and about to be delivered. A shop that
+ * mistypes its email five times would otherwise lock itself out for ten
+ * minutes, which is a terrible way to greet a buyer.
+ */
+function recordHit(ip: string): void {
   const now = Date.now()
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS)
+  const recent = recentHits(ip, now)
   recent.push(now)
   hits.set(ip, recent)
   if (hits.size > 500) {
@@ -76,7 +90,6 @@ function rateLimited(ip: string): boolean {
       if (times.every((t) => now - t >= RATE_LIMIT_WINDOW_MS)) hits.delete(key)
     }
   }
-  return recent.length > RATE_LIMIT_MAX
 }
 
 /* ── Reference id ───────────────────────────────────── */
@@ -158,12 +171,32 @@ function escapeHtml(s: string): string {
 async function deliverWebhook(env: Env, payload: Payload): Promise<void> {
   const headers: Record<string, string> = { 'content-type': 'application/json' }
   if (env.WHOLESALE_WEBHOOK_SECRET) headers['x-xyz-webhook-secret'] = env.WHOLESALE_WEBHOOK_SECRET
+
+  // Google Apps Script cannot read custom request headers, so the secret also
+  // rides in the body. It is attached here only — never stored in KV or email.
+  const body = env.WHOLESALE_WEBHOOK_SECRET
+    ? { ...payload, secret: env.WHOLESALE_WEBHOOK_SECRET }
+    : payload
+
   const res = await fetch(env.WHOLESALE_WEBHOOK_URL as string, {
     method: 'POST',
     headers,
-    body: JSON.stringify(payload),
+    body: JSON.stringify(body),
   })
   if (!res.ok) throw new Error(`webhook responded ${res.status}`)
+
+  // Apps Script always answers 200, even when it rejected the request, so a
+  // JSON body saying {"ok": false} still counts as a failed delivery.
+  const text = await res.text()
+  if (text.trim().startsWith('{')) {
+    try {
+      const parsed = JSON.parse(text) as { ok?: unknown }
+      if (parsed.ok === false) throw new Error('webhook rejected the request')
+    } catch (err) {
+      if (err instanceof Error && err.message === 'webhook rejected the request') throw err
+      // Unparseable body from a generic webhook that returned 2xx — accept it.
+    }
+  }
 }
 
 async function deliverEmail(env: Env, payload: Payload): Promise<void> {
@@ -279,6 +312,8 @@ export async function onRequestPost({ request, env }: RequestContext): Promise<R
       503,
     )
   }
+
+  recordHit(ip)
 
   const reference = makeReference(isoToday())
   const payload = buildPayload(offer, result.value, reference)
