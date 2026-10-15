@@ -107,7 +107,14 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
     [offer.productId],
   )
 
+  const photos = useMemo(
+    () => [product?.image, ...(product?.images ?? [])].filter(Boolean) as string[],
+    [product],
+  )
+
   const [qtyInput, setQtyInput] = useState(String(offer.minQuantity))
+  const [view, setView] = useState<'photo' | '3d'>(photos.length > 0 ? 'photo' : '3d')
+  const [imgIdx, setImgIdx] = useState(0)
   const [backend, setBackend] = useState<Backend>({ state: 'checking' })
   const [submission, setSubmission] = useState<Submission>({ state: 'idle' })
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -259,23 +266,20 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
       </section>
 
       <main className="wh-main">
-        <div className="wh-actions wh-no-print">
-          <button type="button" className="wh-btn wh-btn--outline" onClick={() => window.print()}>
-            Print / Save quote
-          </button>
-          <button type="button" className="wh-btn wh-btn--outline" onClick={copyLink}>
-            {copied ? 'Link copied ✓' : 'Copy link'}
-          </button>
-          <span className="wh-actions__note" role="status" aria-live="polite">
-            {copied ? 'Public page link copied — no customer details included.' : ''}
-          </span>
-        </div>
-
         <div className="wh-layout">
-          {/* ── Product ─────────────────────────────── */}
-          <section className="wh-card wh-product" aria-labelledby="wh-product-h">
-            <div className="wh-product__media wh-no-print">
-              {product?.model3d ? (
+          {/* ── Quote: everything needed to pick a quantity, above the fold ── */}
+          <section className="wh-card wh-quote" aria-labelledby="wh-quote-h">
+            <h2 id="wh-quote-h" className="wh-sr-only">Wholesale pricing and quantity</h2>
+
+            <div className="wh-media">
+              {view === 'photo' && photos.length > 0 ? (
+                <img
+                  key={photos[imgIdx]}
+                  src={photos[imgIdx]}
+                  alt={`${offer.productName} — photo ${imgIdx + 1} of ${photos.length}`}
+                  className="wh-media__img"
+                />
+              ) : product?.model3d ? (
                 <ViewerBoundary fallback={<MediaFallback />}>
                   <Suspense fallback={<MediaFallback loading />}>
                     <Model3DViewer
@@ -287,49 +291,51 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
                     />
                   </Suspense>
                 </ViewerBoundary>
-              ) : product?.image ? (
-                <img src={product.image} alt={offer.productName} className="wh-product__img" />
               ) : (
                 <MediaFallback />
               )}
-            </div>
 
-            <h2 id="wh-product-h" className="wh-card__title">{offer.productName}</h2>
-            {product && <p className="wh-product__desc">{product.description}</p>}
-
-            <h3 className="wh-subhead">Quoted configuration</h3>
-            <ul className="wh-list">
-              {offer.configuration.map((c) => <li key={c}>{c}</li>)}
-            </ul>
-            <p className="wh-fineprint">
-              This quote covers exactly the configuration above. Custom colors, branding, or
-              packaging are quoted separately.
-            </p>
-          </section>
-
-          {/* ── Pricing ─────────────────────────────── */}
-          <section className="wh-card wh-pricing" aria-labelledby="wh-pricing-h">
-            <h2 id="wh-pricing-h" className="wh-card__title">Wholesale pricing</h2>
-
-            <div className="wh-pricerow">
-              <div>
-                <span className="wh-pricerow__label">Wholesale price</span>
-                <span className="wh-pricerow__value">{formatUSD(offer.unitPriceCents)}<span className="wh-pricerow__unit"> / unit</span></span>
-              </div>
-              <div>
-                <span className="wh-pricerow__label">Minimum order</span>
-                <span className="wh-pricerow__value">{offer.minQuantity}<span className="wh-pricerow__unit"> units</span></span>
-              </div>
-              <div>
-                <span className="wh-pricerow__label">Suggested retail</span>
-                <span className="wh-pricerow__value">{formatUSD(offer.suggestedRetailCents)}<span className="wh-pricerow__unit"> each</span></span>
+              <div className="wh-media__bar wh-no-print">
+                <div className="wh-media__dots" role="group" aria-label="Product photos">
+                  {photos.map((src, i) => (
+                    <button
+                      key={src}
+                      type="button"
+                      className={`wh-dot${view === 'photo' && i === imgIdx ? ' wh-dot--active' : ''}`}
+                      aria-label={`Photo ${i + 1}`}
+                      aria-pressed={view === 'photo' && i === imgIdx}
+                      onClick={() => { setView('photo'); setImgIdx(i) }}
+                    />
+                  ))}
+                </div>
+                {product?.model3d && (
+                  <button
+                    type="button"
+                    className={`wh-media__3d${view === '3d' ? ' wh-media__3d--active' : ''}`}
+                    aria-pressed={view === '3d'}
+                    onClick={() => setView('3d')}
+                  >
+                    ◈ 3D
+                  </button>
+                )}
               </div>
             </div>
-            <p className="wh-fineprint">
-              Suggested retail is guidance only — you set your own selling price.
-            </p>
 
-            <h3 className="wh-subhead">Quantity</h3>
+            <div className="wh-pricestrip">
+              <div>
+                <strong>{formatUSD(offer.unitPriceCents)}</strong>
+                <span>per unit</span>
+              </div>
+              <div>
+                <strong>{offer.minQuantity}</strong>
+                <span>minimum</span>
+              </div>
+              <div>
+                <strong>{formatUSD(offer.suggestedRetailCents)}</strong>
+                <span>suggested retail</span>
+              </div>
+            </div>
+
             <div className="wh-quick" role="group" aria-label="Quick quantity selection">
               {offer.quickQuantities.map((q) => (
                 <button
@@ -345,9 +351,9 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
               ))}
             </div>
 
-            <div className="wh-field">
+            <div className="wh-field wh-qty-field">
               <label className="wh-label" htmlFor="wh-qty">
-                Quantity (units) <span className="wh-req" aria-hidden="true">*</span>
+                Or enter your own quantity <span className="wh-req" aria-hidden="true">*</span>
               </label>
               <input
                 id="wh-qty"
@@ -365,12 +371,8 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
                 aria-invalid={!qty.ok}
                 onChange={(e) => setQtyInput(e.target.value)}
               />
-              <p id="wh-qty-help" className="wh-help">
-                Whole units, minimum {offer.minQuantity}.
-              </p>
-              <p id="wh-qty-err" className="wh-err" role="alert">
-                {qty.ok ? '' : qty.error}
-              </p>
+              <p id="wh-qty-help" className="wh-help">Whole units, minimum {offer.minQuantity}.</p>
+              <p id="wh-qty-err" className="wh-err" role="alert">{qty.ok ? '' : qty.error}</p>
             </div>
 
             <div className="wh-subtotal" aria-live="polite">
@@ -379,18 +381,47 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
                 <strong className="wh-subtotal__value">{qty.ok ? formatUSD(subtotalCents) : '—'}</strong>
               </div>
               <p className="wh-subtotal__note">
-                Merchandise subtotal only. <strong>Shipping and any applicable taxes are additional</strong> and
+                Merchandise only. <strong>Shipping and any applicable taxes are additional</strong> and
                 confirmed separately.
               </p>
             </div>
+
+            <a href="#wh-form-h" className="wh-btn wh-btn--primary wh-jump wh-no-print">
+              Continue to order request&nbsp;↓
+            </a>
+          </section>
+
+          {/* ── Details ─────────────────────────────── */}
+          <section className="wh-card wh-details" aria-labelledby="wh-details-h">
+            <h2 id="wh-details-h" className="wh-card__title">{offer.productName}</h2>
+            {product && <p className="wh-product__desc">{product.description}</p>}
+
+            <h3 className="wh-subhead">Quoted configuration</h3>
+            <ul className="wh-list">
+              {offer.configuration.map((c) => <li key={c}>{c}</li>)}
+            </ul>
 
             <h3 className="wh-subhead">Proposed terms</h3>
             <ul className="wh-list">
               {offer.terms.map((t) => <li key={t}>{t}</li>)}
             </ul>
+
             <p className="wh-fineprint">
-              Pricing revision: {offer.pricingRevision}. Preliminary and subject to final confirmation.
+              Suggested retail is guidance only — you set your own selling price. Custom colors,
+              branding, or packaging are quoted separately. Pricing revision: {offer.pricingRevision}.
             </p>
+
+            <div className="wh-actions wh-no-print">
+              <button type="button" className="wh-btn wh-btn--outline" onClick={() => window.print()}>
+                Print / Save quote
+              </button>
+              <button type="button" className="wh-btn wh-btn--outline" onClick={copyLink}>
+                {copied ? 'Link copied ✓' : 'Copy link'}
+              </button>
+            </div>
+            <span className="wh-actions__note" role="status" aria-live="polite">
+              {copied ? 'Public page link copied — no customer details included.' : ''}
+            </span>
           </section>
 
           {/* ── Request form ────────────────────────── */}

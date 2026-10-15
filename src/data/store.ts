@@ -46,6 +46,8 @@ export const storeProducts: StoreProduct[] = [
       'Countertop pump dispenser in a cylindrical form. Pairs with the paper towel dispenser. Standard pump thread.',
     price: 'Made to Order',
     tags: ['Home', 'Kitchen', 'Bathroom'],
+    image: '/products/soap-1.jpg',
+    images: ['/products/soap-2.jpg', '/products/soap-3.jpg'],
     model3d: {
       parts: [
         { label: 'Body', url: '/products/soap-part-1.3mf' },

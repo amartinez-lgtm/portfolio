@@ -62,7 +62,7 @@ html, body {
 .wh-hero__inner {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 52px 24px 44px;
+  padding: 28px 20px 24px;
 }
 
 .wh-eyebrow {
@@ -72,24 +72,24 @@ html, body {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #9c6b38;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
 .wh-headline {
-  font-size: clamp(2rem, 5.5vw, 3rem);
+  font-size: clamp(1.75rem, 6vw, 2.75rem);
   font-weight: 900;
   letter-spacing: -0.04em;
   line-height: 1.05;
   color: #111;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .wh-sub {
   font-size: 1rem;
   color: #52525b;
-  line-height: 1.7;
+  line-height: 1.6;
   max-width: 520px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .wh-prelim {
@@ -118,7 +118,7 @@ html, body {
 .wh-main {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 28px 24px 80px;
+  padding: 16px 20px 72px;
 }
 
 .wh-main--empty { text-align: center; padding-top: 72px; }
@@ -128,7 +128,7 @@ html, body {
 
 .wh-layout {
   display: grid;
-  gap: 20px;
+  gap: 16px;
   grid-template-columns: 1fr;
 }
 
@@ -136,7 +136,7 @@ html, body {
   background: #fff;
   border: 1px solid rgba(0,0,0,0.08);
   border-radius: 16px;
-  padding: 24px;
+  padding: 18px;
 }
 
 .wh-card__title {
@@ -153,7 +153,7 @@ html, body {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #a1a1aa;
-  margin: 22px 0 10px;
+  margin: 18px 0 9px;
 }
 
 .wh-list {
@@ -610,4 +610,187 @@ html, body {
   .wh-contact-line { margin-top: 16px; text-align: left; }
 
   a[href^="mailto:"]::after { content: ''; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   COMPACT QUOTE CARD
+   Everything a buyer needs to pick a quantity has to fit
+   on one phone screen, so the media stays small and the
+   quantity + subtotal sit directly under it.
+   ═══════════════════════════════════════════════════════ */
+
+.wh-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── MEDIA ──────────────────────────────────────────── */
+
+.wh-media {
+  position: relative;
+  background: #111;
+  border-radius: 12px;
+  overflow: hidden;
+  height: clamp(132px, 34vw, 210px);
+  margin-bottom: 14px;
+}
+
+.wh-media__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* The 3D viewer fills the box the same way a photo does. */
+.wh-media .mv-wrap,
+.wh-media > div:first-child {
+  height: 100%;
+}
+
+.wh-media__bar {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.wh-media__bar > * { pointer-events: auto; }
+
+.wh-media__dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wh-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.wh-dot--active { background: #fff; transform: scale(1.25); }
+.wh-dot:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+.wh-media__3d {
+  padding: 5px 11px;
+  border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wh-media__3d--active { background: #fff; color: #111; border-color: #fff; }
+.wh-media__3d:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* ── PRICE STRIP ────────────────────────────────────── */
+
+.wh-pricestrip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #fef9ec 0%, #fde8f5 55%, #ede9fe 100%);
+  border: 1px solid rgba(0,0,0,0.05);
+  margin-bottom: 14px;
+}
+
+.wh-pricestrip > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.wh-pricestrip strong {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #111;
+}
+
+.wh-pricestrip span {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #78716c;
+}
+
+/* ── TIGHTER QUANTITY BLOCK ─────────────────────────── */
+
+.wh-quote .wh-quick { margin-bottom: 12px; gap: 7px; }
+.wh-quote .wh-quick__btn { padding: 9px 11px; }
+.wh-qty-field { margin-bottom: 12px; }
+.wh-quote .wh-subtotal { margin-top: 0; padding: 13px 14px; }
+.wh-quote .wh-subtotal__value { font-size: 1.5rem; }
+
+.wh-jump {
+  margin-top: 14px;
+  width: 100%;
+}
+
+/* ── DETAILS CARD ───────────────────────────────────── */
+
+.wh-details .wh-actions { margin-top: 20px; margin-bottom: 0; }
+.wh-details .wh-actions .wh-btn { flex: 1; }
+
+/* ── RESPONSIVE OVERRIDES ───────────────────────────── */
+
+@media (max-width: 639px) {
+  /* The strapline is restated by the product card below — drop it so the
+     quantity controls clear the fold on a phone with browser chrome. */
+  .wh-sub { display: none; }
+  .wh-hero__inner { padding: 15px 20px 15px; }
+  .wh-eyebrow { font-size: 0.625rem; margin-bottom: 6px; }
+  .wh-headline { font-size: 1.5rem; margin-bottom: 8px; }
+  .wh-prelim { font-size: 0.6875rem; padding: 4px 11px; }
+  .wh-main { padding-top: 12px; }
+  .wh-card { padding: 15px; }
+  .wh-pricestrip { padding: 9px 11px; margin-bottom: 12px; }
+  .wh-quote .wh-quick__btn { padding: 8px 10px; }
+}
+
+@media (min-width: 900px) {
+  .wh-media { height: 280px; }
+  .wh-jump { display: none; }
+}
+
+/* ── PRINT ──────────────────────────────────────────── */
+
+@media print {
+  .wh-media {
+    height: 220px;
+    background: none;
+    border: 1px solid #ddd;
+    break-inside: avoid;
+  }
+  .wh-media__img { object-fit: contain; }
+  .wh-pricestrip { background: none; border: 1px solid #ddd; }
+  .wh-jump { display: none !important; }
 }

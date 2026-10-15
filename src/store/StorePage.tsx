@@ -31,7 +31,12 @@ function handleOrderEmail(product: StoreProduct) {
 
 function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: () => void }) {
   const [imgIdx, setImgIdx] = useState(0)
-  const [view, setView] = useState<'3d' | 'photos'>(product.model3d ? '3d' : 'photos')
+  // Prefer a real photo when one exists — it renders instantly and is what a
+  // buyer wants first; the 3D model is one tap away.
+  const hasPhotos = Boolean(product.image) || (product.images?.length ?? 0) > 0
+  const [view, setView] = useState<'3d' | 'photos'>(
+    hasPhotos ? 'photos' : product.model3d ? '3d' : 'photos',
+  )
   const touchStartY = useRef(0)
   const isComingSoon = product.status === 'coming-soon'
   const wholesaleOffer = getOfferForProduct(product.id)
@@ -150,22 +155,26 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
           >
             Request Order
           </button>
-          {product.stlStatus && (
-            product.stlStatus === 'available' && product.downloadUrl ? (
-              <a href={product.downloadUrl} className="sp-btn sp-btn--outline" download>
-                Download STL — Free
-              </a>
-            ) : (
-              <button className="sp-btn sp-btn--outline" disabled>
-                Download STL — Coming Soon
-              </button>
-            )
-          )}
-          {wholesaleOffer && (
-            <a href={`/wholesale/${wholesaleOffer.slug}`} className="sp-btn sp-btn--outline">
-              Wholesale pricing
+
+          {/* An available STL is a real action; a pending one is just a note,
+              so it reads as text instead of a dead button. */}
+          {product.stlStatus === 'available' && product.downloadUrl && (
+            <a href={product.downloadUrl} className="sp-btn sp-btn--outline" download>
+              Download STL — Free
             </a>
           )}
+
+          {wholesaleOffer && (
+            <a href={`/wholesale/${wholesaleOffer.slug}`} className="sp-drawer__wholesale">
+              <span className="sp-drawer__wholesale-label">Buying for a shop?</span>
+              <span className="sp-drawer__wholesale-go">Wholesale pricing&nbsp;→</span>
+            </a>
+          )}
+
+          {product.stlStatus === 'coming-soon' && (
+            <p className="sp-drawer__note">Free STL download coming soon.</p>
+          )}
+
           <button className="sp-drawer__cancel" onClick={onClose}>Cancel</button>
         </div>
       </div>
