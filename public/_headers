@@ -27,3 +27,7 @@
   Cache-Control: no-store
 /token/
   Cache-Control: no-store
+/wholesale
+  Cache-Control: no-store
+/wholesale/*
+  Cache-Control: no-store
