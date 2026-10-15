@@ -902,3 +902,24 @@ html, body {
   /* Print the first photo only. */
   .wh-track__img:not(:first-child) { display: none; }
 }
+
+.wh-notice--info {
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  color: #1e3a8a;
+}
+
+.wh-handoff {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.wh-handoff .wh-textarea {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: #fff;
+}
+
+.wh-handoff .wh-btn { width: auto; align-self: flex-start; }

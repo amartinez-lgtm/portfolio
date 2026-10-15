@@ -12,7 +12,8 @@ import {
   isoToday,
   WHOLESALE_CONTACT_EMAIL,
 } from '../data/wholesale'
-import type { FieldErrors, WholesaleOffer } from '../data/wholesale'
+import type { FieldErrors, WholesaleOffer, WholesaleRequestValue } from '../data/wholesale'
+import PhotoGallery from '../store/PhotoGallery'
 import './WholesalePage.css'
 
 const Model3DViewer = lazy(() => import('../store/Model3DViewer').catch(() => import('../store/Model3DViewer')))
@@ -37,6 +38,7 @@ type Submission =
   | { state: 'idle' }
   | { state: 'sending' }
   | { state: 'sent'; reference: string; quantity: number; subtotalCents: number }
+  | { state: 'handoff'; text: string }
   | { state: 'failed'; message: string }
 
 const FIELD_ORDER = [
@@ -114,8 +116,6 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
 
   const [qtyInput, setQtyInput] = useState(String(offer.minQuantity))
   const [view, setView] = useState<'photo' | '3d'>(photos.length > 0 ? 'photo' : '3d')
-  const [imgIdx, setImgIdx] = useState(0)
-  const trackRef = useRef<HTMLDivElement>(null)
   const [backend, setBackend] = useState<Backend>({ state: 'checking' })
   const [submission, setSubmission] = useState<Submission>({ state: 'idle' })
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -142,24 +142,10 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
     return () => { alive = false }
   }, [])
 
-  const canSubmit = backend.state === 'ready' && submission.state !== 'sending'
-
-  /* ── Photo track ──────────────────────────────────── */
-
-  const goTo = useCallback((i: number) => {
-    const el = trackRef.current
-    const clamped = Math.max(0, Math.min(photos.length - 1, i))
-    setImgIdx(clamped)
-    if (el) el.scrollTo({ left: clamped * el.clientWidth, behavior: 'smooth' })
-  }, [photos.length])
-
-  /* Keep the dots in step with a finger swipe. */
-  const handleTrackScroll = useCallback(() => {
-    const el = trackRef.current
-    if (!el || el.clientWidth === 0) return
-    const i = Math.round(el.scrollLeft / el.clientWidth)
-    setImgIdx((prev) => (i !== prev && i >= 0 && i < photos.length ? i : prev))
-  }, [photos.length])
+  const canSubmit = submission.state !== 'sending' && backend.state !== 'checking'
+  /* No server destination configured yet, so a submit hands the filled-in
+     request to the buyer's email client instead of silently going nowhere. */
+  const emailHandoff = backend.state === 'unconfigured' || backend.state === 'unreachable'
 
   /* ── Copy link ────────────────────────────────────── */
 
@@ -208,22 +194,32 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
     window.setTimeout(() => form.querySelector<HTMLElement>('#wh-contact')?.focus(), 450)
   }, [])
 
-  function mailtoFallback(): string {
-    const subject = `Wholesale order request — ${offer.productName}`
-    const body = [
-      `Product: ${offer.productName}`,
-      `Configuration: ${offer.configuration.join('; ')}`,
-      `Quantity: ${qty.ok ? quantity : offer.minQuantity} units`,
-      `Wholesale unit price: ${formatUSD(offer.unitPriceCents)}`,
-      `Merchandise subtotal: ${formatUSD(qty.ok ? subtotalCents : merchandiseSubtotalCents(offer, offer.minQuantity))} (excludes shipping and applicable taxes)`,
+  /** Plain-text request, used for the email handoff and the copy button. */
+  function requestText(v?: WholesaleRequestValue): string {
+    const q = v ? v.quantity : qty.ok ? quantity : offer.minQuantity
+    return [
+      `Wholesale order request — ${offer.productName}`,
       '',
-      'Shop/business name:',
-      'Contact name:',
-      'Delivery city + ZIP/postal code:',
-      'Preferred delivery date (request):',
-      'Notes:',
+      `Shop/business name: ${v?.shopName ?? ''}`,
+      `Contact name: ${v?.contactName ?? ''}`,
+      `Email: ${v?.email ?? ''}`,
+      `Delivery city: ${v?.deliveryCity ?? ''}`,
+      `ZIP/postal code: ${v?.deliveryPostalCode ?? ''}`,
+      `Preferred delivery date (a request, not a commitment): ${v?.preferredDeliveryDate || '—'}`,
+      '',
+      `Quantity: ${q} units`,
+      `Wholesale unit price: ${formatUSD(offer.unitPriceCents)}`,
+      `Merchandise subtotal: ${formatUSD(merchandiseSubtotalCents(offer, q))}`,
+      '(Excludes shipping and any applicable taxes. Preliminary, subject to final confirmation.)',
+      `Configuration: ${offer.configuration.join('; ')}`,
+      '',
+      `Notes: ${v?.notes || '—'}`,
     ].join('\n')
-    return `mailto:${WHOLESALE_CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+  }
+
+  function mailtoFallback(v?: WholesaleRequestValue): string {
+    const subject = `Wholesale order request — ${offer.productName}`
+    return `mailto:${WHOLESALE_CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(requestText(v))}`
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -252,6 +248,23 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
     }
 
     setErrors({})
+
+    if (emailHandoff) {
+      // Hand the completed request to their mail client. We never claim it was
+      // submitted — the banner tells them they still have to press send.
+      const text = requestText(local.value)
+      // A real anchor click, not a location assignment: iOS Safari blocks the
+      // latter for mailto inside an async handler.
+      const a = document.createElement('a')
+      a.href = mailtoFallback(local.value)
+      a.style.display = 'none'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      setSubmission({ state: 'handoff', text })
+      return
+    }
+
     setSubmission({ state: 'sending' })
 
     try {
@@ -388,56 +401,7 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
               aria-labelledby={view === 'photo' ? 'wh-tab-photos' : 'wh-tab-3d'}
             >
               {view === 'photo' && photos.length > 0 ? (
-                <>
-                  <div
-                    className="wh-track"
-                    ref={trackRef}
-                    onScroll={handleTrackScroll}
-                    tabIndex={0}
-                    role="group"
-                    aria-label={`${offer.productName} photos`}
-                    onKeyDown={(e) => {
-                      if (e.key === 'ArrowRight') { e.preventDefault(); goTo(imgIdx + 1) }
-                      if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(imgIdx - 1) }
-                    }}
-                  >
-                    {photos.map((src, i) => (
-                      <img
-                        key={src}
-                        src={src}
-                        alt={`${offer.productName} — photo ${i + 1} of ${photos.length}`}
-                        className="wh-track__img"
-                        draggable={false}
-                      />
-                    ))}
-                  </div>
-
-                  {photos.length > 1 && (
-                    <>
-                      <button
-                        type="button"
-                        className="wh-arrow wh-arrow--prev wh-no-print"
-                        aria-label="Previous photo"
-                        disabled={imgIdx === 0}
-                        onClick={() => goTo(imgIdx - 1)}
-                      >
-                        ‹
-                      </button>
-                      <button
-                        type="button"
-                        className="wh-arrow wh-arrow--next wh-no-print"
-                        aria-label="Next photo"
-                        disabled={imgIdx === photos.length - 1}
-                        onClick={() => goTo(imgIdx + 1)}
-                      >
-                        ›
-                      </button>
-                      <p className="wh-counter wh-no-print" aria-live="polite">
-                        {imgIdx + 1} / {photos.length}
-                      </p>
-                    </>
-                  )}
-                </>
+                <PhotoGallery photos={photos} alt={offer.productName} />
               ) : product?.model3d ? (
                 <ViewerBoundary fallback={<MediaFallback />}>
                   <Suspense fallback={<MediaFallback loading />}>
@@ -454,21 +418,6 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
                 <MediaFallback />
               )}
             </div>
-
-            {photos.length > 1 && view === 'photo' && (
-              <div className="wh-dots wh-no-print" role="group" aria-label="Choose photo">
-                {photos.map((src, i) => (
-                  <button
-                    key={src}
-                    type="button"
-                    className={`wh-dot${i === imgIdx ? ' wh-dot--active' : ''}`}
-                    aria-label={`Photo ${i + 1}`}
-                    aria-current={i === imgIdx}
-                    onClick={() => goTo(i)}
-                  />
-                ))}
-              </div>
-            )}
 
             <div className="wh-pricestrip">
               <div>
@@ -570,22 +519,13 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
               place a paid order, take payment, or reserve production time.
             </p>
 
-            {backend.state === 'unconfigured' && (
-              <div className="wh-notice wh-notice--warn" role="status">
-                <strong>Online submission isn’t switched on yet.</strong>
+            {emailHandoff && submission.state !== 'handoff' && (
+              <div className="wh-notice wh-notice--info" role="status">
+                <strong>Requests are handled by email right now.</strong>
                 <span>
-                  Rather than pretend a request went through, the form is disabled. Send the same
-                  details to{' '}
-                  <a href={mailtoFallback()}>{WHOLESALE_CONTACT_EMAIL}</a> and you’ll get the same reply.
-                </span>
-              </div>
-            )}
-            {backend.state === 'unreachable' && (
-              <div className="wh-notice wh-notice--warn" role="status">
-                <strong>Can’t reach the request service.</strong>
-                <span>
-                  Reload the page, or email{' '}
-                  <a href={mailtoFallback()}>{WHOLESALE_CONTACT_EMAIL}</a> directly.
+                  Fill this in as normal — pressing the button opens your email app with every
+                  detail already written out, addressed to {WHOLESALE_CONTACT_EMAIL}. You send it,
+                  and it reaches Avelino directly.
                 </span>
               </div>
             )}
@@ -606,6 +546,23 @@ function Quote({ offer }: { offer: WholesaleOffer }) {
                     availability, lead time, shipping cost, and a final quote. Nothing is charged
                     and no production is reserved yet.
                   </span>
+                </div>
+              )}
+              {submission.state === 'handoff' && (
+                <div className="wh-notice wh-notice--info">
+                  <strong>Your request is ready in your email app.</strong>
+                  <span>
+                    It is not sent yet — press send in your mail app and it goes straight to
+                    {' '}{WHOLESALE_CONTACT_EMAIL}. Nothing is charged and no production is
+                    reserved. If your mail app did not open, copy the details below instead.
+                  </span>
+                  <div className="wh-handoff">
+                    <textarea className="wh-input wh-textarea" readOnly rows={8} value={submission.text}
+                      onFocus={(e) => e.currentTarget.select()} aria-label="Your wholesale request" />
+                    <a className="wh-btn wh-btn--outline" href={`mailto:${WHOLESALE_CONTACT_EMAIL}?subject=${encodeURIComponent(`Wholesale order request — ${offer.productName}`)}&body=${encodeURIComponent(submission.text)}`}>
+                      Open email again
+                    </a>
+                  </div>
                 </div>
               )}
               {submission.state === 'failed' && (

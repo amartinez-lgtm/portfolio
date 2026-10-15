@@ -2,6 +2,7 @@ import { useState, useRef, lazy, Suspense, Component, type ReactNode } from 'rea
 import { storeProducts } from '../data/store'
 import type { StoreProduct } from '../data/store'
 import { getOfferForProduct } from '../data/wholesale'
+import PhotoGallery from './PhotoGallery'
 import './StorePage.css'
 
 // Retry once on failure — handles transient network errors loading the large Three.js chunk
@@ -30,7 +31,6 @@ function handleOrderEmail(product: StoreProduct) {
 }
 
 function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: () => void }) {
-  const [imgIdx, setImgIdx] = useState(0)
   // Prefer a real photo when one exists — it renders instantly and is what a
   // buyer wants first; the 3D model is one tap away.
   const hasPhotos = Boolean(product.image) || (product.images?.length ?? 0) > 0
@@ -100,26 +100,7 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
               </Suspense>
             </ViewerBoundary>
           ) : allImages.length > 0 ? (
-            <>
-              <img
-                key={allImages[imgIdx]}
-                src={allImages[imgIdx]}
-                alt={product.name}
-                className="sp-drawer__img"
-              />
-              {allImages.length > 1 && (
-                <div className="sp-drawer__dots">
-                  {allImages.map((_, i) => (
-                    <button
-                      key={i}
-                      className={`sp-dot${i === imgIdx ? ' sp-dot--active' : ''}`}
-                      onClick={() => setImgIdx(i)}
-                      aria-label={`Photo ${i + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
+            <PhotoGallery photos={allImages} alt={product.name} />
           ) : (
             <div className="sp-drawer__no-img">
               <span aria-hidden="true">{product.type === 'digital' ? '⬡' : '◈'}</span>

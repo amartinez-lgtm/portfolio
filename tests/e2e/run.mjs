@@ -14,6 +14,7 @@ import { spawn } from 'node:child_process'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const API = 'http://127.0.0.1:4180/api/wholesale-request'
+const API_BARE = 'http://127.0.0.1:4182/api/wholesale-request'
 const procs = []
 
 function start(name, cmd, args, env = {}) {
@@ -47,14 +48,30 @@ try {
   start('receiver', process.execPath, [new URL('./receiver.mjs', import.meta.url).pathname])
   await waitFor('http://127.0.0.1:4191/rows', 'order receiver', 15_000)
 
+  // Bindings are passed explicitly rather than read from .dev.vars, so a fresh
+  // checkout runs the suite without any local setup.
   start('wrangler', 'npx', [
     '--yes', 'wrangler@3', 'pages', 'dev', 'dist',
     '--port', '4180', '--ip', '127.0.0.1', '--compatibility-date=2024-09-23',
+    // Distinct inspector ports — two instances otherwise fight over 9229.
+    '--inspector-port', '9230',
+    '--binding', 'WHOLESALE_WEBHOOK_URL=http://127.0.0.1:4191/exec',
+    '--binding', 'WHOLESALE_WEBHOOK_SECRET=test-secret-123',
   ])
+
+  // A second instance with NO destination configured, to prove the page stays
+  // usable and never fakes a submission.
+  start('wrangler-bare', 'npx', [
+    '--yes', 'wrangler@3', 'pages', 'dev', 'dist',
+    '--port', '4182', '--ip', '127.0.0.1', '--compatibility-date=2024-09-23',
+    '--inspector-port', '9231',
+  ])
+
   await waitFor(API, 'wrangler pages dev')
+  await waitFor(API_BARE, 'wrangler pages dev (no destination)')
 
   let failed = 0
-  for (const suite of ['./api.mjs', './ui.mjs', './submit.mjs']) {
+  for (const suite of ['./api.mjs', './ui.mjs', './store.mjs', './submit.mjs', './handoff.mjs']) {
     console.log(`\n═══ ${suite.replace('./', '')} ═══`)
     failed += await run(suite)
   }

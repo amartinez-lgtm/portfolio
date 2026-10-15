@@ -459,3 +459,40 @@ is honestly disabled.
 - Configure a wholesale delivery destination, then re-test the form end to end
 - Add a product photo for the soap dispenser (the store and wholesale page both want one)
 - More wholesale sheets — each one is a new entry in `wholesaleOffers`
+
+### Session 12 (Shared gallery, working form fallback, real e2e suite)
+
+**The store drawer gallery was never fixed** — Session 11's swipe work only landed on the
+wholesale page, so `/store` still had the old static image + 8px dots. Fixed properly by
+extracting ONE component both pages use:
+
+- `src/store/PhotoGallery.tsx` + `.css` (`pg-` prefix) — scroll-snap track (native swipe
+  with momentum), arrow buttons, `1 / 3` counter, arrow-key support, dots with 32px tap
+  targets. Used by the store drawer AND the wholesale quote, so the behaviour cannot drift
+  between pages again.
+- The wholesale page's inline copy of this was deleted; `wh-track`/`wh-arrow`/`wh-dot`
+  styles are gone.
+
+**The form no longer sits disabled.** With no delivery destination configured the submit
+button stays enabled: validation runs as normal, then the completed request is handed to
+the buyer's mail client (a real `<a href="mailto:">` click — iOS Safari blocks
+`location.href` assignment for mailto inside an async handler), with every field, the
+quantity, the unit price, and the subtotal written out. The banner says it is **not sent
+yet** and shows a copyable text block. It never claims the request was submitted.
+
+**Test runner fixes:** `tests/e2e/run.mjs` passed bindings via a gitignored `.dev.vars`, so
+a fresh checkout would have failed — bindings are now passed with `--binding`. Two wrangler
+instances run (4180 configured, 4182 with no destination) on distinct `--inspector-port`s.
+
+**E2E suites — `npm run test:e2e`, 95 assertions:**
+- `api.mjs` (29) — the Pages Function on the real runtime
+- `ui.mjs` (21) — wholesale gallery, tabs, copy link, quantity maths
+- `store.mjs` (12) — the store drawer gallery, both products, 3D ⇄ photos round trip
+- `submit.mjs` (16) — browser through to a delivered row, and delivery failure
+- `handoff.mjs` (17) — unconfigured state stays usable, mailto carries every field, and
+  nothing is ever reported as sent
+
+**Still to configure:** a delivery destination. `docs/wholesale-apps-script.gs` is a
+ready-to-paste Google Sheets receiver; the sheet already exists in Avelino's Drive
+("XYZ Wholesale Order Requests"). Needs the Apps Script deployed and
+`WHOLESALE_WEBHOOK_URL` + `WHOLESALE_WEBHOOK_SECRET` set in Cloudflare Pages.

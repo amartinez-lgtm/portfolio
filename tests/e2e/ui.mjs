@@ -1,6 +1,6 @@
 import pw from 'playwright-core'
 const { chromium } = pw
-const BASE = process.env.BASE || 'http://localhost:4178'
+const BASE = process.env.BASE || 'http://127.0.0.1:4180'
 let pass = 0, fail = 0
 const ok  = (n, c, extra='') => { c ? (pass++, console.log(`  ✓ ${n}`)) : (fail++, console.log(`  ✗ ${n} ${extra}`)) }
 
@@ -11,33 +11,33 @@ const errs = []; page.on('pageerror', e => errs.push(String(e)))
 await page.goto(`${BASE}/wholesale/soap-dispenser`, { waitUntil: 'networkidle' })
 
 console.log('\n── GALLERY ──')
-const idx = () => page.locator('.wh-counter').innerText()
+const idx = () => page.locator('.pg__counter').innerText()
 ok('starts on photo 1 of 3', (await idx()) === '1 / 3', await idx())
 
 // swipe via the scroll track (what a finger does)
-const track = page.locator('.wh-track')
+const track = page.locator('.pg__track')
 await track.evaluate(el => el.scrollTo({ left: el.clientWidth, behavior: 'instant' }))
 await page.waitForTimeout(250)
 ok('swipe advances the counter', (await idx()) === '2 / 3', await idx())
-ok('dot 2 is active', await page.locator('.wh-dot').nth(1).evaluate(e => e.classList.contains('wh-dot--active')))
+ok('dot 2 is active', await page.locator('.pg__dot').nth(1).evaluate(e => e.classList.contains('pg__dot--active')))
 
-await page.locator('.wh-arrow--next').click(); await page.waitForTimeout(500)
+await page.locator('.pg__arrow--next').click(); await page.waitForTimeout(500)
 ok('next arrow → photo 3', (await idx()) === '3 / 3', await idx())
-ok('next arrow hidden at the end', await page.locator('.wh-arrow--next').isDisabled())
-await page.locator('.wh-arrow--prev').click(); await page.waitForTimeout(500)
+ok('next arrow hidden at the end', await page.locator('.pg__arrow--next').isDisabled())
+await page.locator('.pg__arrow--prev').click(); await page.waitForTimeout(500)
 ok('prev arrow → photo 2', (await idx()) === '2 / 3', await idx())
-await page.locator('.wh-dot').nth(0).click(); await page.waitForTimeout(500)
+await page.locator('.pg__dot').nth(0).click(); await page.waitForTimeout(500)
 ok('dot jumps to photo 1', (await idx()) === '1 / 3', await idx())
 
 console.log('\n── 3D TAB ROUND TRIP ──')
 await page.getByRole('tab', { name: /3D Model/ }).click()
 await page.waitForTimeout(600)
 ok('3D tab selected', await page.getByRole('tab', { name: /3D Model/ }).getAttribute('aria-selected') === 'true')
-ok('photo track gone', await page.locator('.wh-track').count() === 0)
+ok('photo track gone', await page.locator('.pg__track').count() === 0)
 const photosTab = page.getByRole('tab', { name: /^Photos$/ })
 ok('Photos tab still clickable', await photosTab.isEnabled())
 await photosTab.click(); await page.waitForTimeout(400)
-ok('back on photos', await page.locator('.wh-track').count() === 1)
+ok('back on photos', await page.locator('.pg__track').count() === 1)
 ok('counter back', (await idx()) === '1 / 3', await idx())
 
 console.log('\n── COPY LINK ──')
