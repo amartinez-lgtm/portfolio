@@ -638,8 +638,10 @@ html, body {
   background: #111;
   border-radius: 12px;
   overflow: hidden;
-  height: clamp(132px, 34vw, 210px);
-  margin-bottom: 14px;
+  /* Photos are 3:2. Matching that exactly means zero cropping, so the product
+     reads as large as it does in the store drawer. */
+  aspect-ratio: 3 / 2;
+  margin-bottom: 12px;
 }
 
 
@@ -716,7 +718,21 @@ html, body {
   /* The strapline is restated by the product card below — drop it so the
      quantity controls clear the fold on a phone with browser chrome. */
   .wh-sub { display: none; }
-  .wh-hero__inner { padding: 15px 20px 15px; }
+
+  /* Print / Copy are after-the-fact actions — keep them reachable but small
+     so the photo and the quantity controls get the room. */
+  .wh-actions { gap: 8px; margin-bottom: 12px; }
+  .wh-actions .wh-btn { padding: 7px 14px; font-size: 0.8125rem; }
+
+  /* Edge-to-edge inside the card so the photo gets the full page width. */
+  .wh-quote .wh-media {
+    margin-left: -15px;
+    margin-right: -15px;
+    width: calc(100% + 30px);
+    border-radius: 0;
+  }
+
+  .wh-hero__inner { padding: 13px 20px 13px; }
   .wh-eyebrow { font-size: 0.625rem; margin-bottom: 6px; }
   .wh-headline { font-size: 1.5rem; margin-bottom: 8px; }
   .wh-prelim { font-size: 0.6875rem; padding: 4px 11px; }
@@ -727,7 +743,7 @@ html, body {
 }
 
 @media (min-width: 900px) {
-  .wh-media { height: 280px; }
+  .wh-media { aspect-ratio: auto; height: 300px; }
   .wh-jump { display: none; }
 }
 
@@ -735,6 +751,7 @@ html, body {
 
 @media print {
   .wh-media {
+    aspect-ratio: auto;
     height: 220px;
     background: none;
     border: 1px solid #ddd;
