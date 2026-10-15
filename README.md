@@ -25,6 +25,7 @@ npm install
 npm run dev       # http://localhost:5173
 npm run build     # output → dist/
 npm run preview   # preview the production build locally
+npm test          # pricing + validation tests (Node's built-in runner)
 ```
 
 ## Project Structure
@@ -36,7 +37,8 @@ src/
 ├── index.css                 # Global design tokens (CSS vars, dark mode)
 ├── data/
 │   ├── projects.ts           # All portfolio content: projects, ventures, stories
-│   └── store.ts              # XYZ store product data
+│   ├── store.ts              # XYZ store product data
+│   └── wholesale.ts          # Wholesale pricing config + shared validation
 ├── components/               # Portfolio components (each has co-located .css)
 │   ├── Nav.tsx               # Fixed nav, scroll blur, mobile hamburger
 │   ├── Hero.tsx              # Full-height hero
@@ -52,6 +54,10 @@ src/
 │   ├── StorePage.tsx         # Product grid, drawer, 3D viewer integration
 │   ├── StorePage.css
 │   └── Model3DViewer.tsx     # Three.js .3mf viewer (mini card + full drawer)
+├── wholesale/                # Wholesale quote pages (standalone page)
+│   ├── main.tsx
+│   ├── WholesalePage.tsx     # Quote, live subtotal, order-request form
+│   └── WholesalePage.css
 └── token/                    # NFC token page (standalone page)
     ├── main.tsx
     ├── TokenPage.tsx         # Hex grid, coin, achievement card, nav cards
@@ -109,3 +115,34 @@ Build settings:
 - [ ] Product photos — upload from phone to `public/products/`, wire into store data
 - [ ] STL download files — set `stlStatus: 'available'` + `downloadUrl` per product when files are ready
 - [ ] Gmail auto-reply filter for product order inquiries
+
+---
+
+## Wholesale quote pages
+
+Shareable, no-index pages for retail buyers: `/wholesale/<slug>` (live:
+`/wholesale/soap-dispenser`). Pricing, minimums, quick quantities, and terms all
+live in **one place** — `src/data/wholesale.ts`. Change the price or minimum
+there and both the page and the server pick it up.
+
+Submissions go to `POST /api/wholesale-request` (a Cloudflare Pages Function,
+same pattern as `/api/chat`). The server revalidates everything and recalculates
+the subtotal from `src/data/wholesale.ts` — nothing about money is trusted from
+the browser.
+
+### Configuring where requests go
+
+Set **at least one** of these in the Cloudflare Pages project
+(Settings → Environment variables / Secrets). With none set, the form disables
+itself and points buyers at `levallcworks@gmail.com` — it never fakes a success.
+
+| Variable | Purpose |
+|---|---|
+| `WHOLESALE_WEBHOOK_URL` | HTTPS endpoint that receives the request JSON (Zapier, Make, a Google Apps Script web app…) |
+| `WHOLESALE_WEBHOOK_SECRET` | Optional. Sent as `x-xyz-webhook-secret` so the receiver can verify the call |
+| `RESEND_API_KEY` + `WHOLESALE_NOTIFY_EMAIL` | Email notification via Resend's REST API (no npm package needed). Both required |
+| `RESEND_FROM` | Optional `From:` header, e.g. `XYZ Wholesale <wholesale@levallc.com>` |
+| `WHOLESALE_REQUESTS` | Optional KV namespace binding — persists every request |
+
+`GET /api/wholesale-request` reports only whether a destination is configured.
+It never returns URLs, keys, or the notification address.

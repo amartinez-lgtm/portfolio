@@ -1,6 +1,7 @@
 import { useState, useRef, lazy, Suspense, Component, type ReactNode } from 'react'
 import { storeProducts } from '../data/store'
 import type { StoreProduct } from '../data/store'
+import { getOfferForProduct } from '../data/wholesale'
 import './StorePage.css'
 
 // Retry once on failure — handles transient network errors loading the large Three.js chunk
@@ -33,6 +34,7 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
   const [view, setView] = useState<'3d' | 'photos'>(product.model3d ? '3d' : 'photos')
   const touchStartY = useRef(0)
   const isComingSoon = product.status === 'coming-soon'
+  const wholesaleOffer = getOfferForProduct(product.id)
 
   const allImages = [product.image, ...(product.images ?? [])].filter(Boolean) as string[]
 
@@ -158,6 +160,11 @@ function ProductDrawer({ product, onClose }: { product: StoreProduct; onClose: (
                 Download STL — Coming Soon
               </button>
             )
+          )}
+          {wholesaleOffer && (
+            <a href={`/wholesale/${wholesaleOffer.slug}`} className="sp-btn sp-btn--outline">
+              Wholesale pricing
+            </a>
           )}
           <button className="sp-drawer__cancel" onClick={onClose}>Cancel</button>
         </div>

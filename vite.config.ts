@@ -18,6 +18,7 @@ export default defineConfig({
         token:   resolve(__dirname, 'token/index.html'),
         store:   resolve(__dirname, 'store/index.html'),
         gallery: resolve(__dirname, 'gallery/index.html'),
+        wholesale: resolve(__dirname, 'wholesale/index.html'),
       },
       output: {
         manualChunks: {

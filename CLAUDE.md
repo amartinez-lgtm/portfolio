@@ -396,3 +396,66 @@ the *frame*, not censor the piece: in a store it's merchandise, in a gallery it'
 - Upload the bust/figure `.3mf` files to `public/gallery/`, flip `status` to `'available'`, replace placeholder story copy with real narratives
 - Add games/art pieces to the gallery
 - Add product photos from phone to existing store products
+
+### Session 11 (Wholesale quote + order-request page)
+
+**Why:** Send a retail shop one link where they can see the soap dispenser, pick a
+quantity, see a total, and ask for a wholesale order — without building checkout,
+accounts, or an admin dashboard.
+
+**New route — `/wholesale/soap-dispenser` (5th Vite entry):**
+- Entry: `wholesale/index.html` → `src/wholesale/main.tsx` → `src/wholesale/WholesalePage.tsx`
+- Styles: `src/wholesale/WholesalePage.css` (all classes prefixed `wh-`), same warm light
+  theme and pastel hero gradient as the store
+- `vite.config.ts`: added `wholesale` to `rollupOptions.input`
+- `public/_redirects`: `/wholesale` + `/wholesale/*` → `/wholesale/index.html 200`,
+  before the SPA catch-all. `public/_headers`: `no-store` on both
+- Slug comes from the pathname (`/wholesale/<slug>`), so more products are one config
+  entry away. An unknown slug renders a plain "no sheet here" page, not a crash
+- `<meta name="robots" content="noindex">` — it's a page you send, not one you rank
+- Product visual reuses `storeProducts['soap-dispenser']` and the existing `Model3DViewer`;
+  the soap dispenser has no photo in the repo yet
+
+**One central pricing config — `src/data/wholesale.ts`:**
+- `wholesaleOffers[]` holds unit price, minimum, max, quick quantities, suggested retail,
+  the quoted configuration, and the terms. Change a price there and nothing else moves
+- Also exports the pure pricing/validation helpers (`normalizeQuantity`,
+  `merchandiseSubtotalCents`, `validateWholesaleRequest`, `formatUSD`) used by BOTH the
+  page and the server handler — one rule set, no drift
+
+**Server — `functions/api/wholesale-request.ts`:**
+- `POST` validates server-side and recalculates the subtotal from the config. Client-sent
+  money is ignored entirely
+- Spam/abuse: honeypot field, minimum fill time (3s), same-origin check, 16 KB body cap,
+  per-IP burst limiter (best effort — Pages isolates are short-lived)
+- Delivery destinations, any or all: `WHOLESALE_WEBHOOK_URL` (+ optional
+  `WHOLESALE_WEBHOOK_SECRET`), Resend (`RESEND_API_KEY` + `WHOLESALE_NOTIFY_EMAIL`,
+  optional `RESEND_FROM`), and/or a `WHOLESALE_REQUESTS` KV binding
+- **Honesty rules:** none configured → `503 not_configured`, and the page disables the
+  form and shows the mailto fallback. All destinations failing → `502 delivery_failed`.
+  Success is only ever reported when something actually accepted the request
+- `GET` returns `{ configured, methods, fallbackEmail }` — labels only, never URLs or keys
+- `functions/api/_wholesale-delivery.ts` holds the pure routing helpers (leading `_` means
+  Pages never routes it) so they're unit-testable
+
+**Page behavior:** live subtotal on every keystroke with an explicit "excludes shipping and
+taxes" note, quick 12/24/48 buttons, custom quantity, `window.print()` quote with a
+`@media print` stylesheet (form, nav, and 3D canvas hidden), copy-link button that copies
+the bare public URL with no customer details, and labelled fields with `aria-describedby`
+errors, `role="alert"`, focus-to-first-error, and focus-to-result.
+
+**Store link:** the soap dispenser drawer gains a "Wholesale pricing" button, shown only
+for products that have an offer (`getOfferForProduct`).
+
+**Tests — `npm test`** (Node's built-in runner + type stripping, zero new dependencies):
+`tests/wholesale.test.ts` covers the quoted totals (12/24/48 → $72/$144/$288), custom
+quantities, and every validation rule. `tests/wholesale-delivery.test.ts` covers
+destination detection and the "never report success on a failed delivery" rule.
+
+**Still to configure:** at least one delivery destination (see README). Until then the form
+is honestly disabled.
+
+**Next session:**
+- Configure a wholesale delivery destination, then re-test the form end to end
+- Add a product photo for the soap dispenser (the store and wholesale page both want one)
+- More wholesale sheets — each one is a new entry in `wholesaleOffers`
